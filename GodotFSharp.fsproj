@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{918118A6-0E5B-4310-ADC4-302CD52B72EE}</ProjectGuid>
+    <UseStandardResourceNames>true</UseStandardResourceNames>
+    <OutputType>Library</OutputType>
+    <RootNamespace>GodotFSharp</RootNamespace>
+    <AssemblyName>GodotFSharp</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <PlatformTarget></PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <DefineConstants></DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <GenerateTailCalls>true</GenerateTailCalls>
+    <PlatformTarget></PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(VisualStudioVersion)' == '10.0' OR '$(VisualStudioVersion)' == '11.0'">
+    <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="FSharp.Core">
+      <HintPath>..\packages\FSharp.Core.4.3.3\lib\net45\FSharp.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="GodotSharp">
+      <HintPath>..\.mono\assemblies\GodotSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="GodotSharpEditor">
+      <HintPath>..\.mono\assemblies\GodotSharpEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime">
+      <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5\Facades\System.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Chessie">
+      <HintPath>LocalLibraries\Chessie.0.6.0\Chessie.dll</HintPath>
+    </Reference>
+
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties/AssemblyInfo.fs" />
+    <None Include="packages.config" />
+    <Compile Include="src/RailwayUtils.fs" />
+    <Compile Include="src/GodotUtils.fs" />
+    <Compile Include="src/Input/InputManager.fs" />
+    <Compile Include="src/MainMenu/MainMenu.fs" />
+  </ItemGroup>
+  <Import Project="$(FSharpTargetsPath)" />
+</Project>

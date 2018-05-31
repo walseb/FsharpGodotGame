@@ -1,0 +1,133 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://src/MainMenu/MainMenuWrap.cs" type="Script" id=1]
+
+[node name="VBoxContainer" type="VBoxContainer" index="0"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 229.0
+margin_top = 23.0
+margin_right = 804.0
+margin_bottom = 576.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 1
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+alignment = 0
+script = ExtResource( 1 )
+_sections_unfolded = [ "Pause" ]
+
+[node name="start" type="MenuButton" parent="." index="0"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 575.0
+margin_bottom = 20.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+toggle_mode = false
+action_mode = 0
+enabled_focus_mode = 0
+shortcut = null
+group = null
+text = "start"
+flat = true
+align = 1
+items = [  ]
+
+[node name="keys" type="MenuButton" parent="." index="1"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 24.0
+margin_right = 575.0
+margin_bottom = 44.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+toggle_mode = false
+action_mode = 0
+enabled_focus_mode = 0
+shortcut = null
+group = null
+text = "keys"
+flat = true
+align = 1
+items = [  ]
+
+[node name="options" type="MenuButton" parent="." index="2"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 48.0
+margin_right = 575.0
+margin_bottom = 68.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+toggle_mode = false
+action_mode = 0
+enabled_focus_mode = 0
+shortcut = null
+group = null
+text = "options"
+flat = true
+align = 1
+items = [  ]
+
+[node name="exit" type="MenuButton" parent="." index="3"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 72.0
+margin_right = 575.0
+margin_bottom = 92.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 1
+size_flags_vertical = 1
+toggle_mode = false
+action_mode = 0
+enabled_focus_mode = 0
+shortcut = null
+group = null
+text = "exit"
+flat = true
+align = 1
+items = [  ]
+_sections_unfolded = [ "Size Flags" ]
+
+[connection signal="pressed" from="start" to="." method="_on_start_pressed"]
+
+[connection signal="pressed" from="keys" to="." method="_on_keys_pressed"]
+
+[connection signal="pressed" from="options" to="." method="_on_options_pressed"]
+
+[connection signal="pressed" from="exit" to="." method="_on_exit_pressed"]
+
+
