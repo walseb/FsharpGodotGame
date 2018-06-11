@@ -41,14 +41,12 @@ module RailwayUtils
 
     let log twoTrackInput =
         let failure msgs =
-            let print (result : string) = GD.Print ("LOG: "+ result)
             let message = (String.concat "" msgs)
-            print message
+            GD.Print ("LOG: " + message)
         failureTee failure twoTrackInput
 
     let logErr twoTrackInput =
         let failure msgs =
-            let print (result : string) = GD.Print ("ERROR: "+ result)
             let message = (String.concat "" msgs)
-            print message
+            GD.Print ("ERROR: " + message)
         failureTee failure twoTrackInput

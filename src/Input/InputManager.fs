@@ -150,18 +150,10 @@ module ConfigManagement =
 
     let AddKeyToConfig action (inputEvent : InputEvent) (config : ConfigFile)=
         let setValueInConfig action (config : ConfigFile) =
-            // Workaround
-            let mutable scancode = 0
-            let scancodeAssign value = scancode <- value
-
             ScancodeHandling.InputEventToScancode inputEvent
-            |> map scancodeAssign
-            |> logErr
-            |> ignore
-
-            (config.SetValue("input", action, scancode))
+            |> map (fun scancode -> (config.SetValue("input", action, scancode)))
             // We need to return a ConfigFile
-            config
+            |> map (fun _ -> config)
 
         setValueInConfig action config
                        
@@ -169,9 +161,7 @@ module ConfigManagement =
         let addActionNameToConfig (config : ConfigFile) actionName controllerLayerIndex =
             let inputEvent = (InputMap.GetActionList(actionName).[controllerLayerIndex] :?> InputEvent)
             AddKeyToConfig actionName inputEvent config 
-            |> ConfigFileIO.WriteConfigToFileSystem
-            |> logErr
-            |> ignore
+            |> bind ConfigFileIO.WriteConfigToFileSystem
 
         let config = new ConfigFile()
 
@@ -179,7 +169,7 @@ module ConfigManagement =
         InputMap.LoadFromGlobals()
 
         PlayerInputActions.allActionNames
-        |> Array.iter (fun actionName -> addActionNameToConfig config actionName 0)
+        |> Array.iter (fun actionName -> addActionNameToConfig config actionName 0 |> logErr |> ignore)
         config
 
     let LoadOrCreateConfig() =
@@ -191,7 +181,7 @@ module ConfigManagement =
             config
             |> GetDefaultConfig
             |> ConfigFileToInputMap
-            |> map ConfigFileIO.WriteConfigToFileSystem
+            |> bind ConfigFileIO.WriteConfigToFileSystem
 
         let config = new ConfigFile()
 
@@ -248,10 +238,10 @@ type RebindMenu() as this =
                     ok ()
                 | false ->
                     ConfigManagement.ConfigFileIO.LoadConfigWithFileSystemConfig()
-                    |> map (ConfigManagement.AddKeyToConfig action inputEvent)
-                    |> map (ConfigManagement.ConfigFileIO.WriteConfigToFileSystem)
+                    |> bind (ConfigManagement.AddKeyToConfig action inputEvent)
+                    |> bind (ConfigManagement.ConfigFileIO.WriteConfigToFileSystem)
                     |> map (fun _ -> inputEvent)
-                    |> map (changeButtonText action)
+                    |> bind (changeButtonText action)
                     // Workaround, ok result needs to be nil
                     |> map (fun _ -> ())
 
