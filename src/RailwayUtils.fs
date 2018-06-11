@@ -16,6 +16,15 @@ module RailwayUtils
     let map singleTrackFunction =
         bind (singleTrackFunction >> ok)
 
+    // Should ideally not be used
+    // Doesn't work properly
+    // let derail twoTrackInput =
+        // let okTrack value=
+            // value
+//
+        // twoTrackInput
+        // |> map okTrack
+        // okTrack
 
     //        ->   ---||
     // ----|| ->  /
@@ -26,11 +35,20 @@ module RailwayUtils
 
     let tee f x =
         f x
-        |> log
         |> ignore
         x
 
 
     let log twoTrackInput =
-        let failure msgs = GD.Print (String.concat "ERROR. %A" msgs)
+        let failure msgs =
+            let print (result : string) = GD.Print ("LOG: "+ result)
+            let message = (String.concat "" msgs)
+            print message
+        failureTee failure twoTrackInput
+
+    let logErr twoTrackInput =
+        let failure msgs =
+            let print (result : string) = GD.Print ("ERROR: "+ result)
+            let message = (String.concat "" msgs)
+            print message
         failureTee failure twoTrackInput

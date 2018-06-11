@@ -1,157 +1,213 @@
 namespace InputManager
 
-open Microsoft.FSharp.Reflection
-
 open Chessie.ErrorHandling
 open RailwayUtils
 open Godot
 open GodotUtils
 
 module PlayerInputActions =
-    type PlayerActions =
-        // Movement
-        | MoveUp
-        | MoveDown
-        | MoveLeft
-        | MoveRight
-        // Civil
-        | Pickup
-        | Sprint
-        // Uncivil
-        | Attack
-        | Aim
+    let moveUp = "MoveUp"
+    let moveDown = "MoveDown"
+    let moveLeft = "MoveLeft"
+    let moveRight = "MoveRight"
+    let pickup = "Pickup"
+    let sprint = "Sprint"
+    let attack = "Attack"
+    let aim = "Aim"
 
     let allActionNames : string array =
         [|
-            "MoveUp"
-            "MoveDown"
-            "MoveLeft"
-            "MoveRight"
-            "Pickup"
-            "Sprint"
-            "Attack"
-            "Aim"
-         |]
+            moveUp
+            moveDown
+            moveLeft
+            moveRight
+            pickup
+            sprint
+            attack
+            aim
+        |]
 
-    let getPlayerActionName (action : PlayerActions)  : string =
-        match action with
-        | PlayerActions.MoveUp -> allActionNames.[0]
-        | PlayerActions.MoveDown -> allActionNames.[1]
-        | PlayerActions.MoveLeft -> allActionNames.[2]
-        | PlayerActions.MoveRight -> allActionNames.[3]
-        | PlayerActions.Pickup -> allActionNames.[4]
-        | PlayerActions.Sprint -> allActionNames.[5]
-        | PlayerActions.Attack -> allActionNames.[6]
-        | PlayerActions.Aim -> allActionNames.[7]
+module ConfigManagement =
+    let inputEventTee (inputEvent : InputEvent) keyAction mouseButtonAction =
+        match inputEvent :? InputEventKey with
+            | true ->
+                keyAction()
+                |> ok 
+            | false ->
+                match inputEvent :? InputEventMouseButton with
+                    | true ->
+                        mouseButtonAction()
+                        |> ok 
+                    | false ->
+                        fail "Input is not bindable"
 
-module ConfigFileManagement =
-    module Internal =
-        let configPath = "user://input.cfg"
+    module ScancodeHandling =
 
-        let HandleLoadError (error : Error) config =
-            match error with
-            | Error.Ok ->
-                ok config
-            | Error.FileAlreadyInUse -> fail "File already in use"
-            | Error.FileNoPermission -> fail "No permission to write"
-            | _ -> fail "Can't write config"
+        let ScancodeToReadable (inputEvent : InputEvent) scancode =
+            let ButtonIndexToReadable (buttonIndex : int) =
+                match buttonIndex with
+                    | 1 -> "Left Mouse Button"
+                    | 2 -> "Right Mouse Button"
+                    | 3 -> "Middle Mouse Button"
+                    // Wheel
+                    | 4 -> "Mouse wheel up"
+                    | 5 -> "Mouse wheel down"
+                    | 6 -> "Mouse wheel left"
+                    | 7 -> "Mouse wheel right"
+                    | _ -> "Unknown mouse key"
 
-        let LoadConfigFromInputMap (config : ConfigFile)=
-            HandleLoadError (config.Load(configPath)) config
+            inputEventTee inputEvent ( fun _ -> (OS.GetScancodeString scancode)) ( fun _ -> (ButtonIndexToReadable scancode))
 
-        let WriteConfigToFileSystem (config : ConfigFile) =
-            HandleLoadError (config.Save(configPath)) config
+        let InputEventToScancode (inputEvent : InputEvent) =
+            inputEventTee inputEvent ( fun _ -> ((inputEvent :?> InputEventKey).Scancode)) (fun _ -> ((inputEvent :?> InputEventMouseButton).GetButtonIndex()))
 
-        let ClearDuplicateInputMapEvents actionName =
+        let inputEventToReadable (inputEvent : InputEvent) =
+            inputEvent
+            |> InputEventToScancode
+            |> bind (ScancodeToReadable inputEvent)
+
+    let ConfigFileToInputMap (config : ConfigFile) =
+        let RemoveInputEventsWithAction actionName =
             let removeEvent actionName (eventToRemove : InputEvent)  =
                 InputMap.ActionEraseEvent(actionName, eventToRemove)
 
             InputMap.GetActionList(actionName)
             |> Array.iter (fun currentEvent -> if currentEvent :? InputEventKey then removeEvent actionName (currentEvent :?> InputEventKey))
 
-        let AddEventToInputMap actionName actionEvent =
-            InputMap.ActionAddEvent(actionName, actionEvent)
+            InputMap.GetActionList(actionName)
+            |> Array.iter (fun currentEvent -> if currentEvent :? InputEventMouseButton then removeEvent actionName (currentEvent :?> InputEventMouseButton))
 
-        let GetDefaultConfig ( config: ConfigFile) : ConfigFile=
-            let addActionNameToConfig (config : ConfigFile) actionName controllerLayerIndex =
-                let inputEvent = InputMap.GetActionList(actionName).[controllerLayerIndex]
-                if inputEvent :? InputEventKey then
-                    let scancode = OS.GetScancodeString((inputEvent :?> InputEventKey).Scancode)
-                    config.SetValue("input", actionName, scancode)
-
-            let config = new ConfigFile()
-
-            PlayerInputActions.allActionNames
-            |> Array.iter (fun actionName -> addActionNameToConfig config actionName 0)
-            config
-
-        let CopyConfigToInputMap (config : ConfigFile) =
-            let addActionToInputMap (config : ConfigFile) actionName =
-                let createEvent scancode =
+        let addAction(config : ConfigFile) actionName =
+            let getInputEventFromConfig (config : ConfigFile) actionName =
+                let createInputEventKey scancode =
                     let newEvent = new InputEventKey();
                     newEvent.Scancode <- scancode
                     newEvent
 
-                let getScancodeIfActionExists (config : ConfigFile) actionName =
-                    let scancodeString = config.GetValue("input", actionName) :?> string
+                let createInputEventMouseButton scancode =
+                    let newEvent = new InputEventMouseButton();
+                    newEvent.ButtonIndex <- scancode
+                    newEvent
 
-                    match scancodeString with
-                    | null -> fail ("No such action in config: " + actionName)
-                    | _ -> OS.FindScancodeFromString(scancodeString) |> ok
+                let getScancodeFromConfig actionName =
+                    let value = config.GetValue("input", actionName)
+                    match value :? int with
+                    | true ->
+                        ok (value :?> int)
+                    | false ->
+                        fail "Config corrupted"
 
-                ClearDuplicateInputMapEvents actionName
+                let scancodeToInputEvent scancode =
+                    if scancode > 7
+                    then (createInputEventKey scancode :> InputEvent)
+                    else (createInputEventMouseButton scancode :> InputEvent)
 
-                getScancodeIfActionExists config actionName
-                |> map createEvent
-                |> map (AddEventToInputMap actionName)
+                getScancodeFromConfig actionName
+                |> map scancodeToInputEvent
 
-            PlayerInputActions.allActionNames
-            |> Array.iter (fun string -> addActionToInputMap config string |> log |> ignore)
+            let addEventToInputMap actionName (actionEvent : InputEvent) =
+                InputMap.ActionAddEvent(actionName, actionEvent)
+
+            getInputEventFromConfig config actionName
+            |> map (addEventToInputMap actionName)
+
+        let mutable failText = ""
+        PlayerInputActions.allActionNames
+        // First remove all events with action, then add action event to action
+        |> Array.iter (fun action ->
+                       RemoveInputEventsWithAction action
+                       addAction config action
+                       // If fail
+                       |> failureTee (fun text -> (failText <- (String.concat "" text)))
+                       |> logErr
+                       |> ignore)
+
+        match failText with
+            | "" -> ok config
+            | _ -> fail failText
+
+    module ConfigFileIO =
+        let configPath = "user://input.cfg"
+
+        let HandleIOError (error : Error) =
+            match error with
+            | Error.Ok ->
+                ok ()
+            | Error.FileAlreadyInUse -> fail "File already in use"
+            | Error.FileNoPermission -> fail "No permission to write"
+            | Error.DoesNotExist -> fail "Config does not exist"
+            | _ -> fail "Can't write config"
+
+        let WriteConfigToFileSystem (config : ConfigFile) =
+            HandleIOError (config.Save(configPath))
+            |> map (fun _ -> config)
+
+        let LoadConfigWithFileSystemConfig() =
+            let config = new ConfigFile()
+
+            HandleIOError (config.Load(configPath))
+            |> map (fun _ -> config)
+
+    let AddKeyToConfig action (inputEvent : InputEvent) (config : ConfigFile)=
+        let setValueInConfig action (config : ConfigFile) =
+            // Workaround
+            let mutable scancode = 0
+            let scancodeAssign value = scancode <- value
+
+            ScancodeHandling.InputEventToScancode inputEvent
+            |> map scancodeAssign
+            |> logErr
+            |> ignore
+
+            (config.SetValue("input", action, scancode))
+            // We need to return a ConfigFile
             config
 
-    let LoadOrCreateConfig =
-        let load (config : ConfigFile) =
-            config
-            |> Internal.CopyConfigToInputMap
-            |> ok
-
-        let create (config : ConfigFile) =
-            config
-            |> Internal.GetDefaultConfig
-            |> Internal.CopyConfigToInputMap
-            |> Internal.WriteConfigToFileSystem
+        setValueInConfig action config
+                       
+    let GetDefaultConfig ( config: ConfigFile) : ConfigFile=
+        let addActionNameToConfig (config : ConfigFile) actionName controllerLayerIndex =
+            let inputEvent = (InputMap.GetActionList(actionName).[controllerLayerIndex] :?> InputEvent)
+            AddKeyToConfig actionName inputEvent config 
+            |> ConfigFileIO.WriteConfigToFileSystem
+            |> logErr
+            |> ignore
 
         let config = new ConfigFile()
 
-        match config.Load(Internal.configPath) with
+        // Just in case any input maps have been changed, add those back
+        InputMap.LoadFromGlobals()
+
+        PlayerInputActions.allActionNames
+        |> Array.iter (fun actionName -> addActionNameToConfig config actionName 0)
+        config
+
+    let LoadOrCreateConfig() =
+        let load (config : ConfigFile) =
+            config
+            |> ConfigFileToInputMap
+
+        let create (config : ConfigFile) =
+            config
+            |> GetDefaultConfig
+            |> ConfigFileToInputMap
+            |> map ConfigFileIO.WriteConfigToFileSystem
+
+        let config = new ConfigFile()
+
+        match config.Load(ConfigFileIO.configPath) with
         | Error.Ok ->
-            load config
+            match (load config) with
+                | Ok(value,[]) ->
+                    ()
+                | Bad(msgs) ->
+                    create config
+                    |> logErr
+                    |> ignore
         | _ ->
             create config
-
-    let AddKeyToConfig (key : InputEventKey) action =
-        let updateConfigWithCurrentMaps (config : ConfigFile) =
-            Internal.LoadConfigFromInputMap config
-            |> log
+            |> logErr
             |> ignore
-            config
-
-        let setValueInConfig action scancode (config : ConfigFile) : ConfigFile =
-            config.SetValue("input", action, scancode)
-            config
-
-        Internal.ClearDuplicateInputMapEvents action
-        Internal.AddEventToInputMap action key
-
-        let scancode = OS.GetScancodeString(key.Scancode)
-
-        new ConfigFile()
-        |> updateConfigWithCurrentMaps
-        |> setValueInConfig action scancode
-        |> Internal.WriteConfigToFileSystem
-        |> log
-        |> ignore
-        key
 
 // GUI for handling rebinds
 type RebindMenu() as this =
@@ -167,52 +223,73 @@ type RebindMenu() as this =
     let getButton action =
         this.GetNode(new NodePath("bindings")).GetNode(new NodePath(action)).GetNode(new NodePath("Button")) :?> Button
 
-    let waitForInput (actionKey : string)=
+    let startPolling (actionKey : string)=
         action <- actionKey
-
         (label.Force() : Label).Text <- ("Press a key to assign to the '" + actionKey + "' action.")
-
         this.SetProcessInput true
 
+    let stopPolling() =
+        (label.Force() : Label).Text <- "Click a key binding to reassign it, or press the Cancel action."
+        this.SetProcessInput false
+
+    let changeButtonText actionName (inputEvent : InputEvent) =
+        let button = getButton actionName
+        ConfigManagement.ScancodeHandling.inputEventToReadable inputEvent
+        |> map (fun (actionName : string) ->  button.SetText(actionName))
+        |> map (fun _ -> button)
+
     override this._Input(inputEvent : InputEvent) =
-
-        match inputEvent :? InputEventKey with
-        | true ->
-            let changeButtonText (key : InputEventKey) =
-                let scancode = OS.GetScancodeString(key.Scancode)
-                (getButton action).Text <- scancode
-
-            this.GetTree().SetInputAsHandled();
-            this.SetProcessInput false
-
-            (label.Force() : Label).Text <- "Click a key binding to reassign it, or press the Cancel action."
+        let registerEvent() =
+            // A legitimate key has been pressed (I.E a key that isn't mouse movement)
+            stopPolling()
 
             match inputEvent.IsAction "ui_cancel" with
-            | true ->
-                ()
-            | false ->
-                ConfigFileManagement.AddKeyToConfig(inputEvent :?> InputEventKey) action
-                |> changeButtonText
-                |> ignore
-        | false ->
-            GD.Print("WARNING: Input is not a key");
+                | true ->
+                    ok ()
+                | false ->
+                    ConfigManagement.ConfigFileIO.LoadConfigWithFileSystemConfig()
+                    |> map (ConfigManagement.AddKeyToConfig action inputEvent)
+                    |> map (ConfigManagement.ConfigFileIO.WriteConfigToFileSystem)
+                    |> map (fun _ -> inputEvent)
+                    |> map (changeButtonText action)
+                    // Workaround, ok result needs to be nil
+                    |> map (fun _ -> ())
 
-    override this._Ready() =
-        ConfigFileManagement.LoadOrCreateConfig
+        this.GetTree().SetInputAsHandled();
+
+        ConfigManagement.inputEventTee inputEvent registerEvent registerEvent
+        |> logErr
         |> ignore
 
-        let updateButton controllerLayerIndex actionName =
-            let inputEvent = InputMap.GetActionList(actionName).[controllerLayerIndex]
+    override this._Ready() =
+        stopPolling()
 
-            match inputEvent :? InputEventKey with
-            | true ->
-                let button = getButton actionName
-                button.Text <- OS.GetScancodeString((inputEvent :?> InputEventKey).Scancode)
-                button.Connect("pressed", this, "waitForInput", [|actionName|]) |> ignore
-            | false ->
-                GD.Print("WARNING: Key in default input map isn't a key")
+        let updateButton controllerLayerIndex actionName =
+            let inputEvent = InputMap.GetActionList(actionName).[controllerLayerIndex] :?> InputEvent
+
+            let setupButton (inputEvent : InputEvent) =
+                let handleConnectError (error : Error) =
+                    match error with
+                    | Error.Ok ->
+                        ok ()
+                    | Error.DoesNotExist -> fail "Could not find button with action name, object is missing in rebind scene"
+                    | Error.LinkFailed -> fail "Connect failed"
+                    | _ -> fail "Rebind menu can't connect button"
+
+                inputEvent
+                |> changeButtonText actionName
+                |> map (fun button ->
+                        handleConnectError (button.Connect("pressed", this, "startPolling", [|actionName|]))
+                        |> logErr
+                        |> ignore)
+
+            ConfigManagement.inputEventTee inputEvent (fun _ -> setupButton(inputEvent)) (fun _ -> (setupButton inputEvent))
+            |> logErr
+            |> ignore
+
+        ConfigManagement.LoadOrCreateConfig()
 
         PlayerInputActions.allActionNames
         |> Array.iter (fun (actionName : string) -> (updateButton 0 actionName))
 
-        this.SetProcessInput false
+        this.SetProcessInput(false)

@@ -1,7 +1,7 @@
 namespace MainMenu
 
 open Godot
-open InputManager.ConfigFileManagement
+open InputManager.ConfigManagement
 
 type MainMenuButtons() as this =
     inherit VBoxContainer()

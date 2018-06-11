@@ -55,12 +55,21 @@
 
   </ItemGroup>
   <ItemGroup>
+    <!-- Misc -->
     <Compile Include="Properties/AssemblyInfo.fs" />
     <None Include="packages.config" />
+
+    <!-- Libraries -->
     <Compile Include="src/RailwayUtils.fs" />
     <Compile Include="src/GodotUtils.fs" />
+
+    <!-- Scripts -->
     <Compile Include="src/Input/InputManager.fs" />
     <Compile Include="src/MainMenu/MainMenu.fs" />
+
+    <!-- Actor -->
+    <Compile Include="src/Actor/Actor.fs" />
+
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />
 </Project>
