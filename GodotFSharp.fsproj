@@ -70,6 +70,9 @@
     <!-- Actor -->
     <Compile Include="src/Actor/Actor.fs" />
 
+    <Compile Include="Library.fs" />
+
+
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />
 </Project>
