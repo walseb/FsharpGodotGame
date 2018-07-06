@@ -6,29 +6,39 @@ open Godot
 open GodotUtils
 
 module PlayerInputActions =
-    let moveUp = "MoveUp"
-    let moveDown = "MoveDown"
-    let moveLeft = "MoveLeft"
-    let moveRight = "MoveRight"
-    let pickup = "Pickup"
-    let sprint = "Sprint"
-    let attack = "Attack"
-    let aim = "Aim"
+    let MoveUp = "MoveUp"
+    let MoveDown = "MoveDown"
+    let MoveLeft = "MoveLeft"
+    let MoveRight = "MoveRight"
+    let Pickup = "Pickup"
+    let Sprint = "Sprint"
+    let Attack = "Attack"
+    let Aim = "Aim"
+    // Camera
+    let CameraAttach = "CameraAttach"
+    let CameraDetach = "CameraDetach"
+    let ZoomIn = "ZoomIn"
+    let ZoomOut = "ZoomOut"
 
     let allActionNames : string array =
         [|
-            moveUp
-            moveDown
-            moveLeft
-            moveRight
-            pickup
-            sprint
-            attack
-            aim
+            MoveUp
+            MoveDown
+            MoveLeft
+            MoveRight
+            Pickup
+            Sprint
+            Attack
+            Aim
+            // Camera
+            CameraDetach
+            CameraAttach
+            ZoomIn
+            ZoomOut
         |]
 
-module ConfigManagement =
-    let inputEventTee (inputEvent : InputEvent) keyAction mouseButtonAction =
+module InputHandling =
+    let InputEventTee (inputEvent : InputEvent) keyAction mouseButtonAction =
         match inputEvent :? InputEventKey with
             | true ->
                 keyAction()
@@ -41,30 +51,30 @@ module ConfigManagement =
                     | false ->
                         fail "Input is not bindable"
 
-    module ScancodeHandling =
-        let ScancodeToReadable (inputEvent : InputEvent) scancode =
-            let ButtonIndexToReadable (buttonIndex : int) =
-                match buttonIndex with
-                    | 1 -> "Left Mouse Button"
-                    | 2 -> "Right Mouse Button"
-                    | 3 -> "Middle Mouse Button"
-                    // Wheel
-                    | 4 -> "Mouse wheel up"
-                    | 5 -> "Mouse wheel down"
-                    | 6 -> "Mouse wheel left"
-                    | 7 -> "Mouse wheel right"
-                    | _ -> "Unknown mouse key"
+    let ScancodeToReadable (inputEvent : InputEvent) scancode =
+        let buttonIndexToReadable (buttonIndex : int) =
+            match buttonIndex with
+                | 1 -> "Left Mouse Button"
+                | 2 -> "Right Mouse Button"
+                | 3 -> "Middle Mouse Button"
+                // Wheel
+                | 4 -> "Mouse wheel up"
+                | 5 -> "Mouse wheel down"
+                | 6 -> "Mouse wheel left"
+                | 7 -> "Mouse wheel right"
+                | _ -> "Unknown mouse key"
 
-            inputEventTee inputEvent ( fun _ -> (OS.GetScancodeString scancode)) ( fun _ -> (ButtonIndexToReadable scancode))
+        InputEventTee inputEvent ( fun _ -> (OS.GetScancodeString scancode)) ( fun _ -> (buttonIndexToReadable scancode))
 
-        let InputEventToScancode (inputEvent : InputEvent) =
-            inputEventTee inputEvent ( fun _ -> ((inputEvent :?> InputEventKey).Scancode)) (fun _ -> ((inputEvent :?> InputEventMouseButton).GetButtonIndex()))
+    let InputEventToScancode (inputEvent : InputEvent) =
+        InputEventTee inputEvent ( fun _ -> ((inputEvent :?> InputEventKey).Scancode)) (fun _ -> ((inputEvent :?> InputEventMouseButton).GetButtonIndex()))
 
-        let inputEventToReadable (inputEvent : InputEvent) =
-            inputEvent
-            |> InputEventToScancode
-            |> bind (ScancodeToReadable inputEvent)
+    let inputEventToReadable (inputEvent : InputEvent) =
+        inputEvent
+        |> InputEventToScancode
+        |> bind (ScancodeToReadable inputEvent)
 
+module ConfigManagement =
     let ConfigFileToInputMap (config : ConfigFile) =
         let RemoveInputEventsWithAction actionName =
             let removeEvent actionName (eventToRemove : InputEvent)  =
@@ -149,7 +159,7 @@ module ConfigManagement =
 
     let AddKeyToConfig action (inputEvent : InputEvent) (config : ConfigFile)=
         let setValueInConfig action (config : ConfigFile) =
-            ScancodeHandling.InputEventToScancode inputEvent
+            InputHandling.InputEventToScancode inputEvent
             |> map (fun scancode -> (config.SetValue("input", action, scancode)))
             // We need to return a ConfigFile
             |> map (fun _ -> config)
@@ -187,12 +197,12 @@ module ConfigManagement =
         match config.Load(ConfigFileIO.configPath) with
         | Error.Ok ->
             match (load config) with
-                | Ok(value,[]) ->
-                    ()
                 | Bad(msgs) ->
                     create config
                     |> logErr
                     |> ignore
+                | _ ->
+                    ()
         | _ ->
             create config
             |> logErr
@@ -223,7 +233,7 @@ type RebindMenu() as this =
 
     let changeButtonText actionName (inputEvent : InputEvent) =
         let button = getButton actionName
-        ConfigManagement.ScancodeHandling.inputEventToReadable inputEvent
+        InputHandling.inputEventToReadable inputEvent
         |> map (fun (actionName : string) ->  button.SetText(actionName))
         |> map (fun _ -> button)
 
@@ -246,7 +256,7 @@ type RebindMenu() as this =
 
         this.GetTree().SetInputAsHandled();
 
-        ConfigManagement.inputEventTee inputEvent registerEvent registerEvent
+        InputHandling.InputEventTee inputEvent registerEvent registerEvent
         |> logErr
         |> ignore
 
@@ -262,7 +272,7 @@ type RebindMenu() as this =
                     | Error.Ok ->
                         ok ()
                     | Error.DoesNotExist -> fail "Could not find button with action name, object is missing in rebind scene"
-                    | Error.LinkFailed -> fail "Connect failed"
+                    | Error.LinkFailed -> fail "Link connect failed"
                     | _ -> fail "Rebind menu can't connect button"
 
                 inputEvent
@@ -272,7 +282,7 @@ type RebindMenu() as this =
                         |> logErr
                         |> ignore)
 
-            ConfigManagement.inputEventTee inputEvent (fun _ -> setupButton(inputEvent)) (fun _ -> (setupButton inputEvent))
+            InputHandling.InputEventTee inputEvent (fun _ -> setupButton(inputEvent)) (fun _ -> (setupButton inputEvent))
             |> logErr
             |> ignore
 

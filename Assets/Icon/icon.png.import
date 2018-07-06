@@ -8,10 +8,7 @@ path.etc2="res://.import/icon.png-803b8865c12645755737ab8e28fb9eda.etc2.stex"
 [deps]
 
 source_file="res://Assets/Icon/icon.png"
-source_md5="ae7e641067601e2184afcade49abd283"
-
 dest_files=[ "res://.import/icon.png-803b8865c12645755737ab8e28fb9eda.s3tc.stex", "res://.import/icon.png-803b8865c12645755737ab8e28fb9eda.etc2.stex" ]
-dest_md5="e5f68a13b29daf9ec0597ea9ae52706b"
 
 [params]
 

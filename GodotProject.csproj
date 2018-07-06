@@ -50,7 +50,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\Actor\ActorWrap.cs" />
+    <Compile Include="src\Input\ActorWrap.cs" />
+    <Compile Include="src\Input\PlayerCameraWrap.cs" />
     <Compile Include="src\Input\RebindMenuWrap.cs" />
     <Compile Include="src\MainMenu\MainMenuWrap.cs" />
   </ItemGroup>

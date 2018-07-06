@@ -68,9 +68,10 @@
     <Compile Include="src/MainMenu/MainMenu.fs" />
 
     <!-- Actor -->
-    <Compile Include="src/Actor/Actor.fs" />
+    <Compile Include="src/Input/Actor.fs" />
+    <Compile Include="src/Input/PlayerCamera.fs" />
 
-    <Compile Include="Library.fs" />
+    <Compile Include="src/Input/CameraManager.fs" />
 
 
   </ItemGroup>

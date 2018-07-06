@@ -1,2 +1,2 @@
-using Actor;
+using ActorManager;
 public class ActorWrap : ActorObject {}

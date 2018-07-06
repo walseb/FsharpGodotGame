@@ -7,7 +7,7 @@ type MainMenuButtons() as this =
     inherit VBoxContainer()
 
     let _on_start_pressed() : unit =
-        LoadOrCreateConfig |> ignore
+        LoadOrCreateConfig() |> ignore
         this.GetTree().ChangeScene("res://Assets/Scenes/TestScene.tscn") |> ignore
 
     let _on_keys_pressed() : unit =
