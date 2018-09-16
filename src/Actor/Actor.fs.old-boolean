@@ -1,0 +1,477 @@
+namespace ActorManager
+
+open System.Collections.Generic
+open Godot
+open Chessie.ErrorHandling
+open RailwayUtils
+open InputManager
+open GodotUtils
+
+type ActorState =
+    | IdleState
+    | MoveState
+    | RunState
+    | UnHolsterState
+    | HolsterState
+    | HoldState
+    | HoldMoveState
+
+type ActorGunState =
+    | Reload
+    | Fire
+
+type ActorMaxStats =
+    {
+        mutable MaxStrength : float
+        mutable MaxAgility : float
+        mutable MaxShooting : float
+        mutable MaxCommandChildren : int
+    }
+type ActorCurrentStats =
+    {
+        mutable CurrentStrength : float
+        mutable CurrentAgility : float
+        mutable CurrentShooting : float
+    }
+
+type ActorButtons =
+    {
+        mutable MoveDirection : Vector2
+
+        mutable PickupPressed : bool
+        mutable RunPressed : bool
+        mutable AttackPressed : bool
+        mutable AimPressed : bool
+     }
+
+module ActorStatesUtils =
+    let actorGunStateToString(actorGunState : ActorGunState) : string =
+        match actorGunState with
+            | Reload ->
+                "Reload"
+            | Fire ->
+                "Fire"
+
+type ActorObject() as this =
+    inherit RigidBody()
+
+    let animatedSprite =
+        lazy(this.GetNode(new NodePath("AnimatedSprite3D")) :?> AnimatedSprite3D)
+
+    let mutable actorMaxStats : ActorMaxStats option =
+        None
+
+    let mutable actorCurrentStats : ActorCurrentStats option =
+        None
+
+    let mutable commandParent : ActorObject option =
+        None
+
+    let mutable commandChildren =
+        new List<ActorObject>()
+
+    let mutable state = ActorState.IdleState
+
+    let mutable actorButtons : ActorButtons =
+        {
+            MoveDirection = Vector2(0.0f,0.0f)
+
+            PickupPressed = false
+            RunPressed = false
+            AttackPressed = false
+            AimPressed = false
+        }
+
+    // Used to tweak the gobal movement speed in case of gravity change, etc
+    let physicsMoveMultiplier = 100.0f
+
+    let setAnimation(name : string, speed : float32) =
+        animatedSprite.Force().Play name
+        animatedSprite.Value.GetSpriteFrames().SetAnimationSpeed(name, speed)
+
+    ///////////////////////
+    //State actions state//
+    ///////////////////////
+
+    let move (physicsState : PhysicsDirectBodyState) (multiplier : float32) =
+        physicsState.ApplyImpulse(Vector3(0.0f, 0.0f, 0.0f), (Vector3 (actorButtons.MoveDirection.x, 0.0f, actorButtons.MoveDirection.y)) * physicsMoveMultiplier * multiplier)
+
+    let pickup() =
+        GD.Print("Pickup not implemented")
+        this.GetTree().SetInputAsHandled();
+
+    let aim() =
+        GD.Print("Aim not implemented")
+        this.GetTree().SetInputAsHandled();
+
+    let attack() =
+        GD.Print("Attack not implemented")
+        this.GetTree().SetInputAsHandled();
+
+    let mutable timer = 0.0f
+
+    let isMoveDirectionZero () =
+        actorButtons.MoveDirection.x = 0.0f && actorButtons.MoveDirection.y = 0.0f
+
+    let mutable stateChange : bool =
+        false
+
+    ///////////////
+    //Idle state//
+    ///////////////
+
+
+
+    let updateKeysIdle() =
+        match isMoveDirectionZero() with
+            | false ->
+                Some MoveState
+            | true ->
+                    match actorButtons.AimPressed with
+                        | true ->
+                            Some UnHolsterState
+                        | false ->
+                            match actorButtons.PickupPressed with
+                                | true ->
+                                    pickup()
+                                    None
+                                | false ->
+                                    None
+
+    let startIdle() =
+        setAnimation("Idle", 100.0f)
+        stateChange <- false
+        updateKeysIdle()
+
+    let updateIdle() =
+        match stateChange with
+            | true ->
+                startIdle()
+            | false ->
+                //GD.Print ("IDLE", actorButtons.MoveDirection.ToString())
+                None
+
+    ///////////////
+    // Move state//
+    ///////////////
+
+    let updateKeysMove() =
+        GD.Print "Keys update"
+        match isMoveDirectionZero() with
+            | true ->
+                Some IdleState
+            | false ->
+                match actorButtons.RunPressed with
+                    | true ->
+                            Some RunState
+                    | false ->
+                        match actorButtons.AimPressed with
+                            | true ->
+                                Some UnHolsterState
+                            | false ->
+                                match actorButtons.PickupPressed with
+                                    | true ->
+                                        pickup()
+                                        None
+                                    | false ->
+                                        None
+
+    let startMove() =
+        GD.Print "Starting"
+        setAnimation("Move", 10.0f)
+        stateChange <- false
+        updateKeysMove()
+
+    let updateMove() =
+        match stateChange with
+            | true ->
+                startMove()
+            | false ->
+                //GD.Print ("IDLE", actorButtons.MoveDirection.ToString())
+                None
+
+    let integrateForcesMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (1.0f * delta)
+
+    ///////////////
+    //Run state //
+    ///////////////
+
+    let updateKeysRun() =
+        match isMoveDirectionZero() with
+            | true ->
+                Some IdleState
+            | false ->
+                match actorButtons.RunPressed with
+                    | false ->
+                        Some MoveState
+                    | true ->
+                        match actorButtons.AimPressed with
+                            | true ->
+                                Some UnHolsterState
+                            | false ->
+                                match actorButtons.PickupPressed with
+                                    | true ->
+                                        pickup()
+                                        None
+                                    | false ->
+                                        None
+
+    let startRun() =
+        setAnimation("Run", 50.0f)
+        stateChange <- false
+        updateKeysRun()
+
+    let updateRun() =
+        match stateChange with
+            | true ->
+                startRun()
+            | false ->
+                //GD.Print ("IDLE", actorButtons.MoveDirection.ToString())
+                None
+
+    let integrateForcesRun (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (5.0f * delta)
+
+    //////////////
+    // Hold Move state//
+    //////////////
+
+    let updateKeysHoldMove() =
+        match isMoveDirectionZero() with
+            | true ->
+                Some HoldState
+            | false ->
+                match actorButtons.AimPressed with
+                    | false ->
+                        Some HolsterState
+                    | true ->
+                        match actorButtons.AttackPressed with
+                            | true ->
+                                attack()
+                                None
+                            | false ->
+                                match actorButtons.PickupPressed with
+                                    | true ->
+                                        pickup()
+                                        None
+                                    | false ->
+                                        None
+
+    let startHoldMove() =
+        stateChange <- false
+        updateKeysHoldMove()
+
+    let updateHoldMove()  =
+        match stateChange with
+            | true ->
+                startHoldMove()
+            | false ->
+                //GD.Print ("IDLE", actorButtons.MoveDirection.ToString())
+                None
+
+    let integrateForcesHoldMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (0.8f * delta)
+
+    //////////////
+    //Hold state//
+    //////////////
+
+    let updateKeysHold() =
+        match isMoveDirectionZero() with
+            | false ->
+                Some HoldMoveState
+            | true ->
+                match actorButtons.AimPressed with
+                    | false ->
+                        Some HolsterState
+                    | true ->
+                        match actorButtons.AttackPressed with
+                            | true ->
+                                attack()
+                                None
+                            | false ->
+                                match actorButtons.PickupPressed with
+                                    | true ->
+                                        pickup()
+                                        None
+                                    | false ->
+                                        None
+
+    let startHold() =
+        stateChange <- false
+        updateKeysHold()
+
+    let updateHold()  =
+        match stateChange with
+            | true ->
+                startHold()
+            | false ->
+                //GD.Print ("IDLE", actorButtons.MoveDirection.ToString())
+                None
+
+    /////////////////
+    //Holster state//
+    /////////////////
+
+    let updateKeysHolster () =
+        match actorButtons.AimPressed with
+            | true ->
+                timer <- 0.0f
+                Some HoldState
+            | false ->
+                None
+
+    let startHolster() =
+        stateChange <- false
+        updateKeysHolster()
+
+    // Holster state
+    let holsterTime : float32 = 2.0f
+    let updateHolster  (delta : float32)  =
+        GD.Print ""
+        match stateChange with
+            | true ->
+                startHolster()
+            | false ->
+                timer <- timer + delta
+                if timer > holsterTime then
+                    timer <- 0.0f
+                    Some IdleState
+                else None
+
+    let integrateForcesHolster (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (0.1f * delta)
+
+    ///////////////////
+    //Unholster state//
+    ///////////////////
+
+    let updateKeysUnHolster () =
+        match actorButtons.AimPressed with
+            | false ->
+                timer <- 0.0f
+                Some IdleState
+            | true ->
+                None
+
+    let startUnHolster() =
+        stateChange <- false
+        updateKeysUnHolster()
+
+    // UnHolster state
+    let unHolsterTime : float32 = 2.0f
+    let updateUnHolster(delta : float32) =
+        match stateChange with
+            | true ->
+                startUnHolster()
+            | false ->
+                timer <- timer + delta
+                if timer > unHolsterTime then
+                    timer <- 0.0f
+                    Some HoldState
+                else None
+
+    let integrateForcesUnHolster (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (0.1f * delta)
+
+    let updateStateMachine (delta : float32) (actorState : ActorState) =
+        match actorState with
+            | IdleState -> updateIdle()
+            | MoveState -> updateMove()
+            | RunState -> updateRun()
+            | UnHolsterState -> updateUnHolster delta
+            | HoldState -> updateHold()
+            | HoldMoveState -> updateHoldMove()
+            | HolsterState -> updateHolster delta
+
+    let integrateForcesStateMachine  (delta : float32) (physicsState : PhysicsDirectBodyState) (actorState : ActorState)  =
+        match actorState with
+            | IdleState -> ()
+            | MoveState -> integrateForcesMove delta physicsState
+            | RunState -> integrateForcesRun delta physicsState
+            | UnHolsterState -> integrateForcesUnHolster delta physicsState
+            | HoldState -> ()
+            | HoldMoveState -> integrateForcesHoldMove delta physicsState
+            | HolsterState -> integrateForcesHolster delta physicsState
+
+    let updateKeysStateMachine (actorState : ActorState) =
+        match actorState with
+            | HolsterState -> updateKeysHolster()
+            | IdleState -> updateKeysIdle()
+            | MoveState -> updateKeysMove()
+            | RunState -> updateKeysRun()
+            | UnHolsterState -> updateKeysUnHolster()
+            | HoldState -> updateKeysHold()
+            | HoldMoveState -> updateKeysHoldMove ()
+
+    let initializeStats() =
+        actorMaxStats <-
+                   Some {
+                     MaxStrength = 0.0
+                     MaxAgility = 0.0
+                     MaxShooting = 0.0
+                     MaxCommandChildren = 0
+                   }
+        actorCurrentStats <-
+                   Some {
+                     CurrentStrength = actorMaxStats.Value.MaxStrength
+                     CurrentAgility = actorMaxStats.Value.MaxAgility
+                     CurrentShooting = actorMaxStats.Value.MaxShooting
+                   }
+
+    let switchState (changeToState : ActorState option) =
+        match changeToState with
+            | Some x ->
+                state <- x
+                stateChange <- true
+                GD.Print("Switching actor state");
+                ()
+            | None ->
+                ()
+
+    // Read-write property
+    member this.ActorButtons
+        with get () = actorButtons
+        and set (value) = actorButtons <- value
+
+    member this.CommandChildren
+        with get () = commandChildren
+
+    member this.AddActorUnderCommand(actorObject : ActorObject) =
+        match commandChildren.Contains actorObject with
+            | true ->
+                ()
+            | false ->
+                commandChildren.Add actorObject
+
+    member this.CommandParent
+        with get () = commandParent
+        and set (value) = commandParent <- value
+
+    member this.InputUpdated() =
+        switchState (updateKeysStateMachine state)
+
+    member this.ResetActorButtons() =
+        actorButtons.MoveDirection <- Vector2(0.0f,0.0f)
+        actorButtons.PickupPressed <- false
+        actorButtons.RunPressed <- false
+        actorButtons.AttackPressed <- false
+        actorButtons.AimPressed <- false
+
+    override this._Ready() =
+        initializeStats()
+        this.SetProcessInput true
+
+    override this._Process(delta : float32) =
+        switchState (updateStateMachine delta state)
+
+    override this._IntegrateForces(physicsState : PhysicsDirectBodyState) =
+        let delta = physicsState.Step
+        integrateForcesStateMachine delta physicsState state
+        |> ignore
+
+// module ActorRelationManager =
+    // let attemptAddParent (actorObject : ActorObject) =
+//
+    // let attemptAddChild

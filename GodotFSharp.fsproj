@@ -41,10 +41,10 @@
       <HintPath>..\packages\FSharp.Core.4.3.3\lib\net45\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="GodotSharp">
-      <HintPath>..\.mono\assemblies\GodotSharp.dll</HintPath>
+      <HintPath>$(ProjectDir)/.mono/assemblies/GodotSharp.dll</HintPath>
     </Reference>
     <Reference Include="GodotSharpEditor">
-      <HintPath>..\.mono\assemblies\GodotSharpEditor.dll</HintPath>
+      <HintPath>$(ProjectDir)/.mono/assemblies/GodotSharpEditor.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime">
       <HintPath>..\..\..\..\..\..\usr\lib\mono\4.5\Facades\System.Runtime.dll</HintPath>
@@ -64,15 +64,15 @@
     <Compile Include="src/GodotUtils.fs" />
 
     <!-- Scripts -->
-    <Compile Include="src/Input/InputManager.fs" />
+    <Compile Include="src/Actor/Input/InputManager.fs" />
     <Compile Include="src/MainMenu/MainMenu.fs" />
 
+    <!-- Items -->
+    <Compile Include="src/Actor/Items/Items.fs" />
+
     <!-- Actor -->
-    <Compile Include="src/Input/Actor.fs" />
-    <Compile Include="src/Input/PlayerCamera.fs" />
-
-    <Compile Include="src/Input/CameraManager.fs" />
-
+    <Compile Include="src/Actor/Actor.fs" />
+    <Compile Include="src/Actor/Input/Player.fs" />
 
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />

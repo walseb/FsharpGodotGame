@@ -1,12 +1,16 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://src/Input/PlayerCameraWrap.cs" type="Script" id=1]
+[ext_resource path="res://src/Actor/PlayerCameraWrap.cs" type="Script" id=1]
 
 [sub_resource type="SphereShape" id=1]
 
 radius = 10.0
 
-[node name="PlayerCamera" type="Camera" index="0"]
+[node name="PlayerCamera" type="Spatial"]
+
+_sections_unfolded = [ "Transform", "Visibility" ]
+
+[node name="PlayerCamera" type="Camera" parent="." index="0"]
 
 transform = Transform( 1, 0, 0, 0, -1.62921e-07, 1, 0, -1, -1.62921e-07, 0, 0, 0 )
 keep_aspect = 1
@@ -22,9 +26,9 @@ size = 1.0
 near = 0.05
 far = 100.0
 script = ExtResource( 1 )
-_sections_unfolded = [ "Transform", "Visibility" ]
+_sections_unfolded = [ "Transform" ]
 
-[node name="MouseSelectedArea" type="Area" parent="." index="0"]
+[node name="MouseSelectedArea" type="Area" parent="." index="1"]
 
 input_ray_pickable = false
 input_capture_on_drag = false
@@ -51,7 +55,7 @@ _sections_unfolded = [ "Audio Bus", "Collision", "Pause", "Reverb Bus", "Transfo
 [node name="CollisionShape" type="CollisionShape" parent="MouseSelectedArea" index="0"]
 
 shape = SubResource( 1 )
-disabled = true
+disabled = false
 _sections_unfolded = [ "Pause", "Transform", "Visibility" ]
 
 
