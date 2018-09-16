@@ -76,7 +76,7 @@ type ActorObject() as this =
     let mutable inventorySize : int = 9;
 
     let changeSelectedItem (number : int) =
-        match number < inventorySize && number > inventorySize with
+        match number < inventorySize && number >= 0 with
             | false ->
                 ()
             | true ->
@@ -144,9 +144,9 @@ type ActorObject() as this =
                 true
 
 
-    ///////////////////////
-    //State actions state//
-    ///////////////////////
+    //////////////////
+    //State actions //
+    //////////////////
 
     let move (physicsState : PhysicsDirectBodyState) (multiplier : float32) =
         physicsState.ApplyImpulse(Vector3(0.0f, 0.0f, 0.0f), (Vector3 (actorButtons.MoveDirection.x, 0.0f, actorButtons.MoveDirection.y)).Normalized() * physicsMoveMultiplier * multiplier)
@@ -200,9 +200,66 @@ type ActorObject() as this =
     let isMoveDirectionZero () =
         actorButtons.MoveDirection.x = 0.0f && actorButtons.MoveDirection.y = 0.0f
 
-    ///////////////
+    ///////////////////////
+    //Common state keys  //
+    ///////////////////////
+
+    let selectItem() =
+        match actorButtons.Select1Pressed with
+            | true ->
+                changeSelectedItem 1
+                None
+            | false ->
+                match actorButtons.Select2Pressed with
+                    | true ->
+                        changeSelectedItem 2
+                        None
+                    | false ->
+                        match actorButtons.Select3Pressed with
+                            | true ->
+                                changeSelectedItem 3
+                                None
+                            | false ->
+                                match actorButtons.Select4Pressed with
+                                    | true ->
+                                        changeSelectedItem 4
+                                        None
+                                    | false ->
+                                        match actorButtons.Select5Pressed with
+                                            | true ->
+                                                changeSelectedItem 5
+                                                None
+                                            | false ->
+                                                match actorButtons.Select6Pressed with
+                                                    | true ->
+                                                        changeSelectedItem 6
+                                                        None
+                                                    | false ->
+                                                        match actorButtons.Select7Pressed with
+                                                            | true ->
+                                                                changeSelectedItem 7
+                                                                None
+                                                            | false ->
+                                                                match actorButtons.Select8Pressed with
+                                                                    | true ->
+                                                                        changeSelectedItem 8
+                                                                        None
+                                                                    | false ->
+                                                                        match actorButtons.Select9Pressed with
+                                                                            | true ->
+                                                                                changeSelectedItem 9
+                                                                                None
+                                                                            | false ->
+                                                                                match actorButtons.Select0Pressed with
+                                                                                    | true ->
+                                                                                        changeSelectedItem 0
+                                                                                        None
+                                                                                    | false ->
+                                                                                        None
+
+    //////////////
     //Idle state//
-    ///////////////
+    //////////////
 
     let startIdle() =
         setAnimation("Idle", 100.0f)
@@ -230,7 +287,7 @@ type ActorObject() as this =
                                             drop()
                                             None
                                         | false ->
-                                            None
+                                            selectItem()
 
     ///////////////
     // Move state//
@@ -266,7 +323,7 @@ type ActorObject() as this =
                                                 drop()
                                                 None
                                             | false ->
-                                                None
+                                                selectItem()
 
     let integrateForcesMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (3.0f * delta)
@@ -305,7 +362,7 @@ type ActorObject() as this =
                                                 drop()
                                                 None
                                             | false ->
-                                                None
+                                                selectItem()
 
     let integrateForcesRun (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (5.0f * delta)
@@ -568,6 +625,8 @@ type ActorObject() as this =
                         item.ApplyImpulse(Vector3(0.0f, 0.0f, 0.0f), (Vector3 (actorButtons.MoveDirection.x, 0.0f, actorButtons.MoveDirection.y)).Normalized() * throwItemForce)
                     | _ ->
                         // Pickup
+                        item.SetLinearVelocity(Vector3(0.0f,0.0f,0.0f))
+                        //item.SetAxisVelocity(Vector3(0.0f,0.0f,0.0f))
                         itemParent.RemoveChild(item)
 
             match toggleItemAttachedNextPhysicsUpdate.Count with
