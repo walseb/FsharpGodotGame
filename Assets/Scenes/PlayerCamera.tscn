@@ -8,7 +8,7 @@ radius = 10.0
 
 [node name="PlayerCamera" type="Spatial"]
 
-_sections_unfolded = [ "Transform", "Visibility" ]
+_sections_unfolded = [ "Axis Lock", "Collision", "Pause", "Transform", "Visibility", "collision" ]
 
 [node name="PlayerCamera" type="Camera" parent="." index="0"]
 
@@ -26,7 +26,7 @@ size = 1.0
 near = 0.05
 far = 100.0
 script = ExtResource( 1 )
-_sections_unfolded = [ "Transform" ]
+_sections_unfolded = [ "Pause", "Transform", "Visibility" ]
 
 [node name="MouseSelectedArea" type="Area" parent="." index="1"]
 

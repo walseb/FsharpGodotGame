@@ -187,6 +187,28 @@ type ActorObject() as this =
                            items.[selectedItem] <- Some (a.Head)
                            GD.Print "PICKUP")
 
+    //let mutable lastPos = this.GetGlobalTransform().origin
+    let mutable value = 0.0f
+
+    let rotateTowardsMoveDirection(delta : float32) =
+        let thisTransform = this.GetGlobalTransform()
+
+        // Create vector with only x and z coordinates
+        let lookDir = Vector3(this.LinearVelocity.x + thisTransform.origin.x, 0.0f, this.LinearVelocity.z + thisTransform.origin.z)
+
+        // Get target transform for looking at last pos
+        let rotTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
+        // Slerp it
+
+        let thisRotation = thisTransform.basis.Quat().Slerp(rotTransform.basis.Quat(),value)
+        value <- value + delta
+        match value > 1.0f with
+            | true ->
+                value <- 1.0f
+            | false -> ()
+
+        this.SetGlobalTransform(Transform(thisRotation, thisTransform.origin))
+
     let aim() =
         GD.Print("Aim not implemented")
         this.GetTree().SetInputAsHandled();
@@ -195,10 +217,18 @@ type ActorObject() as this =
         GD.Print("Attack not implemented")
         this.GetTree().SetInputAsHandled();
 
+
     let mutable timer = 0.0f
 
     let isMoveDirectionZero () =
         actorButtons.MoveDirection.x = 0.0f && actorButtons.MoveDirection.y = 0.0f
+
+    ////////////////////////////
+    //Basic state conditions  //
+    ////////////////////////////
+
+    let hasWeaponSelected() =
+        items.[selectedItem].IsSome
 
     ///////////////////////
     //Common state keys  //
@@ -269,11 +299,13 @@ type ActorObject() as this =
         None
 
     let updateKeysIdle() =
+        //GD.Print (isMoveDirectionZero())
+        //GD.Print (actorButtons.MoveDirection.x, actorButtons.MoveDirection.y)
         match isMoveDirectionZero() with
             | false ->
                 Some MoveState
             | true ->
-                    match actorButtons.AimPressed with
+                    match actorButtons.AimPressed && hasWeaponSelected() with
                         | true ->
                             Some UnHolsterState
                         | false ->
@@ -309,7 +341,7 @@ type ActorObject() as this =
                     | true ->
                             Some RunState
                     | false ->
-                        match actorButtons.AimPressed with
+                        match actorButtons.AimPressed && hasWeaponSelected() with
                             | true ->
                                 Some UnHolsterState
                             | false ->
@@ -327,6 +359,10 @@ type ActorObject() as this =
 
     let integrateForcesMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (3.0f * delta)
+
+
+    let physicsProcessMove (delta : float32) =
+        rotateTowardsMoveDirection(delta)
 
     ///////////////
     //Run state //
@@ -348,7 +384,7 @@ type ActorObject() as this =
                     | false ->
                         Some MoveState
                     | true ->
-                        match actorButtons.AimPressed with
+                        match actorButtons.AimPressed && hasWeaponSelected() with
                             | true ->
                                 Some UnHolsterState
                             | false ->
@@ -366,6 +402,9 @@ type ActorObject() as this =
 
     let integrateForcesRun (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (5.0f * delta)
+
+    let physicsProcessRun (delta : float32) =
+        rotateTowardsMoveDirection(delta)
 
     //////////////
     //Move Hold state//
@@ -476,29 +515,36 @@ type ActorObject() as this =
     ///////////////////
 
     let startUnholster() =
-        None
+        match items.[selectedItem].IsSome with
+            | false ->
+                Some IdleState
+            | true ->
+                None
 
-    // UnHolster state
     let unHolsterTime : float32 = 2.0f
     let updateUnHolster(delta : float32) =
-        timer <- timer + delta
-        if timer > unHolsterTime then
-            Some HoldState
-        else None
+        match items.[selectedItem].IsSome with
+            | false ->
+                Some IdleState
+            | true ->
+                timer <- timer + delta
+                if timer > unHolsterTime then
+                    Some HoldState
+                else None
 
     let updateKeysUnHolster () =
         match actorButtons.AimPressed with
             | true ->
-                match items.[selectedItem].IsSome with
-                    | true ->
-                        None
-                    | false ->
-                        Some IdleState
+                None
             | false ->
                 Some IdleState
 
     let integrateForcesUnHolster (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (1.0f * delta)
+
+    //////////////////////////////////////
+    // End of statemachine definitions  //
+    //////////////////////////////////////
 
     let switchStateStateMachine (actorState : ActorState) :  ActorState option =
         // reset timer
@@ -521,6 +567,16 @@ type ActorObject() as this =
             | HoldState -> updateHold()
             | HoldMoveState -> updateHoldMove()
             | HolsterState -> updateHolster delta
+
+    let physicsProcessForcesStateMachine  (delta : float32) (actorState : ActorState)  =
+        match actorState with
+            | IdleState -> ()
+            | MoveState -> physicsProcessMove delta
+            | RunState -> physicsProcessRun delta
+            | UnHolsterState -> ()
+            | HoldState -> ()
+            | HoldMoveState -> ()
+            | HolsterState -> ()
 
     let integrateForcesStateMachine  (delta : float32) (physicsState : PhysicsDirectBodyState) (actorState : ActorState)  =
         match actorState with
@@ -569,9 +625,8 @@ type ActorObject() as this =
                             | Some z ->
                                 switchState (Some z)
                             | None  ->
+                                GD.Print("Switching actor state");
                                 state <- x
-                GD.Print("Switching actor state");
-                ()
             | None ->
                 ()
 
@@ -612,21 +667,21 @@ type ActorObject() as this =
     override this._Process(delta : float32) =
         switchState (updateStateMachine delta state)
 
-    override this._IntegrateForces(physicsState : PhysicsDirectBodyState) =
+    override this._PhysicsProcess(delta : float32) =
         let toggleQueuedAttachedState() =
             let toggleItem (item : RigidBody)=
                 let itemParent = item.GetParent()
                 match itemParent with
                     | null ->
                         // Drop
-                        item.SetGlobalTransform (Transform (this.GetGlobalTransform().basis, this.GetGlobalTransform().origin))
+                        let thisTransform = this.GetGlobalTransform()
+                        item.SetGlobalTransform (Transform (thisTransform.basis, thisTransform.origin))
                         this.Owner.AddChild item
                         // Impulse to make sure it's not sleeping, otherwise the collision somehow gets disabled and the item is bugged. Other solution is disabling "can sleep"
                         item.ApplyImpulse(Vector3(0.0f, 0.0f, 0.0f), (Vector3 (actorButtons.MoveDirection.x, 0.0f, actorButtons.MoveDirection.y)).Normalized() * throwItemForce)
                     | _ ->
                         // Pickup
                         item.SetLinearVelocity(Vector3(0.0f,0.0f,0.0f))
-                        //item.SetAxisVelocity(Vector3(0.0f,0.0f,0.0f))
                         itemParent.RemoveChild(item)
 
             match toggleItemAttachedNextPhysicsUpdate.Count with
@@ -639,6 +694,10 @@ type ActorObject() as this =
 
         toggleQueuedAttachedState()
 
+        physicsProcessForcesStateMachine delta state
+        |> ignore
+
+    override this._IntegrateForces(physicsState : PhysicsDirectBodyState) =
         let delta = physicsState.Step
         integrateForcesStateMachine delta physicsState state
         |> ignore

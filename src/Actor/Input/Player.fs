@@ -30,6 +30,9 @@ type PlayerCamera() as this =
     let mutable attachedActor : ActorObject Option =
         None
 
+    let mutable attachedActorSpatial : Spatial Option =
+        None
+
     let mutable attachActorNextPhysicsUpdate =
         false
 
@@ -47,6 +50,12 @@ type PlayerCamera() as this =
 
     let mutable initObjectReferences =
         true
+
+    let mutable zoomLevel : float32 =
+        5.0f
+
+    let rootNode : Lazy<Spatial> =
+        lazy (this.GetParentSpatial())
 
     let mouseSelectionArea : Lazy<Area> =
         lazy (this.GetParent().GetNode(new NodePath("MouseSelectedArea")) :?> Area)
@@ -156,7 +165,7 @@ type PlayerCamera() as this =
                                 Some (a :?> ActorObject)
                             | false ->
                                 None)
-                |> (fun a -> Some a)
+                |> fun a -> Some a
 
     let makeSureCommanderIsSome() =
         match commander.IsSome with
@@ -209,10 +218,11 @@ type PlayerCamera() as this =
             actor.ActorButtons.MoveDirection <- getMoveAxis()
             actor.ActorButtons.RunPressed <- cameraButtons.RunPressed
 
-        let makeActorParent (actor : ActorObject) =
-            (this.GetParent()).RemoveChild this
-            actor.AddChild this
-            this.SetOwner actor
+        // No longer attaching actor
+        //let makeActorParent (actor : ActorObject) =
+            //(this.GetParent()).RemoveChild this
+            //actor.AddChild this
+            //this.SetOwner actor
 
         match attachedActor.IsSome with
             | true ->
@@ -220,10 +230,11 @@ type PlayerCamera() as this =
             | false ->
                 ()
 
-        makeActorParent actor
+        //makeActorParent actor
         // Detach current actor properly before attaching a new one
        // detachActor actor
         attachedActor <- Some actor
+        attachedActorSpatial <- Some (actor :> Spatial)
         transferCameraButtonStateToActor actor
 
     let attachActorUnderSelection() =
@@ -247,51 +258,40 @@ type PlayerCamera() as this =
                 GD.Print "ERROR: NO COMMANDER IS ATTACHED!!!"
 
     let zoom (zoomAmount : float32) =
-        let zoomCamera (parent : ActorObject) =
-            let maxZoomHeight = 40.0f
-            let minZoomHeight = 5.0f
+        let maxZoomHeight = 40.0f
+        let minZoomHeight = 5.0f
 
-            let actorLocalTransform = this.GetTransform()
-            let actorCameraHeightDelta = actorLocalTransform.origin.y
-            // let cameraPos = this.GetGlobalTransform().origin
-            // let actorPos = attachedActor.Value.GetGlobalTransform().origin
-            // let actorCameraHeightDelta = cameraPos.y - actorPos.y
-            GD.Print actorCameraHeightDelta
-
-            if ((actorCameraHeightDelta > maxZoomHeight) || (actorCameraHeightDelta < minZoomHeight))
-            then this.SetTransform (new Transform (actorLocalTransform.basis, Vector3(0.0f, minZoomHeight, 0.0f)))
-            // If the result wouldn't go outside the max and min height
-            else (if ((actorCameraHeightDelta + zoomAmount < maxZoomHeight) && (actorCameraHeightDelta + zoomAmount > minZoomHeight))
-            // Then increase global .z position with zoom amount
-            //then this.SetGlobalTransform (new Transform (this.GetGlobalTransform().basis, cameraPos + Vector3(0.0f,zoomAmount ,0.0f)))
-                then this.SetTransform (new Transform (actorLocalTransform.basis, actorLocalTransform.origin + Vector3(0.0f, zoomAmount, 0.0f))))
-
-            // FIX make camera reset if outside of range
-            // TODO Make this work, it broke because i made camera not root of player camera scene
-
-        match attachedActor with
-            | None ->
-                match commander with
-                    | None ->
-                        ()
-                    | Some x ->
-                        zoomCamera commander.Value
-            | Some x ->
-                zoomCamera attachedActor.Value
-                //GD.Print ("Zoomed by: ", zoomAmount)
+        match ((zoomLevel + zoomAmount) < maxZoomHeight) && ((zoomLevel + zoomAmount) > minZoomHeight) with
+            | true ->
+                zoomLevel <- zoomLevel + zoomAmount
+                // If result is outside range
+            | false ->
+                match (zoomLevel + zoomAmount) > minZoomHeight with
+                    | false ->
+                        zoomLevel <- minZoomHeight
+                    | true ->
+                        zoomLevel <- maxZoomHeight
 
     /// Buttons
     let setCameraSpecialButtons(inputEvent : InputEvent) =
         match inputEvent.IsAction PlayerInputActions.ZoomIn with
             | true ->
-                zoom -1.0f
                 inputHandled()
+                match inputEvent.IsPressed() with
+                    | true ->
+                        zoom -1.0f
+                    | false ->
+                        ()
                 true
             | false ->
                 match inputEvent.IsAction PlayerInputActions.ZoomOut with
                     | true ->
-                        zoom 1.0f
                         inputHandled()
+                        match inputEvent.IsPressed() with
+                            | true ->
+                                zoom 1.0f
+                            | false ->
+                                ()
                         true
                     | false ->
                         match inputEvent.IsAction PlayerInputActions.CameraAttach with
@@ -436,6 +436,16 @@ type PlayerCamera() as this =
         zoom 5.0f
         ()
 
+    override this._Process(delta : float32) =
+        //rootNode.Force().LookAtFromPosition(Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z), attachedActorSpatial.Value.GetTransform().origin, (Vector3(0.0f,1.0f,0.0f)))
+
+        //this.SetTransform (Transform (this.GetGlobalTransform().basis, attachedActorTransform.origin + Vector3(0.0f, zoomLevel, 0.0f)))
+
+        // makeSureCommanderIsSome()
+        // let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
+        //rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
+        ()
+
     override this._PhysicsProcess(delta : float32) =
         match initObjectReferences with
             | true ->
@@ -485,6 +495,18 @@ type PlayerCamera() as this =
                                 attachActorUnderSelection()
                             | false ->
                                 ()
+
+        makeSureCommanderIsSome()
+
+        let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
+        rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
+
+
+        // let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
+        // let test = (Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z), attachedActorSpatial.Value.GetTransform().origin, (Vector3(0.0f,1.0f,0.0f)))
+        // this.LookAtFromPosition(Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z), attachedActorSpatial.Value.GetTransform().origin, (Vector3(0.0f,1.0f,0.0f)))
+        //rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z)))
+
 
     override this._UnhandledInput (inputEvent : InputEvent) =
         setCameraSpecialButtons inputEvent
