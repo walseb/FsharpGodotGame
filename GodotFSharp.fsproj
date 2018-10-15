@@ -64,15 +64,18 @@
     <Compile Include="src/GodotUtils.fs" />
 
     <!-- Scripts -->
-    <Compile Include="src/Actor/Input/InputManager.fs" />
-    <Compile Include="src/MainMenu/MainMenu.fs" />
+    <Compile Include="src/Input/InputManager.fs" />
+    <Compile Include="src/Input/ConfigManagement.fs" />
+    <Compile Include="src/Input/RebindMenu.fs" />
+    <Compile Include="src/Scenes/MainMenu.fs" />
 
     <!-- Items -->
-    <Compile Include="src/Actor/Items/Items.fs" />
+    <Compile Include="src/Items/Items.fs" />
 
     <!-- Actor -->
     <Compile Include="src/Actor/Actor.fs" />
-    <Compile Include="src/Actor/Input/Player.fs" />
+    <Compile Include="src/Actor/Camera.fs" />
+    <Compile Include="src/deleteme.fs" />
 
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />

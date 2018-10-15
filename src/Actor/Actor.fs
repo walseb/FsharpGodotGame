@@ -1,10 +1,9 @@
-namespace ActorManager
+namespace Actor
 
 open System.Collections.Generic
 open Godot
 open Chessie.ErrorHandling
 open RailwayUtils
-open InputManager
 open GodotUtils
 open Items
 
@@ -12,14 +11,15 @@ type ActorState =
     | IdleState
     | MoveState
     | RunState
-    | UnHolsterState
+    | UnholsterState
+    | UnholsterMoveState
     | HolsterState
+    | HolsterMoveState
     | HoldState
     | HoldMoveState
-
-type ActorGunState =
-    | Reload
-    | Fire
+    | ReloadState
+    | ReloadMoveState
+    | AttackState
 
 type ActorMaxStats =
     {
@@ -57,14 +57,6 @@ type ActorButtons =
         mutable Select0Pressed : bool
      }
 
-module ActorStatesUtils =
-    let actorGunStateToString(actorGunState : ActorGunState) : string =
-        match actorGunState with
-            | Reload ->
-                "Reload"
-            | Fire ->
-                "Fire"
-
 type ActorObject() as this =
     inherit RigidBody()
 
@@ -75,12 +67,14 @@ type ActorObject() as this =
 
     let mutable inventorySize : int = 9;
 
+    /// returns true if item has changed
     let changeSelectedItem (number : int) =
-        match number < inventorySize && number >= 0 with
+        match number < inventorySize && number >= 0 && number <> selectedItem with
             | false ->
-                ()
+                false
             | true ->
                 selectedItem <- number
+                true
 
     let mutable items : Item option array = Array.create 9 None
 
@@ -135,14 +129,13 @@ type ActorObject() as this =
     let toggleItemAttachedNextPhysicsUpdate =
         new List<RigidBody>()
 
+    // Returns true if item is dropeed
     let attemptToggleItemAttached (item : RigidBody) : bool =
         match toggleItemAttachedNextPhysicsUpdate.Contains item with
             | true ->
                 false
             | false ->
-                toggleItemAttachedNextPhysicsUpdate.Add item
                 true
-
 
     //////////////////
     //State actions //
@@ -157,57 +150,67 @@ type ActorObject() as this =
             | false ->
                 ()
             | true ->
-                match attemptToggleItemAttached items.[selectedItem].Value with
-                    | true ->
-                        items.[selectedItem] <- None
-                        GD.Print "DROP"
+                // Make sure an item isn't added twice
+                match toggleItemAttachedNextPhysicsUpdate.Contains items.[selectedItem].Value with
                     | false ->
+                        toggleItemAttachedNextPhysicsUpdate.Add items.[selectedItem].Value
+                        GD.Print "DROP"
+                    | true ->
                         ()
+        items.[selectedItem] <- None
 
+    let pickupDelay = 1.0f
+    let mutable pickupTimer = 0.0f
+
+    /// Returns true if new item has been picked up
     let pickup() =
         this.GetTree().SetInputAsHandled();
-        sortObjectListClosestFirst (handReachArea.Force().GetOverlappingBodies()) this
-        |> List.choose (fun a ->
-            match a :? Item with
-                | true ->
-                    Some (a :?> Item)
-                | false ->
-                    None)
-        |> (fun a ->
-            match a.IsEmpty with
-               | true ->
-                    ()
-               | false ->
-                   // Attempt to drop held item
-                   drop()
-                   match attemptToggleItemAttached a.Head with
-                       | false ->
-                           ()
-                       | true ->
-                           items.[selectedItem] <- Some (a.Head)
-                           GD.Print "PICKUP")
+        match  pickupTimer > pickupDelay with
+            | false ->
+                false
+            | true ->
+                pickupTimer <- 0.0f
+                sortObjectListClosestFirst (handReachArea.Force().GetOverlappingBodies()) this
+                |> List.choose (fun a ->
+                    match a :? Item with
+                        | true ->
+                            Some (a :?> Item)
+                        | false ->
+                            None)
+                |> (fun a ->
+                    match a.IsEmpty with
+                    | true ->
+                        false
+                    | false ->
+                            drop()
+                            items.[selectedItem] <- Some (a.Head)
+                            toggleItemAttachedNextPhysicsUpdate.Add a.Head
+                            GD.Print "PICKUP"
+                            true)
 
     //let mutable lastPos = this.GetGlobalTransform().origin
+    // Remove this later
     let mutable value = 0.0f
 
     let rotateTowardsMoveDirection(delta : float32) =
-        let thisTransform = this.GetGlobalTransform()
-
-        // Create vector with only x and z coordinates
-        let lookDir = Vector3(this.LinearVelocity.x + thisTransform.origin.x, 0.0f, this.LinearVelocity.z + thisTransform.origin.z)
-
-        // Get target transform for looking at last pos
-        let rotTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
-        // Slerp it
-
-        let thisRotation = thisTransform.basis.Quat().Slerp(rotTransform.basis.Quat(),value)
-        value <- value + delta
-        match value > 1.0f with
-            | true ->
-                value <- 1.0f
-            | false -> ()
-
-        this.SetGlobalTransform(Transform(thisRotation, thisTransform.origin))
+        ()
+        //  let thisTransform = this.GetGlobalTransform()
+//
+        //  // Create vector with only x and z coordinates
+        //  let lookDir = Vector3(this.LinearVelocity.x + thisTransform.origin.x, 0.0f, this.LinearVelocity.z + thisTransform.origin.z)
+//
+        //  // Get target transform for looking at last pos
+        //  let rotTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
+        //  // Slerp it
+//
+        //  let thisRotation = thisTransform.basis.Quat().Slerp(rotTransform.basis.Quat(),value)
+        //  value <- value + delta
+        //  match value > 1.0f with
+            //  | true ->
+                //  value <- 1.0f
+            //  | false -> ()
+//
+        //  this.SetGlobalTransform(Transform(thisRotation, thisTransform.origin))
 
     let aim() =
         GD.Print("Aim not implemented")
@@ -217,73 +220,92 @@ type ActorObject() as this =
         GD.Print("Attack not implemented")
         this.GetTree().SetInputAsHandled();
 
-
-    let mutable timer = 0.0f
+    let reload() =
+        GD.Print("Attack not implemented")
+        this.GetTree().SetInputAsHandled();
 
     let isMoveDirectionZero () =
         actorButtons.MoveDirection.x = 0.0f && actorButtons.MoveDirection.y = 0.0f
+
+    // Mutable state machine data
+    let mutable timer = 0.0f
+
+    let mutable selectedWeaponOnCombatEnter = selectedItem
+
+    let mutable selectedWeaponObject : Weapon option = None
 
     ////////////////////////////
     //Basic state conditions  //
     ////////////////////////////
 
     let hasWeaponSelected() =
-        items.[selectedItem].IsSome
+        items.[selectedItem].IsSome && items.[selectedItem].Value :? Weapon
+
+    /// Returns false if combat state failed to init
+    let initializeCombatState() =
+        match items.[selectedItem].IsSome && items.[selectedItem].Value :? Weapon with
+            | true ->
+                selectedWeaponOnCombatEnter <- selectedItem
+                selectedWeaponObject <- Some (items.[selectedItem].Value :?> Weapon)
+                true
+             | false ->
+                 false
 
     ///////////////////////
     //Common state keys  //
     ///////////////////////
 
-    let selectItem() =
+    /// Returns true if different item is selected
+    let selectItem () =
         match actorButtons.Select1Pressed with
             | true ->
-                changeSelectedItem 1
-                None
+                changeSelectedItem 1 |> ignore
+                Some 1
             | false ->
                 match actorButtons.Select2Pressed with
                     | true ->
-                        changeSelectedItem 2
-                        None
+                        changeSelectedItem 2 |> ignore
+                        Some 2
                     | false ->
                         match actorButtons.Select3Pressed with
                             | true ->
-                                changeSelectedItem 3
-                                None
+                                changeSelectedItem 3 |> ignore
+                                Some 3
                             | false ->
                                 match actorButtons.Select4Pressed with
                                     | true ->
-                                        changeSelectedItem 4
-                                        None
+                                        changeSelectedItem 4 |> ignore
+                                        Some 4
                                     | false ->
                                         match actorButtons.Select5Pressed with
                                             | true ->
-                                                changeSelectedItem 5
-                                                None
+                                                changeSelectedItem 5 |> ignore
+                                                Some 5
                                             | false ->
                                                 match actorButtons.Select6Pressed with
                                                     | true ->
-                                                        changeSelectedItem 6
-                                                        None
+                                                        changeSelectedItem 6 |> ignore
+                                                        Some 6
                                                     | false ->
                                                         match actorButtons.Select7Pressed with
                                                             | true ->
-                                                                changeSelectedItem 7
-                                                                None
+                                                                changeSelectedItem 7 |> ignore
+                                                                Some 7
                                                             | false ->
                                                                 match actorButtons.Select8Pressed with
                                                                     | true ->
-                                                                        changeSelectedItem 8
-                                                                        None
+                                                                        changeSelectedItem 8 |> ignore
+                                                                        Some 8
                                                                     | false ->
                                                                         match actorButtons.Select9Pressed with
                                                                             | true ->
-                                                                                changeSelectedItem 9
-                                                                                None
+                                                                                changeSelectedItem 9 |> ignore
+                                                                                Some 9
                                                                             | false ->
                                                                                 match actorButtons.Select0Pressed with
                                                                                     | true ->
-                                                                                        changeSelectedItem 0
-                                                                                        None
+                                                                                        changeSelectedItem 0 |> ignore
+                                                                                        Some 0
                                                                                     | false ->
                                                                                         None
 
@@ -295,9 +317,6 @@ type ActorObject() as this =
         setAnimation("Idle", 100.0f)
         None
 
-    let updateIdle() =
-        None
-
     let updateKeysIdle() =
         //GD.Print (isMoveDirectionZero())
         //GD.Print (actorButtons.MoveDirection.x, actorButtons.MoveDirection.y)
@@ -307,11 +326,12 @@ type ActorObject() as this =
             | true ->
                     match actorButtons.AimPressed && hasWeaponSelected() with
                         | true ->
-                            Some UnHolsterState
+                            initializeCombatState() |> ignore
+                            Some UnholsterState
                         | false ->
                             match actorButtons.PickupPressed with
                                 | true ->
-                                    pickup()
+                                    pickup() |> ignore
                                     None
                                 | false ->
                                     match actorButtons.DropPressed with
@@ -319,7 +339,8 @@ type ActorObject() as this =
                                             drop()
                                             None
                                         | false ->
-                                            selectItem()
+                                            selectItem() |> ignore
+                                            None
 
     ///////////////
     // Move state//
@@ -329,10 +350,8 @@ type ActorObject() as this =
         setAnimation("Move", 10.0f)
         None
 
-    let updateMove() =
-        None
-
     let updateKeysMove() =
+        selectItem() |> ignore
         match isMoveDirectionZero() with
             | true ->
                 Some IdleState
@@ -343,11 +362,12 @@ type ActorObject() as this =
                     | false ->
                         match actorButtons.AimPressed && hasWeaponSelected() with
                             | true ->
-                                Some UnHolsterState
+                                initializeCombatState() |> ignore
+                                Some UnholsterState
                             | false ->
                                 match actorButtons.PickupPressed with
                                     | true ->
-                                        pickup()
+                                        pickup() |> ignore
                                         None
                                     | false ->
                                         match actorButtons.DropPressed with
@@ -355,11 +375,10 @@ type ActorObject() as this =
                                                 drop()
                                                 None
                                             | false ->
-                                                selectItem()
+                                                None
 
     let integrateForcesMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (3.0f * delta)
-
 
     let physicsProcessMove (delta : float32) =
         rotateTowardsMoveDirection(delta)
@@ -372,10 +391,8 @@ type ActorObject() as this =
         setAnimation("Run", 50.0f)
         None
 
-    let updateRun() =
-        None
-
     let updateKeysRun() =
+        selectItem() |> ignore
         match isMoveDirectionZero() with
             | true ->
                 Some IdleState
@@ -386,11 +403,11 @@ type ActorObject() as this =
                     | true ->
                         match actorButtons.AimPressed && hasWeaponSelected() with
                             | true ->
-                                Some UnHolsterState
+                                initializeCombatState() |> ignore
+                                Some UnholsterState
                             | false ->
-                                match actorButtons.PickupPressed with
+                                match actorButtons.PickupPressed && pickup() with
                                     | true ->
-                                        pickup()
                                         None
                                     | false ->
                                         match actorButtons.DropPressed with
@@ -398,7 +415,7 @@ type ActorObject() as this =
                                                 drop()
                                                 None
                                             | false ->
-                                                selectItem()
+                                                None
 
     let integrateForcesRun (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (5.0f * delta)
@@ -406,61 +423,33 @@ type ActorObject() as this =
     let physicsProcessRun (delta : float32) =
         rotateTowardsMoveDirection(delta)
 
-    //////////////
-    //Move Hold state//
-    //////////////
+    //////////////////
+    // Weapon state //
+    //////////////////
 
-    let startHoldMove() =
-        None
-
-    let updateHoldMove()  =
-        None
-
-    let updateKeysHoldMove() =
-        match isMoveDirectionZero() with
+    let setWeaponAnimation animationState speed =
+        let weaponType = ItemHelperFunctions.getWeaponType(items.[selectedWeaponOnCombatEnter].Value :?> Weapon)
+        match weaponType.IsSome with
             | true ->
-                Some HoldState
+                setAnimation(weaponType.Value + animationState, speed)
+                None
             | false ->
-                match actorButtons.AimPressed with
-                    | false ->
-                        Some HolsterState
-                    | true ->
-                        match actorButtons.AttackPressed with
-                            | true ->
-                                attack()
-                                None
-                            | false ->
-                                match actorButtons.PickupPressed with
-                                    | true ->
-                                        pickup()
-                                        None
-                                    | false ->
-                                        match actorButtons.DropPressed with
-                                            | true ->
-                                                drop()
-                                                None
-                                            | false ->
-                                                None
-
-    let integrateForcesHoldMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
-        move physicsState (2.5f * delta)
+                Some IdleState
 
     //////////////
     //Hold state//
     //////////////
 
     let startHold() =
-        None
-
-    let updateHold()  =
-        None
+        setWeaponAnimation "Hold" 5.0f
 
     let updateKeysHold() =
+        selectItem() |> ignore
         match isMoveDirectionZero() with
             | false ->
                 Some HoldMoveState
             | true ->
-                match actorButtons.AimPressed with
+                match actorButtons.AimPressed && selectedItem = selectedWeaponOnCombatEnter with
                     | false ->
                         Some HolsterState
                     | true ->
@@ -469,46 +458,274 @@ type ActorObject() as this =
                                 attack()
                                 None
                             | false ->
-                                match actorButtons.PickupPressed with
+                                match actorButtons.PickupPressed && pickup() with
                                     | true ->
-                                        pickup()
-                                        None
+                                        Some IdleState
                                     | false ->
                                         match actorButtons.DropPressed with
                                             | true ->
                                                 drop()
-                                                None
+                                                Some IdleState
                                             | false ->
                                                 None
+
+    ///////////////////
+    //Move Hold state//
+    ///////////////////
+
+    let startHoldMove() =
+        setWeaponAnimation "HoldMove" 5.0f
+
+    let updateKeysHoldMove() =
+        match isMoveDirectionZero() with
+            | true ->
+                Some HoldState
+            | false ->
+                match actorButtons.AimPressed && selectedItem = selectedWeaponOnCombatEnter with
+                    | false ->
+                        Some HolsterState
+                    | true ->
+                        match actorButtons.AttackPressed with
+                            | true ->
+                                attack()
+                                None
+                            | false ->
+                                match actorButtons.PickupPressed && pickup() with
+                                    | true ->
+                                        Some IdleState
+                                    | false ->
+                                        match actorButtons.DropPressed with
+                                            | true ->
+                                                drop()
+                                                Some IdleState
+                                            | false ->
+                                                None
+
+    let integrateForcesHoldMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (2.5f * delta)
+
+    ///////////////////
+    //Reload state//
+    ///////////////////
+
+    let startReload() =
+        setWeaponAnimation "Reload" 5.0f
+
+    // Holster state
+    let reloadTime : float32 = 2.0f
+
+    let updateReload  (delta : float32)  =
+        timer <- timer + delta
+        match timer > reloadTime with
+            | true ->
+                GD.Print "RELOAD DONE NOT IMPLEMENTED YET"
+                //items.[selectedItem].ammoCapacity <- 2
+                Some HoldState
+            | false ->
+                None
+
+    let updateKeysReload() =
+        match isMoveDirectionZero() with
+            | false ->
+                Some ReloadMoveState
+            | true ->
+                match actorButtons.AimPressed && selectedItem = selectedWeaponOnCombatEnter with
+                    | false ->
+                        Some HolsterState
+                    | true ->
+                        match actorButtons.AttackPressed with
+                            | true ->
+                                attack()
+                                None
+                            | false ->
+                                match actorButtons.PickupPressed && pickup() with
+                                    | true ->
+                                        Some IdleState
+                                    | false ->
+                                        match actorButtons.DropPressed with
+                                            | true ->
+                                                drop()
+                                                Some IdleState
+                                            | false ->
+                                                None
+
+    ///////////////////
+    //Reload move state//
+    ///////////////////
+
+    let startReloadMove() =
+        setWeaponAnimation "ReloadMove" 5.0f
+
+    let reloadTime : float32 = 2.0f
+
+    let updateReloadMove  (delta : float32)  =
+        timer <- timer + delta
+        match timer > reloadTime with
+            | true ->
+                GD.Print "RELOAD DONE NOT IMPLEMENTED YET"
+                //items.[selectedItem].ammoCapacity <- 2
+                Some HoldState
+            | false ->
+                None
+
+    let updateKeysReloadMove() =
+        match isMoveDirectionZero() with
+            | true ->
+                Some HoldState
+            | false ->
+                match actorButtons.AimPressed && selectedItem = selectedWeaponOnCombatEnter with
+                    | false ->
+                        Some HolsterState
+                    | true ->
+                        match actorButtons.AttackPressed with
+                            | true ->
+                                attack()
+                                None
+                            | false ->
+                                match actorButtons.PickupPressed && pickup() with
+                                    | true ->
+                                        Some IdleState
+                                    | false ->
+                                        match actorButtons.DropPressed with
+                                            | true ->
+                                                drop()
+                                                Some IdleState
+                                            | false ->
+                                                None
+
+    let integrateForcesReloadMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (2.5f * delta)
+
+    ///////////////
+    //Attack state //
+    ///////////////
+
+    let startAttack() =
+        setWeaponAnimation "Attack" 5.0f
+
+    // Holster state
+    let attackTime : float32 = 2.0f
+    let mutable attackTimer : float32 = 2.0f
+
+    let updateAttack  (delta : float32)  =
+        attackTimer <- attackTimer + delta
+        match attackTimer > attackTime with
+            | true ->
+                GD.Print "ATTACK DONE NOT IMPLEMENTED YET"
+                //items.[selectedItem].ammoCapacity <- 2
+                Some HoldState
+            | false ->
+                None
+
+    let updateKeysAttack() =
+                        match actorButtons.PickupPressed && pickup() with
+                            | true ->
+                                attackTimer <- 0.0f
+                                Some IdleState
+                            | false ->
+                                match actorButtons.DropPressed with
+                                    | true ->
+                                        drop()
+                                        attackTimer <- 0.0f
+                                        Some IdleState
+                                    | false ->
+                                        None
+
+    let integrateForcesAttack (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (2.5f * delta)
+
 
     /////////////////
     //Holster state//
     /////////////////
 
     let startHolster() =
-        None
+        setWeaponAnimation "Holster" 5.0f
 
-    // Holster state
     let holsterTime : float32 = 2.0f
+    let mutable holsterTimer : float32 = 0.0f
+
     let updateHolster  (delta : float32)  =
-        timer <- timer + delta
-        if timer > holsterTime then
-            Some IdleState
-        else None
+        holsterTimer <- holsterTimer + delta
+        match holsterTimer > holsterTime with
+            | true ->
+                holsterTimer <- 0.0f
+                Some IdleState
+            | false ->
+                None
 
     let updateKeysHolster () =
-        match actorButtons.AimPressed with
-            | true ->
-                Some HoldState
+        selectItem() |> ignore
+        match isMoveDirectionZero() with
             | false ->
-                match items.[selectedItem].IsSome with
+                Some HolsterMoveState
+            | true ->
+                match actorButtons.AimPressed && selectedItem = selectedWeaponOnCombatEnter with
                     | true ->
-                        None
+                        holsterTimer <- 0.0f
+                        Some HoldState
                     | false ->
-                        Some IdleState
+                        match actorButtons.DropPressed with
+                            | true ->
+                                drop()
+                                holsterTimer <- 0.0f
+                                Some IdleState
+                            | false ->
+                                match actorButtons.PickupPressed && pickup() with
+                                    | true ->
+                                        holsterTimer <- 0.0f
+                                        Some IdleState
+                                    | false ->
+                                        None
 
-    let integrateForcesHolster (delta : float32) (physicsState : PhysicsDirectBodyState) =
-        move physicsState (1.0f * delta)
+    //////////////////////
+    //Holster Move state//
+    //////////////////////
+
+    let startHolsterMove() =
+        setWeaponAnimation "HolsterMove" 5.0f
+
+    let updateHolsterMove  (delta : float32)  =
+        holsterTimer <- holsterTimer + delta
+        match holsterTimer > holsterTime with
+            | true ->
+                holsterTimer <- 0.0f
+                Some IdleState
+            | false ->
+                None
+
+
+    let updateKeysHolsterMove() =
+        match isMoveDirectionZero() with
+            | true ->
+                Some HolsterState
+            | false ->
+                match actorButtons.AimPressed && selectedItem = selectedWeaponOnCombatEnter with
+                    | false ->
+                        holsterTimer <- 0.0f
+                        Some HolsterState
+                    | true ->
+                        match actorButtons.AttackPressed with
+                            | true ->
+                                holsterTimer <- 0.0f
+                                attack()
+                                None
+                            | false ->
+                                match actorButtons.DropPressed with
+                                    | true ->
+                                        drop()
+                                        holsterTimer <- 0.0f
+                                        Some IdleState
+                                    | false ->
+                                        match actorButtons.PickupPressed && pickup() with
+                                            | true ->
+                                                holsterTimer <- 0.0f
+                                                Some IdleState
+                                            | false ->
+                                                None
+
+    let integrateForcesHolsterMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (2.5f * delta)
 
     ///////////////////
     //Unholster state//
@@ -519,84 +736,164 @@ type ActorObject() as this =
             | false ->
                 Some IdleState
             | true ->
-                None
+                setWeaponAnimation "Unholster" 5.0f
 
     let unHolsterTime : float32 = 2.0f
-    let updateUnHolster(delta : float32) =
-        match items.[selectedItem].IsSome with
-            | false ->
-                Some IdleState
-            | true ->
-                timer <- timer + delta
-                if timer > unHolsterTime then
-                    Some HoldState
-                else None
+    let mutable unHolstertimer = 0.0f
 
-    let updateKeysUnHolster () =
-        match actorButtons.AimPressed with
+    let updateUnholster(delta : float32) =
+        unHolstertimer <- unHolstertimer + delta
+        match unHolstertimer > unHolsterTime with
             | true ->
+                unHolstertimer <- 0.0f
+                Some HoldState
+            | false ->
                 None
-            | false ->
-                Some IdleState
 
-    let integrateForcesUnHolster (delta : float32) (physicsState : PhysicsDirectBodyState) =
-        move physicsState (1.0f * delta)
+    let updateKeysUnholster () =
+        selectItem() |> ignore
+        match isMoveDirectionZero() with
+            | false ->
+                Some UnholsterMoveState
+            | true ->
+                match actorButtons.AimPressed && selectedItem = selectedWeaponOnCombatEnter with
+                    | false ->
+                        unHolstertimer <- 0.0f
+                        Some IdleState
+                    | true ->
+                        match actorButtons.DropPressed with
+                            | true ->
+                                drop()
+                                unHolstertimer <- 0.0f
+                                Some IdleState
+                            | false ->
+                                match actorButtons.PickupPressed && pickup() with
+                                    | true ->
+                                        unHolstertimer <- 0.0f
+                                        Some IdleState
+                                        | false ->
+                                            None
+
+    //////////////////////
+    //Unholster Move state//
+    //////////////////////
+
+    let startUnholsterMove() =
+        setWeaponAnimation "UnholsterMove" 5.0f
+
+    let updateUnholsterMove (delta : float32) =
+        unHolstertimer <- unHolstertimer + delta
+        match unHolstertimer > unHolsterTime with
+            | true ->
+                unHolstertimer <- 0.0f
+                Some HoldState
+            | false ->
+                None
+
+    let updateKeysUnholsterMove() =
+        match isMoveDirectionZero() with
+            | true ->
+                Some UnholsterState
+            | false ->
+                match actorButtons.AimPressed && selectedItem = selectedWeaponOnCombatEnter with
+                    | false ->
+                        unHolstertimer <- 0.0f
+                        Some IdleState
+                    | true ->
+                        match actorButtons.DropPressed with
+                            | true ->
+                                drop()
+                                unHolstertimer <- 0.0f
+                                Some IdleState
+                            | false ->
+                                match actorButtons.PickupPressed && pickup() with
+                                    | true ->
+                                        unHolstertimer <- 0.0f
+                                        Some IdleState
+                                        | false ->
+                                            None
+
+    let integrateForcesUnholsterMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (2.5f * delta)
 
     //////////////////////////////////////
     // End of statemachine definitions  //
     //////////////////////////////////////
 
     let switchStateStateMachine (actorState : ActorState) :  ActorState option =
-        // reset timer
-        timer <- 0.0f
         match actorState with
             | IdleState -> startIdle()
             | MoveState -> startMove()
             | RunState -> startRun()
-            | UnHolsterState -> startUnholster()
+            | UnholsterState -> startUnholster()
+            | UnholsterMoveState -> startUnholsterMove()
             | HoldState -> startHold()
             | HoldMoveState -> startHoldMove()
             | HolsterState -> startHolster()
+            | HolsterMoveState -> startHolsterMove()
+            | ReloadState -> startReload()
+            | ReloadMoveState -> startReloadMove()
+            | AttackState -> startAttack()
 
     let updateStateMachine (delta : float32) (actorState : ActorState) =
         match actorState with
-            | IdleState -> updateIdle()
-            | MoveState -> updateMove()
-            | RunState -> updateRun()
-            | UnHolsterState -> updateUnHolster delta
-            | HoldState -> updateHold()
-            | HoldMoveState -> updateHoldMove()
+            | IdleState -> None
+            | MoveState -> None
+            | RunState -> None
+            | UnholsterState -> updateUnholster delta
+            | UnholsterMoveState -> updateUnholsterMove delta
+            | HoldState -> None
+            | HoldMoveState -> None
             | HolsterState -> updateHolster delta
+            | HolsterMoveState -> updateHolsterMove delta
+            | ReloadState -> updateReload delta
+            | ReloadMoveState -> updateReloadMove delta
+            | AttackState -> updateAttack delta
 
     let physicsProcessForcesStateMachine  (delta : float32) (actorState : ActorState)  =
         match actorState with
             | IdleState -> ()
             | MoveState -> physicsProcessMove delta
             | RunState -> physicsProcessRun delta
-            | UnHolsterState -> ()
+            | UnholsterState -> ()
+            | UnholsterMoveState -> ()
             | HoldState -> ()
             | HoldMoveState -> ()
             | HolsterState -> ()
+            | HolsterMoveState -> ()
+            | ReloadState -> ()
+            | ReloadMoveState -> ()
+            | AttackState -> ()
 
     let integrateForcesStateMachine  (delta : float32) (physicsState : PhysicsDirectBodyState) (actorState : ActorState)  =
         match actorState with
             | IdleState -> ()
             | MoveState -> integrateForcesMove delta physicsState
             | RunState -> integrateForcesRun delta physicsState
-            | UnHolsterState -> integrateForcesUnHolster delta physicsState
+            | UnholsterState -> ()
+            | UnholsterMoveState -> integrateForcesUnholsterMove delta physicsState
             | HoldState -> ()
             | HoldMoveState -> integrateForcesHoldMove delta physicsState
-            | HolsterState -> integrateForcesHolster delta physicsState
+            | HolsterState -> ()
+            | HolsterMoveState -> integrateForcesHolsterMove delta physicsState
+            | ReloadState -> ()
+            | ReloadMoveState -> integrateForcesReloadMove delta physicsState
+            | AttackState -> ()
 
     let updateKeysStateMachine (actorState : ActorState) =
         match actorState with
             | IdleState -> updateKeysIdle()
             | MoveState -> updateKeysMove()
             | RunState -> updateKeysRun()
-            | UnHolsterState -> updateKeysUnHolster()
+            | UnholsterState -> updateKeysUnholster()
+            | UnholsterMoveState -> updateKeysUnholsterMove()
             | HoldState -> updateKeysHold()
             | HoldMoveState -> updateKeysHoldMove()
             | HolsterState -> updateKeysHolster()
+            | HolsterMoveState -> updateKeysHolsterMove()
+            | ReloadState -> updateKeysReload()
+            | ReloadMoveState -> updateKeysReloadMove()
+            | AttackState -> updateKeysAttack()
 
     let initializeStats() =
         actorMaxStats <-
@@ -606,6 +903,7 @@ type ActorObject() as this =
                      MaxShooting = 0.0
                      MaxCommandChildren = 0
                    }
+
         actorCurrentStats <-
                    Some {
                      CurrentStrength = actorMaxStats.Value.MaxStrength
@@ -666,6 +964,7 @@ type ActorObject() as this =
 
     override this._Process(delta : float32) =
         switchState (updateStateMachine delta state)
+        pickupTimer <- pickupTimer + delta
 
     override this._PhysicsProcess(delta : float32) =
         let toggleQueuedAttachedState() =
