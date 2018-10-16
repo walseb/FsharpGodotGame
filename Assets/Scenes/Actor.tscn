@@ -1,397 +1,332 @@
-[gd_scene load_steps=396 format=2]
+[gd_scene load_steps=331 format=2]
 
 [ext_resource path="res://src/Actor/ActorWrap.cs" type="Script" id=1]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run1.png" type="Texture" id=2]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run2.png" type="Texture" id=3]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run3.png" type="Texture" id=4]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run4.png" type="Texture" id=5]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run5.png" type="Texture" id=6]
-[ext_resource path="res://Assets/Sprites/Actor/Idle/Idle.png" type="Texture" id=7]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move0.png" type="Texture" id=8]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move1.png" type="Texture" id=9]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move2.png" type="Texture" id=10]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move3.png" type="Texture" id=11]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move4.png" type="Texture" id=12]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove0.png" type="Texture" id=13]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove1.png" type="Texture" id=14]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove2.png" type="Texture" id=15]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove3.png" type="Texture" id=16]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove4.png" type="Texture" id=17]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove5.png" type="Texture" id=18]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove6.png" type="Texture" id=19]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove7.png" type="Texture" id=20]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove8.png" type="Texture" id=21]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove9.png" type="Texture" id=22]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HolsterMove/UnholsterMove10.png" type="Texture" id=23]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove0.png" type="Texture" id=24]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove1.png" type="Texture" id=25]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove2.png" type="Texture" id=26]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove3.png" type="Texture" id=27]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove4.png" type="Texture" id=28]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove5.png" type="Texture" id=29]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove6.png" type="Texture" id=30]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove7.png" type="Texture" id=31]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove8.png" type="Texture" id=32]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove9.png" type="Texture" id=33]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HolsterMove/UnholsterMove10.png" type="Texture" id=34]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove0.png" type="Texture" id=35]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove1.png" type="Texture" id=36]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove2.png" type="Texture" id=37]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove3.png" type="Texture" id=38]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove4.png" type="Texture" id=39]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove5.png" type="Texture" id=40]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove6.png" type="Texture" id=41]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove7.png" type="Texture" id=42]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove8.png" type="Texture" id=43]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove9.png" type="Texture" id=44]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/UnholsterMove/UnholsterMove10.png" type="Texture" id=45]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster0.png" type="Texture" id=46]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster1.png" type="Texture" id=47]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster2.png" type="Texture" id=48]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster3.png" type="Texture" id=49]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster4.png" type="Texture" id=50]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster5.png" type="Texture" id=51]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster6.png" type="Texture" id=52]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster7.png" type="Texture" id=53]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster8.png" type="Texture" id=54]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster9.png" type="Texture" id=55]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster10.png" type="Texture" id=56]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster0.png" type="Texture" id=57]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster1.png" type="Texture" id=58]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster2.png" type="Texture" id=59]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster3.png" type="Texture" id=60]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster4.png" type="Texture" id=61]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster5.png" type="Texture" id=62]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster6.png" type="Texture" id=63]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster7.png" type="Texture" id=64]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster8.png" type="Texture" id=65]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster9.png" type="Texture" id=66]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster10.png" type="Texture" id=67]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold0.png" type="Texture" id=68]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold1.png" type="Texture" id=69]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold2.png" type="Texture" id=70]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold3.png" type="Texture" id=71]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold4.png" type="Texture" id=72]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold5.png" type="Texture" id=73]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold6.png" type="Texture" id=74]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold7.png" type="Texture" id=75]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold8.png" type="Texture" id=76]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload0.png" type="Texture" id=77]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload1.png" type="Texture" id=78]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload2.png" type="Texture" id=79]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload3.png" type="Texture" id=80]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload4.png" type="Texture" id=81]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload5.png" type="Texture" id=82]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload6.png" type="Texture" id=83]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload7.png" type="Texture" id=84]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload8.png" type="Texture" id=85]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run1.png" type="Texture" id=86]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run2.png" type="Texture" id=87]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run3.png" type="Texture" id=88]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run4.png" type="Texture" id=89]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run5.png" type="Texture" id=90]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Fire/Fire0.png" type="Texture" id=91]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Fire/Fire1.png" type="Texture" id=92]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Fire/Fire2.png" type="Texture" id=93]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Fire/Fire3.png" type="Texture" id=94]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run1.png" type="Texture" id=95]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run2.png" type="Texture" id=96]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run3.png" type="Texture" id=97]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run4.png" type="Texture" id=98]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run5.png" type="Texture" id=99]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster0.png" type="Texture" id=100]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster1.png" type="Texture" id=101]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster2.png" type="Texture" id=102]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster3.png" type="Texture" id=103]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster4.png" type="Texture" id=104]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster5.png" type="Texture" id=105]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster6.png" type="Texture" id=106]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster7.png" type="Texture" id=107]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster8.png" type="Texture" id=108]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster9.png" type="Texture" id=109]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster10.png" type="Texture" id=110]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload0.png" type="Texture" id=111]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload1.png" type="Texture" id=112]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload2.png" type="Texture" id=113]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload3.png" type="Texture" id=114]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload4.png" type="Texture" id=115]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload5.png" type="Texture" id=116]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload6.png" type="Texture" id=117]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload7.png" type="Texture" id=118]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload8.png" type="Texture" id=119]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster0.png" type="Texture" id=120]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster1.png" type="Texture" id=121]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster2.png" type="Texture" id=122]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster3.png" type="Texture" id=123]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster4.png" type="Texture" id=124]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster5.png" type="Texture" id=125]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster6.png" type="Texture" id=126]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster7.png" type="Texture" id=127]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster8.png" type="Texture" id=128]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster9.png" type="Texture" id=129]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster10.png" type="Texture" id=130]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster0.png" type="Texture" id=131]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster1.png" type="Texture" id=132]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster2.png" type="Texture" id=133]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster3.png" type="Texture" id=134]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster4.png" type="Texture" id=135]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster5.png" type="Texture" id=136]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster6.png" type="Texture" id=137]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster7.png" type="Texture" id=138]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster8.png" type="Texture" id=139]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster9.png" type="Texture" id=140]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster10.png" type="Texture" id=141]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold0.png" type="Texture" id=142]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold1.png" type="Texture" id=143]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold2.png" type="Texture" id=144]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold3.png" type="Texture" id=145]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold4.png" type="Texture" id=146]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold5.png" type="Texture" id=147]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold6.png" type="Texture" id=148]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold7.png" type="Texture" id=149]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold8.png" type="Texture" id=150]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move0.png" type="Texture" id=151]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move1.png" type="Texture" id=152]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move2.png" type="Texture" id=153]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move3.png" type="Texture" id=154]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move4.png" type="Texture" id=155]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster0.png" type="Texture" id=156]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster1.png" type="Texture" id=157]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster2.png" type="Texture" id=158]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster3.png" type="Texture" id=159]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster4.png" type="Texture" id=160]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster5.png" type="Texture" id=161]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster6.png" type="Texture" id=162]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster7.png" type="Texture" id=163]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster8.png" type="Texture" id=164]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster9.png" type="Texture" id=165]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster10.png" type="Texture" id=166]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload0.png" type="Texture" id=167]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload1.png" type="Texture" id=168]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload2.png" type="Texture" id=169]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload3.png" type="Texture" id=170]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload4.png" type="Texture" id=171]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload5.png" type="Texture" id=172]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload6.png" type="Texture" id=173]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload7.png" type="Texture" id=174]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload8.png" type="Texture" id=175]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload0.png" type="Texture" id=176]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload1.png" type="Texture" id=177]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload2.png" type="Texture" id=178]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload3.png" type="Texture" id=179]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload4.png" type="Texture" id=180]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload5.png" type="Texture" id=181]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload6.png" type="Texture" id=182]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload7.png" type="Texture" id=183]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload8.png" type="Texture" id=184]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Fire/Fire0.png" type="Texture" id=185]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Fire/Fire1.png" type="Texture" id=186]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Fire/Fire2.png" type="Texture" id=187]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Fire/Fire3.png" type="Texture" id=188]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Fire/Fire0.png" type="Texture" id=189]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Fire/Fire1.png" type="Texture" id=190]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Fire/Fire2.png" type="Texture" id=191]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Fire/Fire3.png" type="Texture" id=192]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold0.png" type="Texture" id=193]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold1.png" type="Texture" id=194]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold2.png" type="Texture" id=195]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold3.png" type="Texture" id=196]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold4.png" type="Texture" id=197]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold5.png" type="Texture" id=198]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold6.png" type="Texture" id=199]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold7.png" type="Texture" id=200]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold8.png" type="Texture" id=201]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run1.png" type="Texture" id=202]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run2.png" type="Texture" id=203]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run3.png" type="Texture" id=204]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run4.png" type="Texture" id=205]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run5.png" type="Texture" id=206]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move0.png" type="Texture" id=207]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move1.png" type="Texture" id=208]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move2.png" type="Texture" id=209]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move3.png" type="Texture" id=210]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move4.png" type="Texture" id=211]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move0.png" type="Texture" id=212]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move1.png" type="Texture" id=213]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move2.png" type="Texture" id=214]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move3.png" type="Texture" id=215]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move4.png" type="Texture" id=216]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster0.png" type="Texture" id=217]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster1.png" type="Texture" id=218]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster2.png" type="Texture" id=219]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster3.png" type="Texture" id=220]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster4.png" type="Texture" id=221]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster5.png" type="Texture" id=222]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster6.png" type="Texture" id=223]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster7.png" type="Texture" id=224]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster8.png" type="Texture" id=225]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster9.png" type="Texture" id=226]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster10.png" type="Texture" id=227]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Fire/Fire0.png" type="Texture" id=228]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Fire/Fire1.png" type="Texture" id=229]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Fire/Fire2.png" type="Texture" id=230]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Fire/Fire3.png" type="Texture" id=231]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Fire/Fire0.png" type="Texture" id=232]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Fire/Fire1.png" type="Texture" id=233]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Fire/Fire2.png" type="Texture" id=234]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Fire/Fire3.png" type="Texture" id=235]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster0.png" type="Texture" id=236]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster1.png" type="Texture" id=237]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster2.png" type="Texture" id=238]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster3.png" type="Texture" id=239]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster4.png" type="Texture" id=240]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster5.png" type="Texture" id=241]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster6.png" type="Texture" id=242]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster7.png" type="Texture" id=243]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster8.png" type="Texture" id=244]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster9.png" type="Texture" id=245]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster10.png" type="Texture" id=246]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold0.png" type="Texture" id=247]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold1.png" type="Texture" id=248]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold2.png" type="Texture" id=249]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold3.png" type="Texture" id=250]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold4.png" type="Texture" id=251]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold5.png" type="Texture" id=252]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold6.png" type="Texture" id=253]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold7.png" type="Texture" id=254]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold8.png" type="Texture" id=255]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold0.png" type="Texture" id=256]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold1.png" type="Texture" id=257]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold2.png" type="Texture" id=258]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold3.png" type="Texture" id=259]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold4.png" type="Texture" id=260]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold5.png" type="Texture" id=261]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold6.png" type="Texture" id=262]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold7.png" type="Texture" id=263]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold8.png" type="Texture" id=264]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster0.png" type="Texture" id=265]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster1.png" type="Texture" id=266]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster2.png" type="Texture" id=267]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster3.png" type="Texture" id=268]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster4.png" type="Texture" id=269]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster5.png" type="Texture" id=270]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster6.png" type="Texture" id=271]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster7.png" type="Texture" id=272]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster8.png" type="Texture" id=273]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster9.png" type="Texture" id=274]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster10.png" type="Texture" id=275]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run1.png" type="Texture" id=276]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run2.png" type="Texture" id=277]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run3.png" type="Texture" id=278]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run4.png" type="Texture" id=279]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run5.png" type="Texture" id=280]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload0.png" type="Texture" id=281]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload1.png" type="Texture" id=282]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload2.png" type="Texture" id=283]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload3.png" type="Texture" id=284]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload4.png" type="Texture" id=285]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload5.png" type="Texture" id=286]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload6.png" type="Texture" id=287]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload7.png" type="Texture" id=288]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload8.png" type="Texture" id=289]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster0.png" type="Texture" id=290]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster1.png" type="Texture" id=291]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster2.png" type="Texture" id=292]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster3.png" type="Texture" id=293]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster4.png" type="Texture" id=294]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster5.png" type="Texture" id=295]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster6.png" type="Texture" id=296]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster7.png" type="Texture" id=297]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster8.png" type="Texture" id=298]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster9.png" type="Texture" id=299]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster10.png" type="Texture" id=300]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move0.png" type="Texture" id=301]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move1.png" type="Texture" id=302]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move2.png" type="Texture" id=303]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move3.png" type="Texture" id=304]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move4.png" type="Texture" id=305]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run1.png" type="Texture" id=306]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run2.png" type="Texture" id=307]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run3.png" type="Texture" id=308]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run4.png" type="Texture" id=309]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run5.png" type="Texture" id=310]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move0.png" type="Texture" id=311]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move1.png" type="Texture" id=312]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move2.png" type="Texture" id=313]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move3.png" type="Texture" id=314]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move4.png" type="Texture" id=315]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove0.png" type="Texture" id=316]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove1.png" type="Texture" id=317]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove2.png" type="Texture" id=318]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove3.png" type="Texture" id=319]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove4.png" type="Texture" id=320]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove5.png" type="Texture" id=321]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove6.png" type="Texture" id=322]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove7.png" type="Texture" id=323]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove8.png" type="Texture" id=324]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove9.png" type="Texture" id=325]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/UnholsterMove/UnholsterMove10.png" type="Texture" id=326]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove0.png" type="Texture" id=327]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove1.png" type="Texture" id=328]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove2.png" type="Texture" id=329]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove3.png" type="Texture" id=330]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove4.png" type="Texture" id=331]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove5.png" type="Texture" id=332]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove6.png" type="Texture" id=333]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove7.png" type="Texture" id=334]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove8.png" type="Texture" id=335]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove9.png" type="Texture" id=336]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/UnholsterMove/UnholsterMove10.png" type="Texture" id=337]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove0.png" type="Texture" id=338]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove1.png" type="Texture" id=339]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove2.png" type="Texture" id=340]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove3.png" type="Texture" id=341]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove4.png" type="Texture" id=342]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove5.png" type="Texture" id=343]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove6.png" type="Texture" id=344]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove7.png" type="Texture" id=345]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove8.png" type="Texture" id=346]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove9.png" type="Texture" id=347]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HolsterMove/UnholsterMove10.png" type="Texture" id=348]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove0.png" type="Texture" id=349]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove1.png" type="Texture" id=350]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove2.png" type="Texture" id=351]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove3.png" type="Texture" id=352]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove4.png" type="Texture" id=353]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove5.png" type="Texture" id=354]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove6.png" type="Texture" id=355]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove7.png" type="Texture" id=356]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove8.png" type="Texture" id=357]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove9.png" type="Texture" id=358]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/UnholsterMove/UnholsterMove10.png" type="Texture" id=359]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove0.png" type="Texture" id=360]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove1.png" type="Texture" id=361]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove2.png" type="Texture" id=362]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove3.png" type="Texture" id=363]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove4.png" type="Texture" id=364]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove5.png" type="Texture" id=365]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove6.png" type="Texture" id=366]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove7.png" type="Texture" id=367]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove8.png" type="Texture" id=368]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove9.png" type="Texture" id=369]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HolsterMove/HolsterMove10.png" type="Texture" id=370]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove0.png" type="Texture" id=371]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove1.png" type="Texture" id=372]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove2.png" type="Texture" id=373]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove3.png" type="Texture" id=374]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove4.png" type="Texture" id=375]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove5.png" type="Texture" id=376]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove6.png" type="Texture" id=377]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove7.png" type="Texture" id=378]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove8.png" type="Texture" id=379]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove9.png" type="Texture" id=380]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HolsterMove/HolsterMove10.png" type="Texture" id=381]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove0.png" type="Texture" id=382]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove1.png" type="Texture" id=383]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove2.png" type="Texture" id=384]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove3.png" type="Texture" id=385]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove4.png" type="Texture" id=386]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove5.png" type="Texture" id=387]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove6.png" type="Texture" id=388]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove7.png" type="Texture" id=389]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove8.png" type="Texture" id=390]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove9.png" type="Texture" id=391]
-[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/UnholsterMove/UnholsterMove10.png" type="Texture" id=392]
+[ext_resource path="res://Assets/Sprites/Actor/Idle/Idle.png" type="Texture" id=2]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move0.png" type="Texture" id=3]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move1.png" type="Texture" id=4]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move2.png" type="Texture" id=5]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move3.png" type="Texture" id=6]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move4.png" type="Texture" id=7]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run1.png" type="Texture" id=8]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run2.png" type="Texture" id=9]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run3.png" type="Texture" id=10]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run4.png" type="Texture" id=11]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run5.png" type="Texture" id=12]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove0.png" type="Texture" id=13]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove1.png" type="Texture" id=14]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove2.png" type="Texture" id=15]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove3.png" type="Texture" id=16]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove4.png" type="Texture" id=17]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove5.png" type="Texture" id=18]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove6.png" type="Texture" id=19]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove7.png" type="Texture" id=20]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove8.png" type="Texture" id=21]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HoldMove/HoldMove0.png" type="Texture" id=22]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HoldMove/HoldMove1.png" type="Texture" id=23]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HoldMove/HoldMove2.png" type="Texture" id=24]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HoldMove/HoldMove3.png" type="Texture" id=25]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HoldMove/HoldMove4.png" type="Texture" id=26]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HoldMove/HoldMove5.png" type="Texture" id=27]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HoldMove/HoldMove6.png" type="Texture" id=28]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HoldMove/HoldMove7.png" type="Texture" id=29]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/HoldMove/HoldMove8.png" type="Texture" id=30]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster0.png" type="Texture" id=31]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster1.png" type="Texture" id=32]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster2.png" type="Texture" id=33]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster3.png" type="Texture" id=34]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster4.png" type="Texture" id=35]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster5.png" type="Texture" id=36]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster6.png" type="Texture" id=37]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster7.png" type="Texture" id=38]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster8.png" type="Texture" id=39]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster9.png" type="Texture" id=40]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Holster/Unholster10.png" type="Texture" id=41]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster0.png" type="Texture" id=42]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster1.png" type="Texture" id=43]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster2.png" type="Texture" id=44]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster3.png" type="Texture" id=45]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster4.png" type="Texture" id=46]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster5.png" type="Texture" id=47]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster6.png" type="Texture" id=48]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster7.png" type="Texture" id=49]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster8.png" type="Texture" id=50]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster9.png" type="Texture" id=51]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Unholster/Unholster10.png" type="Texture" id=52]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold0.png" type="Texture" id=53]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold1.png" type="Texture" id=54]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold2.png" type="Texture" id=55]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold3.png" type="Texture" id=56]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold4.png" type="Texture" id=57]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold5.png" type="Texture" id=58]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold6.png" type="Texture" id=59]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold7.png" type="Texture" id=60]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Hold/Hold8.png" type="Texture" id=61]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload0.png" type="Texture" id=62]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload1.png" type="Texture" id=63]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload2.png" type="Texture" id=64]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload3.png" type="Texture" id=65]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload4.png" type="Texture" id=66]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload5.png" type="Texture" id=67]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload6.png" type="Texture" id=68]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload7.png" type="Texture" id=69]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Reload/Reload8.png" type="Texture" id=70]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run1.png" type="Texture" id=71]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run2.png" type="Texture" id=72]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run3.png" type="Texture" id=73]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run4.png" type="Texture" id=74]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Run/Run5.png" type="Texture" id=75]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Fire/Fire0.png" type="Texture" id=76]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Fire/Fire1.png" type="Texture" id=77]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Fire/Fire2.png" type="Texture" id=78]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Fire/Fire3.png" type="Texture" id=79]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run1.png" type="Texture" id=80]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run2.png" type="Texture" id=81]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run3.png" type="Texture" id=82]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run4.png" type="Texture" id=83]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Run/Run5.png" type="Texture" id=84]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster0.png" type="Texture" id=85]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster1.png" type="Texture" id=86]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster2.png" type="Texture" id=87]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster3.png" type="Texture" id=88]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster4.png" type="Texture" id=89]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster5.png" type="Texture" id=90]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster6.png" type="Texture" id=91]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster7.png" type="Texture" id=92]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster8.png" type="Texture" id=93]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster9.png" type="Texture" id=94]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Holster/Unholster10.png" type="Texture" id=95]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload0.png" type="Texture" id=96]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload1.png" type="Texture" id=97]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload2.png" type="Texture" id=98]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload3.png" type="Texture" id=99]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload4.png" type="Texture" id=100]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload5.png" type="Texture" id=101]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload6.png" type="Texture" id=102]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload7.png" type="Texture" id=103]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Reload/Reload8.png" type="Texture" id=104]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster0.png" type="Texture" id=105]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster1.png" type="Texture" id=106]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster2.png" type="Texture" id=107]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster3.png" type="Texture" id=108]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster4.png" type="Texture" id=109]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster5.png" type="Texture" id=110]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster6.png" type="Texture" id=111]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster7.png" type="Texture" id=112]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster8.png" type="Texture" id=113]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster9.png" type="Texture" id=114]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Unholster/Unholster10.png" type="Texture" id=115]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster0.png" type="Texture" id=116]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster1.png" type="Texture" id=117]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster2.png" type="Texture" id=118]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster3.png" type="Texture" id=119]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster4.png" type="Texture" id=120]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster5.png" type="Texture" id=121]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster6.png" type="Texture" id=122]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster7.png" type="Texture" id=123]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster8.png" type="Texture" id=124]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster9.png" type="Texture" id=125]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Holster/Unholster10.png" type="Texture" id=126]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold0.png" type="Texture" id=127]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold1.png" type="Texture" id=128]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold2.png" type="Texture" id=129]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold3.png" type="Texture" id=130]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold4.png" type="Texture" id=131]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold5.png" type="Texture" id=132]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold6.png" type="Texture" id=133]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold7.png" type="Texture" id=134]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Hold/Hold8.png" type="Texture" id=135]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move0.png" type="Texture" id=136]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move1.png" type="Texture" id=137]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move2.png" type="Texture" id=138]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move3.png" type="Texture" id=139]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Move/Move4.png" type="Texture" id=140]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster0.png" type="Texture" id=141]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster1.png" type="Texture" id=142]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster2.png" type="Texture" id=143]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster3.png" type="Texture" id=144]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster4.png" type="Texture" id=145]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster5.png" type="Texture" id=146]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster6.png" type="Texture" id=147]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster7.png" type="Texture" id=148]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster8.png" type="Texture" id=149]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster9.png" type="Texture" id=150]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Unholster/Unholster10.png" type="Texture" id=151]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload0.png" type="Texture" id=152]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload1.png" type="Texture" id=153]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload2.png" type="Texture" id=154]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload3.png" type="Texture" id=155]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload4.png" type="Texture" id=156]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload5.png" type="Texture" id=157]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload6.png" type="Texture" id=158]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload7.png" type="Texture" id=159]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Reload/Reload8.png" type="Texture" id=160]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload0.png" type="Texture" id=161]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload1.png" type="Texture" id=162]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload2.png" type="Texture" id=163]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload3.png" type="Texture" id=164]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload4.png" type="Texture" id=165]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload5.png" type="Texture" id=166]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload6.png" type="Texture" id=167]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload7.png" type="Texture" id=168]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Reload/Reload8.png" type="Texture" id=169]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Fire/Fire0.png" type="Texture" id=170]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Fire/Fire1.png" type="Texture" id=171]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Fire/Fire2.png" type="Texture" id=172]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Fire/Fire3.png" type="Texture" id=173]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Fire/Fire0.png" type="Texture" id=174]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Fire/Fire1.png" type="Texture" id=175]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Fire/Fire2.png" type="Texture" id=176]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Fire/Fire3.png" type="Texture" id=177]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold0.png" type="Texture" id=178]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold1.png" type="Texture" id=179]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold2.png" type="Texture" id=180]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold3.png" type="Texture" id=181]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold4.png" type="Texture" id=182]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold5.png" type="Texture" id=183]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold6.png" type="Texture" id=184]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold7.png" type="Texture" id=185]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Hold/Hold8.png" type="Texture" id=186]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run1.png" type="Texture" id=187]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run2.png" type="Texture" id=188]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run3.png" type="Texture" id=189]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run4.png" type="Texture" id=190]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Run/Run5.png" type="Texture" id=191]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move0.png" type="Texture" id=192]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move1.png" type="Texture" id=193]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move2.png" type="Texture" id=194]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move3.png" type="Texture" id=195]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Move/Move4.png" type="Texture" id=196]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move0.png" type="Texture" id=197]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move1.png" type="Texture" id=198]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move2.png" type="Texture" id=199]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move3.png" type="Texture" id=200]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Move/Move4.png" type="Texture" id=201]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster0.png" type="Texture" id=202]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster1.png" type="Texture" id=203]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster2.png" type="Texture" id=204]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster3.png" type="Texture" id=205]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster4.png" type="Texture" id=206]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster5.png" type="Texture" id=207]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster6.png" type="Texture" id=208]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster7.png" type="Texture" id=209]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster8.png" type="Texture" id=210]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster9.png" type="Texture" id=211]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Holster/Unholster10.png" type="Texture" id=212]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Fire/Fire0.png" type="Texture" id=213]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Fire/Fire1.png" type="Texture" id=214]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Fire/Fire2.png" type="Texture" id=215]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Fire/Fire3.png" type="Texture" id=216]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Fire/Fire0.png" type="Texture" id=217]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Fire/Fire1.png" type="Texture" id=218]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Fire/Fire2.png" type="Texture" id=219]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Fire/Fire3.png" type="Texture" id=220]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster0.png" type="Texture" id=221]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster1.png" type="Texture" id=222]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster2.png" type="Texture" id=223]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster3.png" type="Texture" id=224]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster4.png" type="Texture" id=225]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster5.png" type="Texture" id=226]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster6.png" type="Texture" id=227]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster7.png" type="Texture" id=228]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster8.png" type="Texture" id=229]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster9.png" type="Texture" id=230]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Holster/Unholster10.png" type="Texture" id=231]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold0.png" type="Texture" id=232]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold1.png" type="Texture" id=233]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold2.png" type="Texture" id=234]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold3.png" type="Texture" id=235]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold4.png" type="Texture" id=236]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold5.png" type="Texture" id=237]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold6.png" type="Texture" id=238]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold7.png" type="Texture" id=239]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Hold/Hold8.png" type="Texture" id=240]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold0.png" type="Texture" id=241]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold1.png" type="Texture" id=242]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold2.png" type="Texture" id=243]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold3.png" type="Texture" id=244]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold4.png" type="Texture" id=245]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold5.png" type="Texture" id=246]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold6.png" type="Texture" id=247]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold7.png" type="Texture" id=248]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/Hold/Hold8.png" type="Texture" id=249]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster0.png" type="Texture" id=250]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster1.png" type="Texture" id=251]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster2.png" type="Texture" id=252]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster3.png" type="Texture" id=253]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster4.png" type="Texture" id=254]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster5.png" type="Texture" id=255]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster6.png" type="Texture" id=256]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster7.png" type="Texture" id=257]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster8.png" type="Texture" id=258]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster9.png" type="Texture" id=259]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Unholster/Unholster10.png" type="Texture" id=260]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run1.png" type="Texture" id=261]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run2.png" type="Texture" id=262]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run3.png" type="Texture" id=263]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run4.png" type="Texture" id=264]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/Run/Run5.png" type="Texture" id=265]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload0.png" type="Texture" id=266]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload1.png" type="Texture" id=267]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload2.png" type="Texture" id=268]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload3.png" type="Texture" id=269]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload4.png" type="Texture" id=270]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload5.png" type="Texture" id=271]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload6.png" type="Texture" id=272]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload7.png" type="Texture" id=273]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Reload/Reload8.png" type="Texture" id=274]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster0.png" type="Texture" id=275]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster1.png" type="Texture" id=276]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster2.png" type="Texture" id=277]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster3.png" type="Texture" id=278]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster4.png" type="Texture" id=279]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster5.png" type="Texture" id=280]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster6.png" type="Texture" id=281]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster7.png" type="Texture" id=282]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster8.png" type="Texture" id=283]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster9.png" type="Texture" id=284]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/Unholster/Unholster10.png" type="Texture" id=285]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move0.png" type="Texture" id=286]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move1.png" type="Texture" id=287]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move2.png" type="Texture" id=288]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move3.png" type="Texture" id=289]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Move/Move4.png" type="Texture" id=290]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run1.png" type="Texture" id=291]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run2.png" type="Texture" id=292]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run3.png" type="Texture" id=293]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run4.png" type="Texture" id=294]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Shotgun/Run/Run5.png" type="Texture" id=295]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move0.png" type="Texture" id=296]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move1.png" type="Texture" id=297]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move2.png" type="Texture" id=298]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move3.png" type="Texture" id=299]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/Move/Move4.png" type="Texture" id=300]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HoldMove/HoldMove0.png" type="Texture" id=301]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HoldMove/HoldMove1.png" type="Texture" id=302]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HoldMove/HoldMove2.png" type="Texture" id=303]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HoldMove/HoldMove3.png" type="Texture" id=304]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HoldMove/HoldMove4.png" type="Texture" id=305]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HoldMove/HoldMove5.png" type="Texture" id=306]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HoldMove/HoldMove6.png" type="Texture" id=307]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HoldMove/HoldMove7.png" type="Texture" id=308]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Lmg/HoldMove/HoldMove8.png" type="Texture" id=309]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HoldMove/HoldMove0.png" type="Texture" id=310]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HoldMove/HoldMove1.png" type="Texture" id=311]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HoldMove/HoldMove2.png" type="Texture" id=312]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HoldMove/HoldMove3.png" type="Texture" id=313]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HoldMove/HoldMove4.png" type="Texture" id=314]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HoldMove/HoldMove5.png" type="Texture" id=315]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HoldMove/HoldMove6.png" type="Texture" id=316]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HoldMove/HoldMove7.png" type="Texture" id=317]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Rifle/HoldMove/HoldMove8.png" type="Texture" id=318]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HoldMove/HoldMove0.png" type="Texture" id=319]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HoldMove/HoldMove1.png" type="Texture" id=320]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HoldMove/HoldMove2.png" type="Texture" id=321]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HoldMove/HoldMove3.png" type="Texture" id=322]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HoldMove/HoldMove4.png" type="Texture" id=323]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HoldMove/HoldMove5.png" type="Texture" id=324]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HoldMove/HoldMove6.png" type="Texture" id=325]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HoldMove/HoldMove7.png" type="Texture" id=326]
+[ext_resource path="res://Assets/Sprites/Actor/Weapons/Smg/HoldMove/HoldMove8.png" type="Texture" id=327]
 
 [sub_resource type="SphereShape" id=1]
 
@@ -404,244 +339,219 @@ extents = Vector3( 0.493813, 0.277944, 0.251529 )
 [sub_resource type="SpriteFrames" id=3]
 
 animations = [ {
-"frames": [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ) ],
-"loop": true,
-"name": "Run",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 7 ) ],
+"frames": [ ExtResource( 2 ) ],
 "loop": true,
 "name": "Idle",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 12 ) ],
+"frames": [ ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 7 ) ],
 "loop": true,
 "name": "Move",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 13 ), ExtResource( 14 ), ExtResource( 15 ), ExtResource( 16 ), ExtResource( 17 ), ExtResource( 18 ), ExtResource( 19 ), ExtResource( 20 ), ExtResource( 21 ), ExtResource( 22 ), ExtResource( 23 ) ],
+"frames": [ ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 12 ) ],
 "loop": true,
-"name": "RifleHolsterMove",
+"name": "Run",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 24 ), ExtResource( 25 ), ExtResource( 26 ), ExtResource( 27 ), ExtResource( 28 ), ExtResource( 29 ), ExtResource( 30 ), ExtResource( 31 ), ExtResource( 32 ), ExtResource( 33 ), ExtResource( 34 ) ],
+"frames": [ ExtResource( 13 ), ExtResource( 14 ), ExtResource( 15 ), ExtResource( 16 ), ExtResource( 17 ), ExtResource( 18 ), ExtResource( 19 ), ExtResource( 20 ), ExtResource( 21 ) ],
 "loop": true,
-"name": "LmgHolsterMove",
+"name": "PistolHoldMove",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 35 ), ExtResource( 36 ), ExtResource( 37 ), ExtResource( 38 ), ExtResource( 39 ), ExtResource( 40 ), ExtResource( 41 ), ExtResource( 42 ), ExtResource( 43 ), ExtResource( 44 ), ExtResource( 45 ) ],
+"frames": [ ExtResource( 22 ), ExtResource( 23 ), ExtResource( 24 ), ExtResource( 25 ), ExtResource( 26 ), ExtResource( 27 ), ExtResource( 28 ), ExtResource( 29 ), ExtResource( 30 ) ],
 "loop": true,
-"name": "LmgUnholsterMove",
+"name": "ShotgunHoldMove",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 46 ), ExtResource( 47 ), ExtResource( 48 ), ExtResource( 49 ), ExtResource( 50 ), ExtResource( 51 ), ExtResource( 52 ), ExtResource( 53 ), ExtResource( 54 ), ExtResource( 55 ), ExtResource( 56 ) ],
+"frames": [ ExtResource( 31 ), ExtResource( 32 ), ExtResource( 33 ), ExtResource( 34 ), ExtResource( 35 ), ExtResource( 36 ), ExtResource( 37 ), ExtResource( 38 ), ExtResource( 39 ), ExtResource( 40 ), ExtResource( 41 ) ],
 "loop": true,
 "name": "LmgHolster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 57 ), ExtResource( 58 ), ExtResource( 59 ), ExtResource( 60 ), ExtResource( 61 ), ExtResource( 62 ), ExtResource( 63 ), ExtResource( 64 ), ExtResource( 65 ), ExtResource( 66 ), ExtResource( 67 ) ],
+"frames": [ ExtResource( 42 ), ExtResource( 43 ), ExtResource( 44 ), ExtResource( 45 ), ExtResource( 46 ), ExtResource( 47 ), ExtResource( 48 ), ExtResource( 49 ), ExtResource( 50 ), ExtResource( 51 ), ExtResource( 52 ) ],
 "loop": true,
 "name": "LmgUnholster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 68 ), ExtResource( 69 ), ExtResource( 70 ), ExtResource( 71 ), ExtResource( 72 ), ExtResource( 73 ), ExtResource( 74 ), ExtResource( 75 ), ExtResource( 76 ) ],
+"frames": [ ExtResource( 53 ), ExtResource( 54 ), ExtResource( 55 ), ExtResource( 56 ), ExtResource( 57 ), ExtResource( 58 ), ExtResource( 59 ), ExtResource( 60 ), ExtResource( 61 ) ],
 "loop": true,
 "name": "LmgHold",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 77 ), ExtResource( 78 ), ExtResource( 79 ), ExtResource( 80 ), ExtResource( 81 ), ExtResource( 82 ), ExtResource( 83 ), ExtResource( 84 ), ExtResource( 85 ) ],
+"frames": [ ExtResource( 62 ), ExtResource( 63 ), ExtResource( 64 ), ExtResource( 65 ), ExtResource( 66 ), ExtResource( 67 ), ExtResource( 68 ), ExtResource( 69 ), ExtResource( 70 ) ],
 "loop": true,
 "name": "LmgReload",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 86 ), ExtResource( 87 ), ExtResource( 88 ), ExtResource( 89 ), ExtResource( 90 ) ],
+"frames": [ ExtResource( 71 ), ExtResource( 72 ), ExtResource( 73 ), ExtResource( 74 ), ExtResource( 75 ) ],
 "loop": true,
 "name": "LmgRun",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 91 ), ExtResource( 92 ), ExtResource( 93 ), ExtResource( 94 ) ],
+"frames": [ ExtResource( 76 ), ExtResource( 77 ), ExtResource( 78 ), ExtResource( 79 ) ],
 "loop": true,
 "name": "LmgFire",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 95 ), ExtResource( 96 ), ExtResource( 97 ), ExtResource( 98 ), ExtResource( 99 ) ],
+"frames": [ ExtResource( 80 ), ExtResource( 81 ), ExtResource( 82 ), ExtResource( 83 ), ExtResource( 84 ) ],
 "loop": true,
 "name": "RifleRun",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 100 ), ExtResource( 101 ), ExtResource( 102 ), ExtResource( 103 ), ExtResource( 104 ), ExtResource( 105 ), ExtResource( 106 ), ExtResource( 107 ), ExtResource( 108 ), ExtResource( 109 ), ExtResource( 110 ) ],
+"frames": [ ExtResource( 85 ), ExtResource( 86 ), ExtResource( 87 ), ExtResource( 88 ), ExtResource( 89 ), ExtResource( 90 ), ExtResource( 91 ), ExtResource( 92 ), ExtResource( 93 ), ExtResource( 94 ), ExtResource( 95 ) ],
 "loop": true,
 "name": "RifleHolster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 111 ), ExtResource( 112 ), ExtResource( 113 ), ExtResource( 114 ), ExtResource( 115 ), ExtResource( 116 ), ExtResource( 117 ), ExtResource( 118 ), ExtResource( 119 ) ],
+"frames": [ ExtResource( 96 ), ExtResource( 97 ), ExtResource( 98 ), ExtResource( 99 ), ExtResource( 100 ), ExtResource( 101 ), ExtResource( 102 ), ExtResource( 103 ), ExtResource( 104 ) ],
 "loop": true,
 "name": "RifleReload",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 120 ), ExtResource( 121 ), ExtResource( 122 ), ExtResource( 123 ), ExtResource( 124 ), ExtResource( 125 ), ExtResource( 126 ), ExtResource( 127 ), ExtResource( 128 ), ExtResource( 129 ), ExtResource( 130 ) ],
+"frames": [ ExtResource( 105 ), ExtResource( 106 ), ExtResource( 107 ), ExtResource( 108 ), ExtResource( 109 ), ExtResource( 110 ), ExtResource( 111 ), ExtResource( 112 ), ExtResource( 113 ), ExtResource( 114 ), ExtResource( 115 ) ],
 "loop": true,
 "name": "RifleUnholster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 131 ), ExtResource( 132 ), ExtResource( 133 ), ExtResource( 134 ), ExtResource( 135 ), ExtResource( 136 ), ExtResource( 137 ), ExtResource( 138 ), ExtResource( 139 ), ExtResource( 140 ), ExtResource( 141 ) ],
+"frames": [ ExtResource( 116 ), ExtResource( 117 ), ExtResource( 118 ), ExtResource( 119 ), ExtResource( 120 ), ExtResource( 121 ), ExtResource( 122 ), ExtResource( 123 ), ExtResource( 124 ), ExtResource( 125 ), ExtResource( 126 ) ],
 "loop": true,
 "name": "PistolHolster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 142 ), ExtResource( 143 ), ExtResource( 144 ), ExtResource( 145 ), ExtResource( 146 ), ExtResource( 147 ), ExtResource( 148 ), ExtResource( 149 ), ExtResource( 150 ) ],
+"frames": [ ExtResource( 127 ), ExtResource( 128 ), ExtResource( 129 ), ExtResource( 130 ), ExtResource( 131 ), ExtResource( 132 ), ExtResource( 133 ), ExtResource( 134 ), ExtResource( 135 ) ],
 "loop": true,
 "name": "ShotgunHold",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 151 ), ExtResource( 152 ), ExtResource( 153 ), ExtResource( 154 ), ExtResource( 155 ) ],
+"frames": [ ExtResource( 136 ), ExtResource( 137 ), ExtResource( 138 ), ExtResource( 139 ), ExtResource( 140 ) ],
 "loop": true,
 "name": "SmgMove",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 156 ), ExtResource( 157 ), ExtResource( 158 ), ExtResource( 159 ), ExtResource( 160 ), ExtResource( 161 ), ExtResource( 162 ), ExtResource( 163 ), ExtResource( 164 ), ExtResource( 165 ), ExtResource( 166 ) ],
+"frames": [ ExtResource( 141 ), ExtResource( 142 ), ExtResource( 143 ), ExtResource( 144 ), ExtResource( 145 ), ExtResource( 146 ), ExtResource( 147 ), ExtResource( 148 ), ExtResource( 149 ), ExtResource( 150 ), ExtResource( 151 ) ],
 "loop": true,
 "name": "ShotgunUnholster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 167 ), ExtResource( 168 ), ExtResource( 169 ), ExtResource( 170 ), ExtResource( 171 ), ExtResource( 172 ), ExtResource( 173 ), ExtResource( 174 ), ExtResource( 175 ) ],
+"frames": [ ExtResource( 152 ), ExtResource( 153 ), ExtResource( 154 ), ExtResource( 155 ), ExtResource( 156 ), ExtResource( 157 ), ExtResource( 158 ), ExtResource( 159 ), ExtResource( 160 ) ],
 "loop": true,
 "name": "PistolReload",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 176 ), ExtResource( 177 ), ExtResource( 178 ), ExtResource( 179 ), ExtResource( 180 ), ExtResource( 181 ), ExtResource( 182 ), ExtResource( 183 ), ExtResource( 184 ) ],
+"frames": [ ExtResource( 161 ), ExtResource( 162 ), ExtResource( 163 ), ExtResource( 164 ), ExtResource( 165 ), ExtResource( 166 ), ExtResource( 167 ), ExtResource( 168 ), ExtResource( 169 ) ],
 "loop": true,
 "name": "SmgReload",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 185 ), ExtResource( 186 ), ExtResource( 187 ), ExtResource( 188 ) ],
+"frames": [ ExtResource( 170 ), ExtResource( 171 ), ExtResource( 172 ), ExtResource( 173 ) ],
 "loop": true,
 "name": "RifleFire",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 189 ), ExtResource( 190 ), ExtResource( 191 ), ExtResource( 192 ) ],
+"frames": [ ExtResource( 174 ), ExtResource( 175 ), ExtResource( 176 ), ExtResource( 177 ) ],
 "loop": true,
 "name": "SmgFire",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 193 ), ExtResource( 194 ), ExtResource( 195 ), ExtResource( 196 ), ExtResource( 197 ), ExtResource( 198 ), ExtResource( 199 ), ExtResource( 200 ), ExtResource( 201 ) ],
+"frames": [ ExtResource( 178 ), ExtResource( 179 ), ExtResource( 180 ), ExtResource( 181 ), ExtResource( 182 ), ExtResource( 183 ), ExtResource( 184 ), ExtResource( 185 ), ExtResource( 186 ) ],
 "loop": true,
 "name": "SmgHold",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 202 ), ExtResource( 203 ), ExtResource( 204 ), ExtResource( 205 ), ExtResource( 206 ) ],
+"frames": [ ExtResource( 187 ), ExtResource( 188 ), ExtResource( 189 ), ExtResource( 190 ), ExtResource( 191 ) ],
 "loop": true,
 "name": "PistolRun",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 207 ), ExtResource( 208 ), ExtResource( 209 ), ExtResource( 210 ), ExtResource( 211 ) ],
+"frames": [ ExtResource( 192 ), ExtResource( 193 ), ExtResource( 194 ), ExtResource( 195 ), ExtResource( 196 ) ],
 "loop": true,
 "name": "PistolMove",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 212 ), ExtResource( 213 ), ExtResource( 214 ), ExtResource( 215 ), ExtResource( 216 ) ],
+"frames": [ ExtResource( 197 ), ExtResource( 198 ), ExtResource( 199 ), ExtResource( 200 ), ExtResource( 201 ) ],
 "loop": true,
 "name": "RifleMove",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 217 ), ExtResource( 218 ), ExtResource( 219 ), ExtResource( 220 ), ExtResource( 221 ), ExtResource( 222 ), ExtResource( 223 ), ExtResource( 224 ), ExtResource( 225 ), ExtResource( 226 ), ExtResource( 227 ) ],
+"frames": [ ExtResource( 202 ), ExtResource( 203 ), ExtResource( 204 ), ExtResource( 205 ), ExtResource( 206 ), ExtResource( 207 ), ExtResource( 208 ), ExtResource( 209 ), ExtResource( 210 ), ExtResource( 211 ), ExtResource( 212 ) ],
 "loop": true,
 "name": "ShotgunHolster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 228 ), ExtResource( 229 ), ExtResource( 230 ), ExtResource( 231 ) ],
+"frames": [ ExtResource( 213 ), ExtResource( 214 ), ExtResource( 215 ), ExtResource( 216 ) ],
 "loop": true,
 "name": "PistolFire",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 232 ), ExtResource( 233 ), ExtResource( 234 ), ExtResource( 235 ) ],
+"frames": [ ExtResource( 217 ), ExtResource( 218 ), ExtResource( 219 ), ExtResource( 220 ) ],
 "loop": true,
 "name": "ShotgunFire",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 236 ), ExtResource( 237 ), ExtResource( 238 ), ExtResource( 239 ), ExtResource( 240 ), ExtResource( 241 ), ExtResource( 242 ), ExtResource( 243 ), ExtResource( 244 ), ExtResource( 245 ), ExtResource( 246 ) ],
+"frames": [ ExtResource( 221 ), ExtResource( 222 ), ExtResource( 223 ), ExtResource( 224 ), ExtResource( 225 ), ExtResource( 226 ), ExtResource( 227 ), ExtResource( 228 ), ExtResource( 229 ), ExtResource( 230 ), ExtResource( 231 ) ],
 "loop": true,
 "name": "SmgHolster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 247 ), ExtResource( 248 ), ExtResource( 249 ), ExtResource( 250 ), ExtResource( 251 ), ExtResource( 252 ), ExtResource( 253 ), ExtResource( 254 ), ExtResource( 255 ) ],
+"frames": [ ExtResource( 232 ), ExtResource( 233 ), ExtResource( 234 ), ExtResource( 235 ), ExtResource( 236 ), ExtResource( 237 ), ExtResource( 238 ), ExtResource( 239 ), ExtResource( 240 ) ],
 "loop": true,
 "name": "PistolHold",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 256 ), ExtResource( 257 ), ExtResource( 258 ), ExtResource( 259 ), ExtResource( 260 ), ExtResource( 261 ), ExtResource( 262 ), ExtResource( 263 ), ExtResource( 264 ) ],
+"frames": [ ExtResource( 241 ), ExtResource( 242 ), ExtResource( 243 ), ExtResource( 244 ), ExtResource( 245 ), ExtResource( 246 ), ExtResource( 247 ), ExtResource( 248 ), ExtResource( 249 ) ],
 "loop": true,
 "name": "RifleHold",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 265 ), ExtResource( 266 ), ExtResource( 267 ), ExtResource( 268 ), ExtResource( 269 ), ExtResource( 270 ), ExtResource( 271 ), ExtResource( 272 ), ExtResource( 273 ), ExtResource( 274 ), ExtResource( 275 ) ],
+"frames": [ ExtResource( 250 ), ExtResource( 251 ), ExtResource( 252 ), ExtResource( 253 ), ExtResource( 254 ), ExtResource( 255 ), ExtResource( 256 ), ExtResource( 257 ), ExtResource( 258 ), ExtResource( 259 ), ExtResource( 260 ) ],
 "loop": true,
 "name": "SmgUnholster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 276 ), ExtResource( 277 ), ExtResource( 278 ), ExtResource( 279 ), ExtResource( 280 ) ],
+"frames": [ ExtResource( 261 ), ExtResource( 262 ), ExtResource( 263 ), ExtResource( 264 ), ExtResource( 265 ) ],
 "loop": true,
 "name": "SmgRun",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 281 ), ExtResource( 282 ), ExtResource( 283 ), ExtResource( 284 ), ExtResource( 285 ), ExtResource( 286 ), ExtResource( 287 ), ExtResource( 288 ), ExtResource( 289 ) ],
+"frames": [ ExtResource( 266 ), ExtResource( 267 ), ExtResource( 268 ), ExtResource( 269 ), ExtResource( 270 ), ExtResource( 271 ), ExtResource( 272 ), ExtResource( 273 ), ExtResource( 274 ) ],
 "loop": true,
 "name": "ShotgunReload",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 290 ), ExtResource( 291 ), ExtResource( 292 ), ExtResource( 293 ), ExtResource( 294 ), ExtResource( 295 ), ExtResource( 296 ), ExtResource( 297 ), ExtResource( 298 ), ExtResource( 299 ), ExtResource( 300 ) ],
+"frames": [ ExtResource( 275 ), ExtResource( 276 ), ExtResource( 277 ), ExtResource( 278 ), ExtResource( 279 ), ExtResource( 280 ), ExtResource( 281 ), ExtResource( 282 ), ExtResource( 283 ), ExtResource( 284 ), ExtResource( 285 ) ],
 "loop": true,
 "name": "PistolUnholster",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 301 ), ExtResource( 302 ), ExtResource( 303 ), ExtResource( 304 ), ExtResource( 305 ) ],
+"frames": [ ExtResource( 286 ), ExtResource( 287 ), ExtResource( 288 ), ExtResource( 289 ), ExtResource( 290 ) ],
 "loop": true,
 "name": "ShotgunMove",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 306 ), ExtResource( 307 ), ExtResource( 308 ), ExtResource( 309 ), ExtResource( 310 ) ],
+"frames": [ ExtResource( 291 ), ExtResource( 292 ), ExtResource( 293 ), ExtResource( 294 ), ExtResource( 295 ) ],
 "loop": true,
 "name": "ShotgunRun",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 311 ), ExtResource( 312 ), ExtResource( 313 ), ExtResource( 314 ), ExtResource( 315 ) ],
+"frames": [ ExtResource( 296 ), ExtResource( 297 ), ExtResource( 298 ), ExtResource( 299 ), ExtResource( 300 ) ],
 "loop": true,
 "name": "LmgMove",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 316 ), ExtResource( 317 ), ExtResource( 318 ), ExtResource( 319 ), ExtResource( 320 ), ExtResource( 321 ), ExtResource( 322 ), ExtResource( 323 ), ExtResource( 324 ), ExtResource( 325 ), ExtResource( 326 ) ],
+"frames": [ ExtResource( 301 ), ExtResource( 302 ), ExtResource( 303 ), ExtResource( 304 ), ExtResource( 305 ), ExtResource( 306 ), ExtResource( 307 ), ExtResource( 308 ), ExtResource( 309 ) ],
 "loop": true,
-"name": "PistolUnholsterMove",
+"name": "LmgHoldMove",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 327 ), ExtResource( 328 ), ExtResource( 329 ), ExtResource( 330 ), ExtResource( 331 ), ExtResource( 332 ), ExtResource( 333 ), ExtResource( 334 ), ExtResource( 335 ), ExtResource( 336 ), ExtResource( 337 ) ],
+"frames": [ ExtResource( 310 ), ExtResource( 311 ), ExtResource( 312 ), ExtResource( 313 ), ExtResource( 314 ), ExtResource( 315 ), ExtResource( 316 ), ExtResource( 317 ), ExtResource( 318 ) ],
 "loop": true,
-"name": "RifleUnholsterMove",
+"name": "RifleHoldMove",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 338 ), ExtResource( 339 ), ExtResource( 340 ), ExtResource( 341 ), ExtResource( 342 ), ExtResource( 343 ), ExtResource( 344 ), ExtResource( 345 ), ExtResource( 346 ), ExtResource( 347 ), ExtResource( 348 ) ],
+"frames": [ ExtResource( 319 ), ExtResource( 320 ), ExtResource( 321 ), ExtResource( 322 ), ExtResource( 323 ), ExtResource( 324 ), ExtResource( 325 ), ExtResource( 326 ), ExtResource( 327 ) ],
 "loop": true,
-"name": "PistolHolsterMove",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 349 ), ExtResource( 350 ), ExtResource( 351 ), ExtResource( 352 ), ExtResource( 353 ), ExtResource( 354 ), ExtResource( 355 ), ExtResource( 356 ), ExtResource( 357 ), ExtResource( 358 ), ExtResource( 359 ) ],
-"loop": true,
-"name": "ShotgunUnholsterMove",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 360 ), ExtResource( 361 ), ExtResource( 362 ), ExtResource( 363 ), ExtResource( 364 ), ExtResource( 365 ), ExtResource( 366 ), ExtResource( 367 ), ExtResource( 368 ), ExtResource( 369 ), ExtResource( 370 ) ],
-"loop": true,
-"name": "ShotgunHolsterMove",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 371 ), ExtResource( 372 ), ExtResource( 373 ), ExtResource( 374 ), ExtResource( 375 ), ExtResource( 376 ), ExtResource( 377 ), ExtResource( 378 ), ExtResource( 379 ), ExtResource( 380 ), ExtResource( 381 ) ],
-"loop": true,
-"name": "SmgHolsterMove",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 382 ), ExtResource( 383 ), ExtResource( 384 ), ExtResource( 385 ), ExtResource( 386 ), ExtResource( 387 ), ExtResource( 388 ), ExtResource( 389 ), ExtResource( 390 ), ExtResource( 391 ), ExtResource( 392 ) ],
-"loop": true,
-"name": "SmgUnholsterMove",
+"name": "SmgHoldMove",
 "speed": 5.0
 } ]
 _sections_unfolded = [ "Resource" ]
