@@ -11,6 +11,7 @@ module PlayerInputActions =
     let MoveLeft = "MoveLeft"
     let MoveRight = "MoveRight"
     let Pickup = "Pickup"
+    let Reload = "Reload"
     let Drop = "Drop"
     let Run = "Run"
     let Attack = "Attack"
@@ -39,6 +40,7 @@ module PlayerInputActions =
             MoveLeft
             MoveRight
             Pickup
+            Reload
             Drop
             Run
             Attack

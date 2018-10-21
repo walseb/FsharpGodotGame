@@ -13,7 +13,7 @@ type RebindMenu() as this =
     inherit Node()
 
     let mutable action = ""
-    let label = this.getNode ("contextual_help")
+    let label = this.GetNode ("contextual_help")
 
     // Back button
     let _on_BackButton_pressed() : unit =

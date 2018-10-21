@@ -1,7 +1,5 @@
 namespace Actor.Camera
 
-open LanguagePrimitives
-
 open Godot
 open Chessie.ErrorHandling
 open RailwayUtils
@@ -183,7 +181,7 @@ type PlayerCamera() as this =
     let getClosestAttachableActor(actorList : ActorObject list) =
         let isAttachable (actor : ActorObject) =
             // Check if actor already is selected, the player wants to switch to annother one, not stay on the same
-                    match attachedActor.IsSome && (PhysicalEquality actor attachedActor.Value) with
+                    match attachedActor.IsSome && (GodotUtils.physicallyEquals actor attachedActor.Value) with
                     | true ->
                         false
                     | false ->
@@ -192,7 +190,7 @@ type PlayerCamera() as this =
 
                         possibleActors
                         // Only if
-                        |> Seq.tryFind (PhysicalEquality actor)
+                        |> Seq.tryFind (GodotUtils.physicallyEquals actor)
                         |> fun actor ->
                             actor.IsSome
         makeSureCommanderIsSome()
@@ -206,7 +204,7 @@ type PlayerCamera() as this =
             | false ->
                 ()
             | true ->
-                match commander.Value.CommandChildren.Contains selectedActors.Value.Head && PhysicalEquality commander.Value selectedActors.Value.Head with
+                match commander.Value.CommandChildren.Contains selectedActors.Value.Head && GodotUtils.physicallyEquals commander.Value selectedActors.Value.Head with
                     | true ->
                         ()
                     | false ->
@@ -397,31 +395,37 @@ type PlayerCamera() as this =
                         inputHandled()
                         true
                     | false ->
-                        match inputEvent.IsAction PlayerInputActions.Drop with
+                        match inputEvent.IsAction PlayerInputActions.Reload with
                             | true ->
-                                actorButtons.Force().DropPressed <- inputEvent.IsPressed()
+                                actorButtons.Force().ReloadPressed <- inputEvent.IsPressed()
                                 inputHandled()
                                 true
                             | false ->
-                                match inputEvent.IsAction PlayerInputActions.Attack with
+                                match inputEvent.IsAction PlayerInputActions.Drop with
                                     | true ->
-                                        actorButtons.Force().AttackPressed <- inputEvent.IsPressed()
+                                        actorButtons.Force().DropPressed <- inputEvent.IsPressed()
                                         inputHandled()
                                         true
                                     | false ->
-                                        match inputEvent.IsAction PlayerInputActions.Aim with
+                                        match inputEvent.IsAction PlayerInputActions.Attack with
                                             | true ->
-                                                actorButtons.Force().AimPressed <- inputEvent.IsPressed()
+                                                actorButtons.Force().AttackPressed <- inputEvent.IsPressed()
                                                 inputHandled()
                                                 true
                                             | false ->
-                                                match inputEvent.IsAction PlayerInputActions.Run with
+                                                match inputEvent.IsAction PlayerInputActions.Aim with
                                                     | true ->
-                                                        actorButtons.Force().RunPressed <- inputEvent.IsPressed()
+                                                        actorButtons.Force().AimPressed <- inputEvent.IsPressed()
                                                         inputHandled()
                                                         true
                                                     | false ->
-                                                        setActorSelectionButtons inputEvent actorButtons
+                                                        match inputEvent.IsAction PlayerInputActions.Run with
+                                                            | true ->
+                                                                actorButtons.Force().RunPressed <- inputEvent.IsPressed()
+                                                                inputHandled()
+                                                                true
+                                                            | false ->
+                                                                setActorSelectionButtons inputEvent actorButtons
             | true ->
                 actorButtons.Force().MoveDirection <- getMoveAxis()
                 inputHandled()

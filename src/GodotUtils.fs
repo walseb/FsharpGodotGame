@@ -1,10 +1,28 @@
 module GodotUtils
 
 open Godot
+open LanguagePrimitives
+
 
 type Node with
-    member this.getNode<'a when 'a :> Node> (path : string) =
+    member this.GetNode<'a when 'a :> Node> (path : string) =
         lazy((this.GetNode(new NodePath(path))) :?> 'a)
+
+let physicallyEquals a b =
+    PhysicalEquality a b
+
+let findItemIndexInArray item array =
+    array
+    |> Array.findIndex (fun a -> physicallyEquals item a)
+
+let findItemIndexInOptionArray (item : 'a, inputArray : 'a option array) =
+    inputArray
+    |> Array.findIndex (fun a ->
+                        match a.IsSome with
+                            | false ->
+                                false
+                            | true ->
+                                physicallyEquals item a.Value)
 
 let sortObjectListClosestFirst (bodies : Array) (closestTo : Spatial) =
     let isAFurtherAwayFromToSelection a b =
@@ -13,10 +31,13 @@ let sortObjectListClosestFirst (bodies : Array) (closestTo : Spatial) =
         let aDistance = getDistanceToSelection a
         let bDistance = getDistanceToSelection b
 
-        if aDistance > bDistance
-        then 1
-        else if aDistance = bDistance then 0
-        else -1
+        match aDistance > bDistance with
+            | true -> 1
+            | false ->
+                match aDistance = bDistance with
+                    | true -> 0
+                    | false -> -1
+
     match bodies.Count with
         | 0 -> []
         | _ ->
@@ -34,4 +55,4 @@ let sortObjectListClosestFirst (bodies : Array) (closestTo : Spatial) =
                                         | false ->
                                             None
                                 | false -> None)
-            |> List.sortWith (fun a b -> isAFurtherAwayFromToSelection a b)
+            |> List.sortWith isAFurtherAwayFromToSelection

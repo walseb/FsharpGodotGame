@@ -61,6 +61,7 @@
     <Compile Include="src\Input\RebindMenuWrap.cs" />
     <Compile Include="src\Items\ItemAk47.cs" />
     <Compile Include="src\Actor\PlayerCameraWrap.cs" />
+    <Compile Include="src\Items\ItemRifleMagazine.cs" />
     <Compile Include="src\Scenes\MainMenuWrap.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

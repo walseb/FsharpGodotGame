@@ -75,7 +75,7 @@ _sections_unfolded = [ "Resource" ]
 
 extents = Vector3( 1, 1, 1 )
 
-[node name="Spatial" type="Spatial" index="0"]
+[node name="Spatial" type="Spatial"]
 
 _sections_unfolded = [ "Transform" ]
 
