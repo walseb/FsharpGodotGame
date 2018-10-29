@@ -14,7 +14,8 @@ module PlayerInputActions =
     let Reload = "Reload"
     let Drop = "Drop"
     let Run = "Run"
-    let Attack = "Attack"
+    let PrimaryAttack = "PrimaryAttack"
+    let SecondaryAttack = "SecondaryAttack"
     let Aim = "Aim"
     // Camera
     let CameraAttach = "CameraAttach"
@@ -43,7 +44,8 @@ module PlayerInputActions =
             Reload
             Drop
             Run
-            Attack
+            PrimaryAttack
+            SecondaryAttack
             Aim
             // Camera
             CameraDetach

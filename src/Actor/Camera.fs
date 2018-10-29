@@ -407,25 +407,31 @@ type PlayerCamera() as this =
                                         inputHandled()
                                         true
                                     | false ->
-                                        match inputEvent.IsAction PlayerInputActions.Attack with
+                                        match inputEvent.IsAction PlayerInputActions.PrimaryAttack with
                                             | true ->
-                                                actorButtons.Force().AttackPressed <- inputEvent.IsPressed()
+                                                actorButtons.Force().PrimaryAttackPressed <- inputEvent.IsPressed()
                                                 inputHandled()
                                                 true
                                             | false ->
-                                                match inputEvent.IsAction PlayerInputActions.Aim with
+                                                match inputEvent.IsAction PlayerInputActions.SecondaryAttack with
                                                     | true ->
-                                                        actorButtons.Force().AimPressed <- inputEvent.IsPressed()
+                                                        actorButtons.Force().SecondaryAttackPressed <- inputEvent.IsPressed()
                                                         inputHandled()
                                                         true
                                                     | false ->
-                                                        match inputEvent.IsAction PlayerInputActions.Run with
+                                                        match inputEvent.IsAction PlayerInputActions.Aim with
                                                             | true ->
-                                                                actorButtons.Force().RunPressed <- inputEvent.IsPressed()
+                                                                actorButtons.Force().AimPressed <- inputEvent.IsPressed()
                                                                 inputHandled()
                                                                 true
                                                             | false ->
-                                                                setActorSelectionButtons inputEvent actorButtons
+                                                                match inputEvent.IsAction PlayerInputActions.Run with
+                                                                    | true ->
+                                                                        actorButtons.Force().RunPressed <- inputEvent.IsPressed()
+                                                                        inputHandled()
+                                                                        true
+                                                                    | false ->
+                                                                        setActorSelectionButtons inputEvent actorButtons
             | true ->
                 actorButtons.Force().MoveDirection <- getMoveAxis()
                 inputHandled()

@@ -2,7 +2,7 @@
 
 [ext_resource path="res://src/Input/RebindMenuWrap.cs" type="Script" id=1]
 
-[node name="controls_ui" type="Control"]
+[node name="controls_ui" type="Control" index="0"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -497,7 +497,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Attack" type="Control" parent="bindings" index="7"]
+[node name="PrimaryAttack" type="Control" parent="bindings" index="7"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -514,28 +514,28 @@ mouse_default_cursor_shape = 0
 size_flags_horizontal = 2
 size_flags_vertical = 2
 
-[node name="Label" type="Label" parent="bindings/Attack" index="0"]
+[node name="Label" type="Label" parent="bindings/PrimaryAttack" index="0"]
 
 anchor_left = 0.0
 anchor_top = 0.0
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 5.0
-margin_top = 8.0
-margin_right = 45.0
-margin_bottom = 22.0
+margin_left = -16.0
+margin_top = 7.0
+margin_right = 73.0
+margin_bottom = 21.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
 mouse_filter = 2
 mouse_default_cursor_shape = 0
 size_flags_horizontal = 2
 size_flags_vertical = 0
-text = "Attack"
+text = "PrimaryAttack"
 percent_visible = 1.0
 lines_skipped = 0
 max_lines_visible = -1
 
-[node name="Button" type="Button" parent="bindings/Attack" index="1"]
+[node name="Button" type="Button" parent="bindings/PrimaryAttack" index="1"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -559,16 +559,78 @@ group = null
 flat = false
 align = 1
 
-[node name="Aim" type="Control" parent="bindings" index="8"]
+[node name="SecondaryAttack" type="Control" parent="bindings" index="8"]
 
 anchor_left = 0.0
 anchor_top = 0.0
 anchor_right = 0.0
 anchor_bottom = 0.0
 margin_left = 54.0
-margin_top = 445.0
+margin_top = 440.0
 margin_right = 94.0
-margin_bottom = 485.0
+margin_bottom = 480.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+
+[node name="Label" type="Label" parent="bindings/SecondaryAttack" index="0"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = -26.0
+margin_top = 7.0
+margin_right = 79.0
+margin_bottom = 21.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+mouse_filter = 2
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 2
+size_flags_vertical = 0
+text = "SecondaryAttack"
+percent_visible = 1.0
+lines_skipped = 0
+max_lines_visible = -1
+
+[node name="Button" type="Button" parent="bindings/SecondaryAttack" index="1"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 84.0
+margin_top = -1.0
+margin_right = 144.0
+margin_bottom = 29.0
+rect_pivot_offset = Vector2( 0, 0 )
+rect_clip_content = false
+focus_mode = 2
+mouse_filter = 0
+mouse_default_cursor_shape = 0
+size_flags_horizontal = 2
+size_flags_vertical = 2
+toggle_mode = false
+enabled_focus_mode = 2
+shortcut = null
+group = null
+flat = false
+align = 1
+
+[node name="Aim" type="Control" parent="bindings" index="9"]
+
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_left = 57.0
+margin_top = 488.0
+margin_right = 97.0
+margin_bottom = 528.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
 mouse_filter = 0
@@ -621,16 +683,16 @@ group = null
 flat = false
 align = 1
 
-[node name="Reload" type="Control" parent="bindings" index="9"]
+[node name="Reload" type="Control" parent="bindings" index="10"]
 
 anchor_left = 0.0
 anchor_top = 0.0
 anchor_right = 0.0
 anchor_bottom = 0.0
-margin_left = 54.0
-margin_top = 498.0
-margin_right = 94.0
-margin_bottom = 538.0
+margin_left = 57.0
+margin_top = 541.0
+margin_right = 97.0
+margin_bottom = 581.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
 mouse_filter = 0
@@ -683,7 +745,7 @@ group = null
 flat = false
 align = 1
 
-[node name="ZoomIn" type="Control" parent="bindings" index="10"]
+[node name="ZoomIn" type="Control" parent="bindings" index="11"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -745,7 +807,7 @@ group = null
 flat = false
 align = 1
 
-[node name="ZoomOut" type="Control" parent="bindings" index="11"]
+[node name="ZoomOut" type="Control" parent="bindings" index="12"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -807,7 +869,7 @@ group = null
 flat = false
 align = 1
 
-[node name="CameraAttach" type="Control" parent="bindings" index="12"]
+[node name="CameraAttach" type="Control" parent="bindings" index="13"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -869,7 +931,7 @@ group = null
 flat = false
 align = 1
 
-[node name="CameraDetach" type="Control" parent="bindings" index="13"]
+[node name="CameraDetach" type="Control" parent="bindings" index="14"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -931,7 +993,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select1" type="Control" parent="bindings" index="14"]
+[node name="Select1" type="Control" parent="bindings" index="15"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -993,7 +1055,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select0" type="Control" parent="bindings" index="15"]
+[node name="Select0" type="Control" parent="bindings" index="16"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -1055,7 +1117,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select9" type="Control" parent="bindings" index="16"]
+[node name="Select9" type="Control" parent="bindings" index="17"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -1117,7 +1179,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select8" type="Control" parent="bindings" index="17"]
+[node name="Select8" type="Control" parent="bindings" index="18"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -1179,7 +1241,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select7" type="Control" parent="bindings" index="18"]
+[node name="Select7" type="Control" parent="bindings" index="19"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -1241,7 +1303,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select6" type="Control" parent="bindings" index="19"]
+[node name="Select6" type="Control" parent="bindings" index="20"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -1303,7 +1365,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select5" type="Control" parent="bindings" index="20"]
+[node name="Select5" type="Control" parent="bindings" index="21"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -1365,7 +1427,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select2" type="Control" parent="bindings" index="21"]
+[node name="Select2" type="Control" parent="bindings" index="22"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -1427,7 +1489,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select3" type="Control" parent="bindings" index="22"]
+[node name="Select3" type="Control" parent="bindings" index="23"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -1489,7 +1551,7 @@ group = null
 flat = false
 align = 1
 
-[node name="Select4" type="Control" parent="bindings" index="23"]
+[node name="Select4" type="Control" parent="bindings" index="24"]
 
 anchor_left = 0.0
 anchor_top = 0.0
@@ -1551,7 +1613,7 @@ group = null
 flat = false
 align = 1
 
-[node name="AddToUnderAttachedCommandDebug" type="Control" parent="bindings" index="24"]
+[node name="AddToUnderAttachedCommandDebug" type="Control" parent="bindings" index="25"]
 
 anchor_left = 0.0
 anchor_top = 0.0

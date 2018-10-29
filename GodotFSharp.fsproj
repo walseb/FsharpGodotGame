@@ -75,7 +75,6 @@
     <!-- Actor -->
     <Compile Include="src/Actor/Actor.fs" />
     <Compile Include="src/Actor/Camera.fs" />
-    <Compile Include="src/deleteme.fs" />
 
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />

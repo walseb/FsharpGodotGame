@@ -1,13 +1,13 @@
 [gd_scene load_steps=4 format=2]
 
-[ext_resource path="res://src/Items/ItemAk47.cs" type="Script" id=1]
-[ext_resource path="res://Assets/Sprites/Items/Weapons/Rifle/Ground/Ground.png" type="Texture" id=2]
+[ext_resource path="res://src/Items/ItemRifleMagazine.cs" type="Script" id=1]
+[ext_resource path="res://Assets/Sprites/Items/Weapons/Rifle/RifleMagGround.png" type="Texture" id=2]
 
 [sub_resource type="BoxShape" id=1]
 
 extents = Vector3( 0.500166, 0.130351, 0.254531 )
 
-[node name="ItemAk47" type="RigidBody"]
+[node name="ItemRifleAmmo" type="RigidBody"]
 
 input_ray_pickable = true
 input_capture_on_drag = false
