@@ -182,13 +182,13 @@ type ActorObject() as this =
             |> Seq.sortWith (fun a b ->
                             match (a.StoredAmmo > b.StoredAmmo) with
                                 | true ->
-                                    1
+                                    -1
                                 | false ->
                                     match a.StoredAmmo = b.StoredAmmo with
                                         | true ->
                                             0
                                         | false ->
-                                            -1)
+                                            1)
             |> Seq.head
 
         items
@@ -593,20 +593,34 @@ type ActorObject() as this =
         None
 
     let reload() =
+        // Sponge print inventory
+        items
+        |> Array.map (fun a ->
+                      match a.IsSome with
+                          | true ->
+                                GD.Print (a.Value :?> Item).Name
+                          | false ->
+                                ())
+
         let oldMagazine = (items.[selectedItem].Value :?> Gun).Magazine
         let newMagazine = getBestMagazineAmongItems selectedWeaponOnCombatEnter.Value.WeaponType
+        GD.Print ("STORED!!", newMagazine.Value.StoredAmmo)
 
         match oldMagazine.IsSome && newMagazine.IsSome with
             | true ->
-                (items.[selectedItem].Value :?> Gun).Magazine <- newMagazine
+                match newMagazine.Value.StoredAmmo > oldMagazine.Value.StoredAmmo with
+                    | false ->
+                        GD.Print "Old magazine has more ammo than any other magazine"
+                    | true ->
+                        (items.[selectedItem].Value :?> Gun).Magazine <- newMagazine
 
-                // Remove old mag from inventory
-                removeItemFromInventory newMagazine.Value
+                        // Remove old mag from inventory
+                        removeItemFromInventory newMagazine.Value
 
-                // Add old mag to inventory
-                addItemToInventory oldMagazine.Value
+                        // Add old mag to inventory
+                        addItemToInventory oldMagazine.Value
 
-                GD.Print "Swapped old mag with new mag"
+                        GD.Print "Swapped old mag with new mag"
             | false ->
                 match newMagazine.IsSome with
                     | true ->
@@ -704,17 +718,19 @@ type ActorObject() as this =
 
 
 // *** Attack state body
-    let attackTime : float32 = 0.5f
+    // Handles the cooldown after attacking
+    let mutable attackCooldown : float32 = 2.0f
 
     let startAttack() =
-        setWeaponAnimationTimed "Attack" attackTime
+        setWeaponAnimationTimed "Attack" attackCooldown
+        attackCooldown <- selectedWeaponOnCombatEnter.Value.AttackCooldown
+        attack() |> ignore
         None
 
     let updateAttack  (delta : float32)  =
         timer <- timer + delta
-        match timer > attackTime with
+        match timer > attackCooldown with
             | true ->
-                attack() |> ignore
                 Some HoldState
             | false ->
                 None
