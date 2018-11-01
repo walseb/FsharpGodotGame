@@ -16,8 +16,11 @@ config/icon="res://Assets/Icon/icon.png"
 
 [debug]
 
-settings/fps/force_fps=60
 settings/stdout/print_fps=true
+
+[display]
+
+window/vsync/use_vsync=false
 
 [input]
 

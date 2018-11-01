@@ -116,29 +116,29 @@ type PlayerCamera() as this =
     //                                  Camera Actions                           //
     ///////////////////////////////////////////////////////////////////////////////
 
+    let getMouse3DPosition() : Vector3 option =
+        let maxRayRange = 1000.0f
+
+        let mousePosition = this.GetViewport().GetMousePosition()
+
+        // Get from and to positions for ray to use
+        let rayFrom = this.ProjectRayOrigin (mousePosition)
+        let rayTo = rayFrom + this.ProjectRayNormal (mousePosition) * maxRayRange
+
+        // Shoot the physics based ray
+        let resultRay =
+            let spaceState = this.GetWorld().GetDirectSpaceState()
+            spaceState.IntersectRay(rayFrom, rayTo, null, 2)
+
+        match resultRay.Count > 0 with
+            | false ->
+                None
+            | true ->
+                Some (resultRay.["position"] :?> Vector3)
+
     // Might help get global position: mouseSelectionArea.Force().origin
     let moveSelectAreaToMouse() =
-        let raycastFromMouse() : Vector3 option =
-            let maxRayRange = 1000.0f
-
-            let mousePosition = this.GetViewport().GetMousePosition()
-
-            // Get from and to positions for ray to use
-            let rayFrom = this.ProjectRayOrigin (mousePosition)
-            let rayTo = rayFrom + this.ProjectRayNormal (mousePosition) * maxRayRange
-
-            // Shoot the physics based ray
-            let resultRay =
-                let spaceState = this.GetWorld().GetDirectSpaceState()
-                spaceState.IntersectRay(rayFrom, rayTo, null, 2)
-
-            match resultRay.Count > 0 with
-                | false ->
-                    None
-                | true ->
-                    Some (resultRay.["position"] :?> Vector3)
-
-        raycastFromMouse()
+        getMouse3DPosition()
         |> fun mousePos ->
             match mousePos with
                 | None ->
@@ -446,6 +446,20 @@ type PlayerCamera() as this =
         ()
 
     override this._Process(delta : float32) =
+        let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
+        rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
+
+        match attachedActor.IsSome with
+            | true ->
+                let mouse3DPos = getMouse3DPosition()
+                match mouse3DPos.IsSome with
+                    | true ->
+                        attachedActor.Value.AimTarget <- mouse3DPos.Value
+                    | false ->
+                        ()
+            | false ->
+                ()
+
         //rootNode.Force().LookAtFromPosition(Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z), attachedActorSpatial.Value.GetTransform().origin, (Vector3(0.0f,1.0f,0.0f)))
 
         //this.SetTransform (Transform (this.GetGlobalTransform().basis, attachedActorTransform.origin + Vector3(0.0f, zoomLevel, 0.0f)))
@@ -507,8 +521,6 @@ type PlayerCamera() as this =
 
         makeSureCommanderIsSome()
 
-        let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
-        rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
 
         // let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
         // let test = (Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z), attachedActorSpatial.Value.GetTransform().origin, (Vector3(0.0f,1.0f,0.0f)))

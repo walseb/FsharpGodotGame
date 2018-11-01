@@ -74,6 +74,9 @@ type ActorObject() as this =
     let gunRayCast =
         lazy(this.GetNode(new NodePath("GunRayCast")) :?> RayCast)
 
+    let mutable aimTarget : Vector3 =
+        Vector3(0.0f,0.0f,0.0f)
+
     let mutable selectedItem : int = 0;
 
     let mutable inventorySize : int = 9;
@@ -207,7 +210,6 @@ type ActorObject() as this =
 
 // ** State actions
 
-
     let move (physicsState : PhysicsDirectBodyState) (multiplier : float32) =
         physicsState.ApplyImpulse(Vector3(0.0f, 0.0f, 0.0f), (Vector3 (actorButtons.MoveDirection.x, 0.0f, actorButtons.MoveDirection.y)).Normalized() * physicsMoveMultiplier * multiplier)
 
@@ -259,25 +261,31 @@ type ActorObject() as this =
     // Remove this later
     let mutable value = 0.0f
 
+    let rotateTowards (delta : float32, lookDir : Vector3) =
+        let thisTransform = this.GetGlobalTransform()
+
+        // Get target transform for looking at last pos
+        let rotTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
+
+        // Slerp it
+        let thisRotation = thisTransform.basis.Quat().Slerp(rotTransform.basis.Quat(),value)
+        value <- value + delta
+        match value > 1.0f with
+            | true ->
+                value <- 1.0f
+            | false -> ()
+
+        this.SetGlobalTransform(Transform(thisRotation, thisTransform.origin))
+
     let rotateTowardsMoveDirection(delta : float32) =
-        ()
-        //  let thisTransform = this.GetGlobalTransform()
-//
-        //  // Create vector with only x and z coordinates
-        //  let lookDir = Vector3(this.LinearVelocity.x + thisTransform.origin.x, 0.0f, this.LinearVelocity.z + thisTransform.origin.z)
-//
-        //  // Get target transform for looking at last pos
-        //  let rotTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
-        //  // Slerp it
-//
-        //  let thisRotation = thisTransform.basis.Quat().Slerp(rotTransform.basis.Quat(),value)
-        //  value <- value + delta
-        //  match value > 1.0f with
-            //  | true ->
-                //  value <- 1.0f
-            //  | false -> ()
-//
-        //  this.SetGlobalTransform(Transform(thisRotation, thisTransform.origin))
+        let thisTransform = this.GetGlobalTransform()
+
+        // Create vector with only x and z coordinates
+        let lookDir = Vector3(this.LinearVelocity.x + thisTransform.origin.x, 0.0f, this.LinearVelocity.z + thisTransform.origin.z)
+        rotateTowards(delta, lookDir)
+
+    let rotateTowardsMousePosition(delta : float32) =
+        rotateTowards(delta, aimTarget)
 
     let isMoveDirectionZero () =
         actorButtons.MoveDirection.x = 0.0f && actorButtons.MoveDirection.y = 0.0f
@@ -461,7 +469,12 @@ type ActorObject() as this =
         move physicsState (3.0f * delta)
 
     let physicsProcessMove (delta : float32) =
-        rotateTowardsMoveDirection(delta)
+        ()
+        //rotateTowardsMoveDirection(delta)
+
+    let processMove  (delta : float32)  =
+        rotateTowardsMoveDirection delta
+        None
 
 // *** Run state
 
@@ -498,7 +511,12 @@ type ActorObject() as this =
         move physicsState (5.0f * delta)
 
     let physicsProcessRun (delta : float32) =
-        rotateTowardsMoveDirection(delta)
+        ()
+        //rotateTowardsMoveDirection(delta)
+
+    let processRun  (delta : float32)  =
+        rotateTowardsMoveDirection delta
+        None
 
 // *** Hold state
 
@@ -540,6 +558,10 @@ type ActorObject() as this =
                                                                 Some IdleState
                                                             | false ->
                                                                 None
+
+    let processHold  (delta : float32)  =
+        rotateTowardsMousePosition delta
+        None
 
 // *** Hold move state
 
@@ -584,6 +606,10 @@ type ActorObject() as this =
     let integrateForcesHoldMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (1.5f * delta)
 
+    let processHoldMove  (delta : float32)  =
+        rotateTowardsMoveDirection delta
+        None
+
 // *** Reload state
 
     let reloadTime : float32 = 2.0f
@@ -593,14 +619,14 @@ type ActorObject() as this =
         None
 
     let reload() =
-        // Sponge print inventory
-        items
-        |> Array.map (fun a ->
-                      match a.IsSome with
-                          | true ->
-                                GD.Print (a.Value :?> Item).Name
-                          | false ->
-                                ())
+        // Print inventory
+        // items
+        // |> Array.map (fun a ->
+                      // match a.IsSome with
+                          // | true ->
+                                // GD.Print (a.Value :?> Item).Name
+                          // | false ->
+                                // ())
 
         let oldMagazine = (items.[selectedItem].Value :?> Gun).Magazine
         let newMagazine = getBestMagazineAmongItems selectedWeaponOnCombatEnter.Value.WeaponType
@@ -630,7 +656,7 @@ type ActorObject() as this =
                         GD.Print "No mags to use in reload found!"
                         ()
 
-    let updateReload  (delta : float32)  =
+    let processReload  (delta : float32)  =
         timer <- timer + delta
         match timer > reloadTime with
             | true ->
@@ -727,7 +753,7 @@ type ActorObject() as this =
         attack() |> ignore
         None
 
-    let updateAttack  (delta : float32)  =
+    let processAttack  (delta : float32)  =
         timer <- timer + delta
         match timer > attackCooldown with
             | true ->
@@ -758,7 +784,7 @@ type ActorObject() as this =
         setWeaponAnimationTimed "Holster" holsterTime
         None
 
-    let updateHolster  (delta : float32)  =
+    let processHolster  (delta : float32)  =
         timer <- timer + delta
         match timer > holsterTime with
             | true ->
@@ -799,7 +825,7 @@ type ActorObject() as this =
                 setWeaponAnimationTimed "Unholster" unHolsterTime
                 None
 
-    let updateUnholster(delta : float32) =
+    let processUnholster(delta : float32) =
         timer <- timer + delta
         match timer > unHolsterTime with
             | true ->
@@ -842,17 +868,17 @@ type ActorObject() as this =
             | ReloadState -> startReload()
             | AttackState -> startAttack()
 
-    let updateStateMachine (delta : float32) (actorState : ActorState) =
+    let processStateMachine (delta : float32) (actorState : ActorState) =
         match actorState with
             | IdleState -> None
-            | MoveState -> None
-            | RunState -> None
-            | UnholsterState -> updateUnholster delta
-            | HoldState -> None
-            | HoldMoveState -> None
-            | HolsterState -> updateHolster delta
-            | ReloadState -> updateReload delta
-            | AttackState -> updateAttack delta
+            | MoveState -> processMove delta
+            | RunState -> processRun delta
+            | UnholsterState -> processUnholster delta
+            | HoldState -> processHold delta
+            | HoldMoveState -> processHoldMove delta
+            | HolsterState -> processHolster delta
+            | ReloadState -> processReload delta
+            | AttackState -> processAttack delta
 
     let physicsProcessForcesStateMachine  (delta : float32) (actorState : ActorState)  =
         match actorState with
@@ -908,6 +934,11 @@ type ActorObject() as this =
                 ()
 
 // ** Properties
+
+    member this.AimTarget
+        with get () = aimTarget
+        and set (value) = aimTarget <- value
+
     member this.ActorButtons
         with get () = actorButtons
         and set (value) = actorButtons <- value
@@ -951,7 +982,7 @@ type ActorObject() as this =
         this.SetProcessInput true
 
     override this._Process(delta : float32) =
-        switchState (updateStateMachine delta state)
+        switchState (processStateMachine delta state)
         pickupTimer <- pickupTimer + delta
 
     override this._PhysicsProcess(delta : float32) =

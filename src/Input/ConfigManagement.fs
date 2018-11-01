@@ -53,7 +53,6 @@ module ConfigManagement =
             |> map (addEventToInputMap actionName)
 
         let mutable failText = ""
-        GD.Print("1")
         PlayerInputActions.allActionNames
         // First remove all events with action, then add action event to action
         |> Array.iter (fun action ->
@@ -63,9 +62,7 @@ module ConfigManagement =
                         // If fail
                         |> failureTee (fun text -> (failText <- (String.concat "" text)))
                         |> logErr
-                        |> ignore
                         |> ignore)
-
 
         match failText with
             | "" -> ok config

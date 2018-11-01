@@ -7,7 +7,7 @@
 
 extents = Vector3( 0.500166, 0.130351, 0.254531 )
 
-[node name="ItemAk47" type="RigidBody" index="0"]
+[node name="ItemAk47" type="RigidBody"]
 
 input_ray_pickable = true
 input_capture_on_drag = false
