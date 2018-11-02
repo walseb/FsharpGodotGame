@@ -76,13 +76,13 @@ _sections_unfolded = [ "Resource" ]
 
 extents = Vector3( 1, 1, 1 )
 
-[node name="Spatial" type="Spatial" index="0"]
+[node name="Spatial" type="Spatial"]
 
 _sections_unfolded = [ "Transform" ]
 
 [node name="MeshInstance" type="MeshInstance" parent="." index="0"]
 
-transform = Transform( 5, 0, 0, 0, 1, 0, 0, 0, 100, -0.563095, -1.97306, 0.737929 )
+transform = Transform( 5, 0, 0, 0, 1, 0, 0, 0, 100, -0.563095, -3.71384, 0.737929 )
 layers = 1
 material_override = null
 cast_shadow = 1

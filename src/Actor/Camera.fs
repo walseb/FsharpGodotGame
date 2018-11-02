@@ -457,7 +457,7 @@ type PlayerCamera() as this =
                 let mouse3DPos = getMouse3DPosition()
                 match mouse3DPos.IsSome with
                     | true ->
-                        attachedActor.Value.AimTarget <- mouse3DPos.Value
+                        attachedActor.Value.AimTarget <- (Vector2(mouse3DPos.Value.x, mouse3DPos.Value.z))
                     | false ->
                         ()
             | false ->

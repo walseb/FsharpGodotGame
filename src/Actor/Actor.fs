@@ -74,8 +74,8 @@ type ActorObject() as this =
     let gunRayCast =
         lazy(this.GetNode(new NodePath("GunRayCast")) :?> RayCast)
 
-    let mutable aimTarget : Vector3 =
-        Vector3(0.0f,0.0f,0.0f)
+    let mutable aimTarget : Vector2 =
+        Vector2(0.0f,0.0f)
 
     let mutable selectedItem : int = 0;
 
@@ -213,6 +213,7 @@ type ActorObject() as this =
     let move (physicsState : PhysicsDirectBodyState) (multiplier : float32) =
         physicsState.ApplyImpulse(Vector3(0.0f, 0.0f, 0.0f), (Vector3 (actorButtons.MoveDirection.x, 0.0f, actorButtons.MoveDirection.y)).Normalized() * physicsMoveMultiplier * multiplier)
 
+
     let drop() =
         this.GetTree().SetInputAsHandled();
         match items.[selectedItem].IsSome with
@@ -259,51 +260,73 @@ type ActorObject() as this =
 
     //let mutable lastPos = this.GetGlobalTransform().origin
     // Remove this later
-    let mutable value = 0.0f
+    //let mutable value = 0.0f
 
-    let rotateTowardsClosestPath (delta : float32, lookDir : Vector3) =
-        let thisTransform = this.GetGlobalTransform()
+    // let OLDRotateTowards (delta : float32, lookDir : Vector3) =
+         // let thisTransform = this.GetGlobalTransform()
+//
+         // // Get target transform
+         // let targetTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
+         // let targetQuat = targetTransform.basis.Quat()
+//
+         // // let targetEuler = targetTransform.basis.GetEuler()
+         // // Problem is here!! You can't set rotation at every frame, you need to use setGlobalTransform instead
+         // //this.SetGlobalTransform(Transform(targetQuat, thisTransform.origin))
+//
+         // let targetEuler = targetTransform.basis.GetEuler()
+         // let thisEuler = thisTransform.basis.GetEuler()
+//
+         // this.SetRotation (Vector3(0.0f, Mathf.Lerp(thisEuler.y, targetEuler.y, 0.2f),0.0f))
+//
+         // // this.SetRotation (Vector3(0.0f, targetEuler.y,0.0f))
+//
+         // // Force rotation on 2D plane
+         // // let targetEuler = targetTransform.basis.GetEuler()
+         // // let thisEuler = thisTransform.basis.GetEuler()
+         // // GD.Print ("DIFF IS: ", Mathf.Abs(thisEuler.y - targetEuler.y))
+         // // match (Mathf.Abs(thisEuler.y - targetEuler.y) <= smallestDeltaToRotateAt) with
+             // // | true ->
+                 // // GD.Print"TRUE"
+                 // // this.SetRotation (Vector3(0.0f, targetEuler.y,0.0f))
+             // // | false ->
+                 // // GD.Print"FALSE"
+                 // // this.SetRotation (Vector3(0.0f, Mathf.Lerp(thisEuler.y, targetEuler.y, 1.0f),0.0f))
 
-        // Get target transform
-        let targetTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
 
-        // Slerp it
-        let thisRotation = thisTransform.basis.Quat().Slerp(targetTransform.basis.Quat(),value)
-        value <- value + delta
-        match value > 1.0f with
-            | true ->
-                value <- 1.0f
-            | false -> ()
-
-        this.SetGlobalTransform(Transform(thisRotation, thisTransform.origin))
-
-    let smallestDeltaToRotateAt = 20.0f
-
-    // TODO SPONGE: lock Y rotation!!
+    let rotateSpeed = 20.0f
     let rotateTowards (delta : float32, lookDir : Vector3) =
         let thisTransform = this.GetGlobalTransform()
 
         // Get target transform
         let targetTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
 
-        // Force rotation on 2D plane
+        // Slerp it
+        let targetRotation = thisTransform.basis.Quat().Slerp(targetTransform.basis.Quat(), (delta * rotateSpeed))
+
+        this.SetGlobalTransform(Transform(targetRotation, thisTransform.origin))
+        // Hack to lock the y axis
+        let targetBasis = Basis(targetRotation)
+        this.SetRotation (Vector3(0.0f, targetBasis.GetEuler().y,0.0f))
+
+    let setRotation (lookDir : Vector3) =
+        let thisTransform = this.GetGlobalTransform()
+        let targetTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
         let targetEuler = targetTransform.basis.GetEuler()
-        let thisEuler = thisTransform.basis.GetEuler()
-        match Mathf.Abs(thisEuler.y - targetEuler.y) < smallestDeltaToRotateAt with
-            | true ->
-                this.SetRotation (Vector3(0.0f, targetEuler.y,0.0f))
-            | false ->
-                this.SetRotation (Vector3(0.0f, Mathf.Lerp(thisEuler.y, targetEuler.y, 1.0f),0.0f))
+        this.SetRotation (Vector3(0.0f, targetEuler.y,0.0f))
 
     let rotateTowardsMoveDirection(delta : float32) =
         let thisTransform = this.GetGlobalTransform()
 
-        // Create vector with only x and z coordinates
+        // Get move direction based on keys
+        //let lookDir = Vector3(actorButtons.MoveDirection.x + thisTransform.origin.x, 0.0f, thisTransform.origin.z + actorButtons.MoveDirection.y)
+
+        // Get move direction based on velocity
         let lookDir = Vector3(this.LinearVelocity.x + thisTransform.origin.x, 0.0f, this.LinearVelocity.z + thisTransform.origin.z)
-        rotateTowards(delta, lookDir)
+        setRotation(lookDir)
 
     let rotateTowardsMousePosition(delta : float32) =
-        rotateTowards(delta, aimTarget)
+        rotateTowards(delta, Vector3(aimTarget.x, 0.0f, aimTarget.y))
+        //setRotation(aimTarget)
 
     let isMoveDirectionZero () =
         actorButtons.MoveDirection.x = 0.0f && actorButtons.MoveDirection.y = 0.0f
@@ -487,11 +510,11 @@ type ActorObject() as this =
         move physicsState (3.0f * delta)
 
     let physicsProcessMove (delta : float32) =
+        rotateTowardsMoveDirection(delta)
         ()
-        //rotateTowardsMoveDirection(delta)
 
     let processMove  (delta : float32)  =
-        rotateTowardsMoveDirection delta
+        //rotateTowardsMoveDirection delta
         None
 
 // *** Run state
@@ -529,11 +552,11 @@ type ActorObject() as this =
         move physicsState (5.0f * delta)
 
     let physicsProcessRun (delta : float32) =
+        rotateTowardsMoveDirection(delta)
         ()
-        //rotateTowardsMoveDirection(delta)
 
     let processRun  (delta : float32)  =
-        rotateTowardsMoveDirection delta
+        //rotateTowardsMoveDirection delta
         None
 
 // *** Hold state
@@ -706,7 +729,6 @@ type ActorObject() as this =
 // **** Attack state actions
     let gunFire(rayCast : RayCast) =
         let fireBullet() =
-            GD.Print ("STUFF: ", rayCast.GetGlobalTransform().basis)
             rayCast.ForceRaycastUpdate()
             let magazine = (selectedWeaponOnCombatEnter.Value :?> Gun).Magazine.Value
             magazine.StoredAmmo <- magazine.StoredAmmo - 1

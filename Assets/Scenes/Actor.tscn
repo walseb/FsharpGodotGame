@@ -556,7 +556,7 @@ animations = [ {
 } ]
 _sections_unfolded = [ "Resource" ]
 
-[node name="Actor" type="RigidBody"]
+[node name="Actor" type="RigidBody" index="0"]
 
 input_ray_pickable = true
 input_capture_on_drag = false
