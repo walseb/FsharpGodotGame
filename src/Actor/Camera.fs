@@ -447,7 +447,10 @@ type PlayerCamera() as this =
 
     override this._Process(delta : float32) =
         let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
-        rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
+        // let target = (Transform (rootNode.Value.GetTransform().basis, Vector3((Mathf.Lerp(rootNode.Force().GetGlobalTransform().origin.x, attachedActorTransform.origin.x, 1.0f)), (attachedActorTransform.origin.y + zoomLevel), (Mathf.Lerp(rootNode.Force().GetGlobalTransform().origin.z, attachedActorTransform.origin.z, 1.0f)))))
+        // rootNode.Force().SetTransform target
+
+        rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis, Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
 
         match attachedActor.IsSome with
             | true ->

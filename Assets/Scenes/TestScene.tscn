@@ -1,9 +1,9 @@
 [gd_scene load_steps=9 format=2]
 
-[ext_resource path="res://Assets/Scenes/PlayerCamera.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Assets/Scenes/Actor.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Assets/Scenes/Items/Weapons/ItemAk47.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Assets/Scenes/Items/Ammo/ItemRifleAmmo.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Assets/Scenes/Actor.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Assets/Scenes/Items/Weapons/ItemAk47.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Assets/Scenes/Items/Ammo/ItemRifleAmmo.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Scenes/PlayerCamera.tscn" type="PackedScene" id=4]
 
 [sub_resource type="GradientTexture" id=1]
 
@@ -80,11 +80,7 @@ extents = Vector3( 1, 1, 1 )
 
 _sections_unfolded = [ "Transform" ]
 
-[node name="PlayerCamera" parent="." index="0" instance=ExtResource( 1 )]
-
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.96046e-08 )
-
-[node name="MeshInstance" type="MeshInstance" parent="." index="1"]
+[node name="MeshInstance" type="MeshInstance" parent="." index="0"]
 
 transform = Transform( 5, 0, 0, 0, 1, 0, 0, 0, 100, -0.563095, -1.97306, 0.737929 )
 layers = 1
@@ -119,44 +115,48 @@ _sections_unfolded = [ "Collision" ]
 shape = SubResource( 4 )
 disabled = false
 
-[node name="Actor" parent="." index="2" instance=ExtResource( 2 )]
+[node name="Actor" parent="." index="1" instance=ExtResource( 1 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3 )
 
-[node name="Actor2" parent="." index="3" instance=ExtResource( 2 )]
+[node name="Actor2" parent="." index="2" instance=ExtResource( 1 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0 )
 
-[node name="Actor3" parent="." index="4" instance=ExtResource( 2 )]
+[node name="Actor3" parent="." index="3" instance=ExtResource( 1 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 5 )
 
-[node name="Actor4" parent="." index="5" instance=ExtResource( 2 )]
+[node name="Actor4" parent="." index="4" instance=ExtResource( 1 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5 )
 
-[node name="ItemAk47" parent="." index="6" instance=ExtResource( 3 )]
+[node name="ItemAk47" parent="." index="5" instance=ExtResource( 2 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.91131, -4.66424 )
 
-[node name="ItemAk48" parent="." index="7" instance=ExtResource( 3 )]
+[node name="ItemAk48" parent="." index="6" instance=ExtResource( 2 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.33411, -1.91131, -4.26262 )
 
-[node name="ItemAk49" parent="." index="8" instance=ExtResource( 3 )]
+[node name="ItemAk49" parent="." index="7" instance=ExtResource( 2 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.12626, -1.91131, 0 )
 
-[node name="ItemRifleAmmo" parent="." index="9" instance=ExtResource( 4 )]
+[node name="ItemRifleAmmo" parent="." index="8" instance=ExtResource( 3 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.18178, -1.56737, -12.417 )
 
-[node name="ItemRifleAmmo2" parent="." index="10" instance=ExtResource( 4 )]
+[node name="ItemRifleAmmo2" parent="." index="9" instance=ExtResource( 3 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.18178, -1.56737, -8.06359 )
 
-[node name="ItemRifleAmmo3" parent="." index="11" instance=ExtResource( 4 )]
+[node name="ItemRifleAmmo3" parent="." index="10" instance=ExtResource( 3 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.65543, -1.56737, -10.2276 )
+
+[node name="PlayerCamera" parent="." index="11" instance=ExtResource( 4 )]
+
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.6612, -5.96046e-08 )
 
 

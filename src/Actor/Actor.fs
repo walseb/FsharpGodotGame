@@ -261,14 +261,14 @@ type ActorObject() as this =
     // Remove this later
     let mutable value = 0.0f
 
-    let rotateTowards (delta : float32, lookDir : Vector3) =
+    let rotateTowardsClosestPath (delta : float32, lookDir : Vector3) =
         let thisTransform = this.GetGlobalTransform()
 
-        // Get target transform for looking at last pos
-        let rotTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
+        // Get target transform
+        let targetTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
 
         // Slerp it
-        let thisRotation = thisTransform.basis.Quat().Slerp(rotTransform.basis.Quat(),value)
+        let thisRotation = thisTransform.basis.Quat().Slerp(targetTransform.basis.Quat(),value)
         value <- value + delta
         match value > 1.0f with
             | true ->
@@ -276,6 +276,24 @@ type ActorObject() as this =
             | false -> ()
 
         this.SetGlobalTransform(Transform(thisRotation, thisTransform.origin))
+
+    let smallestDeltaToRotateAt = 20.0f
+
+    // TODO SPONGE: lock Y rotation!!
+    let rotateTowards (delta : float32, lookDir : Vector3) =
+        let thisTransform = this.GetGlobalTransform()
+
+        // Get target transform
+        let targetTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
+
+        // Force rotation on 2D plane
+        let targetEuler = targetTransform.basis.GetEuler()
+        let thisEuler = thisTransform.basis.GetEuler()
+        match Mathf.Abs(thisEuler.y - targetEuler.y) < smallestDeltaToRotateAt with
+            | true ->
+                this.SetRotation (Vector3(0.0f, targetEuler.y,0.0f))
+            | false ->
+                this.SetRotation (Vector3(0.0f, Mathf.Lerp(thisEuler.y, targetEuler.y, 1.0f),0.0f))
 
     let rotateTowardsMoveDirection(delta : float32) =
         let thisTransform = this.GetGlobalTransform()
@@ -607,7 +625,7 @@ type ActorObject() as this =
         move physicsState (1.5f * delta)
 
     let processHoldMove  (delta : float32)  =
-        rotateTowardsMoveDirection delta
+        rotateTowardsMousePosition delta
         None
 
 // *** Reload state
@@ -688,6 +706,7 @@ type ActorObject() as this =
 // **** Attack state actions
     let gunFire(rayCast : RayCast) =
         let fireBullet() =
+            GD.Print ("STUFF: ", rayCast.GetGlobalTransform().basis)
             rayCast.ForceRaycastUpdate()
             let magazine = (selectedWeaponOnCombatEnter.Value :?> Gun).Magazine.Value
             magazine.StoredAmmo <- magazine.StoredAmmo - 1
@@ -696,7 +715,7 @@ type ActorObject() as this =
                     let body = rayCast.GetCollider()
                     match body :? BaseActor with
                         | true ->
-                            (body :?> BaseActor).DamageProjectile 1
+                            (body :?> BaseActor).DamageProjectile 5
                         | false ->
                             ()
                 | false ->
