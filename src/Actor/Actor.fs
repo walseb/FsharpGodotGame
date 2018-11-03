@@ -18,18 +18,10 @@ type ActorState =
     | ReloadState
     | AttackState
 
-type ActorMaxStats =
+type ActorStats =
     {
-        mutable MaxStrength : float
-        mutable MaxAgility : float
-        mutable MaxShooting : float
-        mutable MaxCommandChildren : int
-    }
-type ActorCurrentStats =
-    {
-        mutable CurrentStrength : float
-        mutable CurrentAgility : float
-        mutable CurrentShooting : float
+        mutable Health : float
+        mutable CommandChildren : int
     }
 
 type ActorButtons =
@@ -60,9 +52,8 @@ type ActorButtons =
 [<AbstractClass>]
 type BaseActor() =
     inherit RigidBody()
-    abstract member DamageMelee : int -> unit
-    abstract member DamageProjectile : int -> unit
-
+    abstract member DamageMelee : float -> unit
+    abstract member DamageProjectile : float -> unit
 
 type ActorObject() as this =
     inherit BaseActor()
@@ -86,11 +77,11 @@ type ActorObject() as this =
     let animatedSprite =
         lazy(this.GetNode(new NodePath("AnimatedSprite3D")) :?> AnimatedSprite3D)
 
-    let mutable actorMaxStats : ActorMaxStats option =
-        None
-
-    let mutable actorCurrentStats : ActorCurrentStats option =
-        None
+    let mutable actorStats : ActorStats =
+        {
+            Health = 10.0
+            CommandChildren = 0
+        }
 
     let mutable commandParent : ActorObject option =
         None
@@ -140,22 +131,25 @@ type ActorObject() as this =
             | false ->
                 true
 
-// ** Stats
-    let initializeStats() =
-        actorMaxStats <-
-                   Some {
-                     MaxStrength = 0.0
-                     MaxAgility = 0.0
-                     MaxShooting = 0.0
-                     MaxCommandChildren = 0
-                   }
+// ** Take damage
+    let die() =
+        match actorStats.Health with
+            | x when x >= -15.0 ->
+                GD.Print "Normal death"
+            | x when x >= -30.0 ->
+                GD.Print "Violent death"
+            | _ ->
+                GD.Print "Really Violent death"
+        // Delete node
+        this.QueueFree()
 
-        actorCurrentStats <-
-                   Some {
-                     CurrentStrength = actorMaxStats.Value.MaxStrength
-                     CurrentAgility = actorMaxStats.Value.MaxAgility
-                     CurrentShooting = actorMaxStats.Value.MaxShooting
-                   }
+    let takeDamage(damage) =
+        actorStats.Health <- actorStats.Health - damage
+        match actorStats.Health > 0.0 with
+            | false ->
+                die()
+            | true ->
+                ()
 
 // ** Inventory management
 
@@ -179,7 +173,7 @@ type ActorObject() as this =
         |> (fun a ->
             items.[a] <- None)
 
-    let getBestMagazineAmongItems(weaponType : string) =
+    let getBestMagazineAmongItems (weaponType : string) =
         let getMagazineWithMostBullets (list : seq<Magazine>) =
             list
             |> Seq.sortWith (fun a b ->
@@ -671,7 +665,6 @@ type ActorObject() as this =
 
         let oldMagazine = (items.[selectedItem].Value :?> Gun).Magazine
         let newMagazine = getBestMagazineAmongItems selectedWeaponOnCombatEnter.Value.WeaponType
-        GD.Print ("STORED!!", newMagazine.Value.StoredAmmo)
 
         match oldMagazine.IsSome && newMagazine.IsSome with
             | true ->
@@ -737,7 +730,7 @@ type ActorObject() as this =
                     let body = rayCast.GetCollider()
                     match body :? BaseActor with
                         | true ->
-                            (body :?> BaseActor).DamageProjectile 5
+                            (body :?> BaseActor).DamageProjectile 5.0
                         | false ->
                             ()
                 | false ->
@@ -1012,14 +1005,15 @@ type ActorObject() as this =
         actorButtons.AimPressed <- false
 
 // *** Damage
-    override this.DamageMelee(damage) =
+    override this.DamageMelee(damage : float) =
+        takeDamage damage
         GD.Print ("I'm hit by melee for ", damage, " damage")
     override this.DamageProjectile(damage) =
+        takeDamage damage
         GD.Print ("I'm hit by projectile for ", damage, " damage")
 
 // *** Update
     override this._Ready() =
-        initializeStats()
         this.SetProcessInput true
 
     override this._Process(delta : float32) =
