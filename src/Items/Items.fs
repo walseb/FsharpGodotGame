@@ -32,7 +32,7 @@ type PistolMagazine() =
     inherit Magazine(ItemTypes.Pistol, 12)
 
 type RifleMagazine() =
-    inherit Magazine(ItemTypes.Rifle, 30)
+    inherit Magazine(ItemTypes.Rifle, 900)
 
 type SniperMagazine() =
     inherit Magazine(ItemTypes.Sniper, 5)

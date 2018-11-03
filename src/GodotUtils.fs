@@ -56,3 +56,24 @@ let sortObjectListClosestFirst (bodies : Array) (closestTo : Spatial) =
                                             None
                                 | false -> None)
             |> List.sortWith isAFurtherAwayFromToSelection
+
+let vector2To3(vector : Vector2) =
+    Vector3(vector.x, 0.0f, vector.y)
+
+let vector3To2(vector : Vector3) =
+    Vector2(vector.x, vector.z)
+
+let sin90Degree = Mathf.Sin(Mathf.Deg2Rad(90.0f))
+let cos90Degree = Mathf.Cos(Mathf.Deg2Rad(90.0f))
+
+let rotateVector90Degrees (vector : Vector2) =
+    vector
+    |> (fun a ->
+        Vector2((a.x * cos90Degree - a.y * sin90Degree), (a.x * sin90Degree + a.y * cos90Degree)))
+
+let rotateVector (vector : Vector2, degrees : float32) =
+    vector
+    |> (fun a ->
+        let sin = Mathf.Sin(Mathf.Deg2Rad(degrees))
+        let cos = Mathf.Cos(Mathf.Deg2Rad(degrees))
+        Vector2((a.x * cos - a.y * sin), (a.x * sin + a.y * cos)))

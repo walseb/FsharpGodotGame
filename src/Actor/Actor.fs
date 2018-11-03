@@ -152,7 +152,6 @@ type ActorObject() as this =
                 ()
 
 // ** Inventory management
-
     /// returns true if item has changed
     let changeSelectedItem (number : int) =
         match number < inventorySize && number >= 0 && number <> selectedItem with
@@ -205,8 +204,7 @@ type ActorObject() as this =
 // ** State actions
 
     let move (physicsState : PhysicsDirectBodyState) (multiplier : float32) =
-        physicsState.ApplyImpulse(Vector3(0.0f, 0.0f, 0.0f), (Vector3 (actorButtons.MoveDirection.x, 0.0f, actorButtons.MoveDirection.y)).Normalized() * physicsMoveMultiplier * multiplier)
-
+        physicsState.ApplyImpulse(Vector3.Zero, (vector2To3 actorButtons.MoveDirection).Normalized() * physicsMoveMultiplier * multiplier)
 
     let drop() =
         this.GetTree().SetInputAsHandled();
@@ -286,9 +284,7 @@ type ActorObject() as this =
                  // // GD.Print"FALSE"
                  // // this.SetRotation (Vector3(0.0f, Mathf.Lerp(thisEuler.y, targetEuler.y, 1.0f),0.0f))
 
-
-    let rotateSpeed = 20.0f
-    let rotateTowards (delta : float32, lookDir : Vector3) =
+    let rotateTowards (delta : float32, rotateSpeed : float32, lookDir : Vector3) =
         let thisTransform = this.GetGlobalTransform()
 
         // Get target transform
@@ -302,24 +298,26 @@ type ActorObject() as this =
         let targetBasis = Basis(targetRotation)
         this.SetRotation (Vector3(0.0f, targetBasis.GetEuler().y,0.0f))
 
-    let setRotation (lookDir : Vector3) =
-        let thisTransform = this.GetGlobalTransform()
-        let targetTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
-        let targetEuler = targetTransform.basis.GetEuler()
-        this.SetRotation (Vector3(0.0f, targetEuler.y,0.0f))
+    // Works but not really useful
+    // let setRotation (lookDir : Vector3) =
+        // let thisTransform = this.GetGlobalTransform()
+        // let targetTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
+        // let targetEuler = targetTransform.basis.GetEuler()
+        // this.SetRotation (Vector3(0.0f, targetEuler.y,0.0f))
 
     let rotateTowardsMoveDirection(delta : float32) =
         let thisTransform = this.GetGlobalTransform()
 
         // Get move direction based on keys
-        //let lookDir = Vector3(actorButtons.MoveDirection.x + thisTransform.origin.x, 0.0f, thisTransform.origin.z + actorButtons.MoveDirection.y)
+
+        let lookDir = vector2To3(actorButtons.MoveDirection + (vector3To2 thisTransform.origin))
 
         // Get move direction based on velocity
-        let lookDir = Vector3(this.LinearVelocity.x + thisTransform.origin.x, 0.0f, this.LinearVelocity.z + thisTransform.origin.z)
-        setRotation(lookDir)
+        // let lookDir = Vector3(this.LinearVelocity.x + thisTransform.origin.x, 0.0f, this.LinearVelocity.z + thisTransform.origin.z)
+        rotateTowards(delta, 15.0f, lookDir)
 
     let rotateTowardsMousePosition(delta : float32) =
-        rotateTowards(delta, Vector3(aimTarget.x, 0.0f, aimTarget.y))
+        rotateTowards(delta, 20.0f, vector2To3 aimTarget)
         //setRotation(aimTarget)
 
     let isMoveDirectionZero () =
@@ -442,6 +440,8 @@ type ActorObject() as this =
 
     let startIdle() =
         setAnimation "Idle" 100.0f
+        // Change actor speed on idle state
+        this.LinearVelocity <- this.LinearVelocity * 0.5f
         None
 
     let updateKeysIdle() =
@@ -647,7 +647,7 @@ type ActorObject() as this =
 
 // *** Reload state
 
-    let reloadTime : float32 = 2.0f
+    let reloadTime : float32 = 0.4f
 
     let startReload() =
         setWeaponAnimationTimed "Reload" reloadTime
@@ -720,8 +720,14 @@ type ActorObject() as this =
 
 // *** Attack state
 // **** Attack state actions
-    let gunFire(rayCast : RayCast) =
+    let gunFire(rayCast : RayCast, recoilPushbackMultiplier : float32) =
         let fireBullet() =
+            let rotation = this.GetGlobalTransform().basis.GetAxis(0)
+            // SPONGE a bit expensive, but only done when shooting so ok.
+            // It's done because the vector by default is 90 degrees off
+            let vector = rotateVector90Degrees (vector3To2 rotation)
+            this.ApplyImpulse(Vector3.Zero, vector2To3(vector).Normalized() * recoilPushbackMultiplier)
+
             rayCast.ForceRaycastUpdate()
             let magazine = (selectedWeaponOnCombatEnter.Value :?> Gun).Magazine.Value
             magazine.StoredAmmo <- magazine.StoredAmmo - 1
@@ -768,7 +774,7 @@ type ActorObject() as this =
                     GD.Print "BUCKSHOT ATTACK!!!"
                 | Slug ->
                     GD.Print "SLUG ATTEMPT FIRE!!!"
-                    gunFire(gunRayCast.Force())
+                    gunFire(gunRayCast.Force(), 10.0f)
 
         match usePrimaryAttackMode with
             | true ->
@@ -808,7 +814,7 @@ type ActorObject() as this =
                         None
 
     let integrateForcesAttack (delta : float32) (physicsState : PhysicsDirectBodyState) =
-        move physicsState (0.5f * delta)
+        move physicsState (0.3f * delta)
 
 // *** Holster state
 
@@ -1031,10 +1037,10 @@ type ActorObject() as this =
                         item.SetGlobalTransform (Transform (thisTransform.basis, thisTransform.origin))
                         this.Owner.AddChild item
                         // Impulse to make sure it's not sleeping, otherwise the collision somehow gets disabled and the item is bugged. Other solution is disabling "can sleep"
-                        item.ApplyImpulse(Vector3(0.0f, 0.0f, 0.0f), (Vector3 (actorButtons.MoveDirection.x, 0.0f, actorButtons.MoveDirection.y)).Normalized() * throwItemForce)
+                        item.ApplyImpulse(Vector3.Zero, (vector2To3 actorButtons.MoveDirection).Normalized() * throwItemForce)
                     | _ ->
                         // Pickup
-                        item.SetLinearVelocity(Vector3(0.0f,0.0f,0.0f))
+                        item.SetLinearVelocity Vector3.Zero
                         itemParent.RemoveChild(item)
 
             match toggleItemAttachedNextPhysicsUpdate.Count with
