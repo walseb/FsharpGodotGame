@@ -817,6 +817,7 @@ type ActorObject() as this =
         move physicsState (0.3f * delta)
 
 // *** Holster state
+DERS
 
     let holsterTime : float32 = 1.0f
 
@@ -1009,6 +1010,8 @@ type ActorObject() as this =
         actorButtons.PrimaryAttackPressed <- false
         actorButtons.SecondaryAttackPressed <- false
         actorButtons.AimPressed <- false
+        actorButtons.PrimaryAttackPressed <- false
+        actorButtons.ReloadPressed <- false
 
 // *** Damage
     override this.DamageMelee(damage : float) =
@@ -1020,7 +1023,7 @@ type ActorObject() as this =
 
 // *** Update
     override this._Ready() =
-        this.SetProcessInput true
+        ()
 
     override this._Process(delta : float32) =
         switchState (processStateMachine delta state)

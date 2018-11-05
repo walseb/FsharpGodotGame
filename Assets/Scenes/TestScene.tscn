@@ -1,16 +1,40 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://Assets/Scenes/Actor.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Assets/Scenes/Items/Weapons/ItemAk47.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Assets/Scenes/Items/Ammo/ItemRifleAmmo.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Assets/Scenes/PlayerCamera.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Assets/Scenes/ActorAi.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Assets/Scenes/Items/Weapons/ItemAk47.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Assets/Scenes/Items/Ammo/ItemRifleAmmo.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Assets/Scenes/PlayerCamera.tscn" type="PackedScene" id=5]
 
-[sub_resource type="GradientTexture" id=1]
+[sub_resource type="NavigationMesh" id=1]
+
+vertices = PoolVector3Array( -4.49162, -3.32329, -14.0621, -2.69162, -3.32329, -13.7621, 1.80838, -3.32329, -13.7621, -4.49162, -3.32329, -14.0621, 1.80838, -3.32329, -13.7621, 3.60838, -3.32329, -13.7621, 3.60838, -3.32329, -24.2621, -4.49162, -3.32329, -26.0621, -5.09162, -3.32329, -35.6621, -5.09162, -3.32329, -26.3621, -4.49162, -3.32329, -26.0621, 3.60838, -3.32329, -24.2621, 3.90838, -3.32329, -34.7621, 3.90838, -3.32329, -98.6621, -5.09162, -3.32329, -98.6621, -5.09162, -3.32329, -89.6621, 3.90838, -3.32329, -88.1621, 3.90838, -3.32329, -34.7621, 3.90838, -3.32329, -45.5621, -5.09162, -3.32329, -44.6621, -5.09162, -3.32329, -35.6621, 3.90838, -3.32329, -88.1621, -5.09162, -3.32329, -89.6621, -5.09162, -3.32329, -80.6621, 3.90838, -3.32329, -77.3621, 3.90838, -3.32329, -56.0621, 3.90838, -3.32329, -66.8621, -5.09162, -3.32329, -62.6621, -5.09162, -3.32329, -53.6621, 3.90838, -3.32329, -77.3621, -5.09162, -3.32329, -80.6621, -5.09162, -3.32329, -71.6621, 3.90838, -3.32329, -66.8621, 3.90838, -3.32329, -45.5621, 3.90838, -3.32329, -56.0621, -5.09162, -3.32329, -53.6621, -5.09162, -3.32329, -44.6621, 3.90838, -3.32329, -66.8621, -5.09162, -3.32329, -71.6621, -5.09162, -3.32329, -62.6621, -3.29162, -3.32329, -13.4621, -2.69162, -3.32329, -13.7621, -4.49162, -3.32329, -14.0621, -4.49162, -3.32329, -2.06207, -3.29162, -3.32329, -2.06207, -2.99162, -3.32329, -3.26207, 1.80838, -3.32329, -3.26207, 2.10838, -3.32329, -2.06207, 3.60838, -3.32329, -2.06207, 3.60838, -3.32329, -13.7621, 1.80838, -3.32329, -13.7621, 1.80838, -3.32329, -11.0621, 3.60838, -3.32329, -9.56207, -4.49162, -3.32329, -7.16206, -4.49162, -3.32329, -2.06207, -2.99162, -3.32329, -3.26207, -1.49162, -3.32329, -7.16206, 0.308377, -3.32329, -9.26207, 3.60838, -3.32329, -9.56207, 1.80838, -3.32329, -11.0621, -2.99162, -3.32329, -11.0621, -4.49162, -3.32329, -9.56207, -1.19162, -3.32329, -9.26207, -2.99162, -3.32329, -11.0621, -3.29162, -3.32329, -13.4621, -4.49162, -3.32329, -14.0621, -4.49162, -3.32329, -9.56207, 1.80838, -3.32329, -3.26207, 0.608377, -3.32329, -7.16206, -1.49162, -3.32329, -7.16206, -2.99162, -3.32329, -3.26207, 1.80838, -3.32329, -3.26207, 3.60838, -3.32329, -2.06207, 3.60838, -3.32329, -7.16206, 0.608377, -3.32329, -7.16206, 0.608377, -3.32329, -7.16206, 0.308377, -3.32329, -9.26207, -1.19162, -3.32329, -9.26207, -1.49162, -3.32329, -7.16206, -2.99162, -3.32329, -0.862068, -3.29162, -3.32329, -2.06207, -4.49162, -3.32329, -2.06207, -4.49162, -3.32329, 6.33794, 3.60838, -3.32329, -2.06207, 2.10838, -3.32329, -2.06207, 1.80838, -3.32329, -0.862068, 3.60838, -3.32329, 4.23794, 3.90838, -3.32329, 42.3379, 3.90838, -3.32329, 36.0379, -5.09162, -3.32329, 36.3379, -5.09162, -3.32329, 46.8379, 3.90838, -3.32329, 74.4379, 3.90838, -3.32329, 67.8379, -5.09162, -3.32329, 68.1379, -5.09162, -3.32329, 78.9379, 3.60838, -3.32329, 4.23794, 1.80838, -3.32329, -0.862068, -2.99162, -3.32329, -0.862068, -4.49162, -3.32329, 6.33794, 3.60838, -3.32329, 10.5379, -5.09162, -3.32329, 78.9379, 3.90838, -3.32329, 80.7379, 3.90838, -3.32329, 74.4379, 3.90838, -3.32329, 48.9379, 3.90838, -3.32329, 42.3379, -5.09162, -3.32329, 46.8379, 3.60838, -3.32329, 10.5379, -4.49162, -3.32329, 6.33794, -4.49162, -3.32329, 15.0379, 3.90838, -3.32329, 16.5379, 3.90838, -3.32329, 55.2379, 3.90838, -3.32329, 48.9379, -5.09162, -3.32329, 46.8379, -5.09162, -3.32329, 57.6379, 3.90838, -3.32329, 16.5379, -4.49162, -3.32329, 15.0379, -5.09162, -3.32329, 15.3379, -5.09162, -3.32329, 25.8379, 3.90838, -3.32329, 23.1379, -5.09162, -3.32329, 100.238, 3.90838, -3.32329, 100.238, 3.90838, -3.32329, 93.6379, -5.09162, -3.32329, 89.4379, -5.09162, -3.32329, 68.1379, 3.90838, -3.32329, 67.8379, 3.90838, -3.32329, 61.5379, -5.09162, -3.32329, 57.6379, -5.09162, -3.32329, 89.4379, 3.90838, -3.32329, 93.6379, 3.90838, -3.32329, 87.3379, -5.09162, -3.32329, 78.9379, -5.09162, -3.32329, 89.4379, 3.90838, -3.32329, 87.3379, 3.90838, -3.32329, 80.7379, -5.09162, -3.32329, 57.6379, 3.90838, -3.32329, 61.5379, 3.90838, -3.32329, 55.2379, 3.90838, -3.32329, 29.4379, 3.90838, -3.32329, 23.1379, -5.09162, -3.32329, 25.8379, 3.90838, -3.32329, 29.4379, -5.09162, -3.32329, 25.8379, -5.09162, -3.32329, 36.3379, 3.90838, -3.32329, 36.0379 )
+polygons = [ PoolIntArray( 2, 0, 1 ), PoolIntArray( 7, 3, 6 ), PoolIntArray( 3, 4, 6 ), PoolIntArray( 4, 5, 6 ), PoolIntArray( 12, 8, 11 ), PoolIntArray( 8, 10, 11 ), PoolIntArray( 8, 9, 10 ), PoolIntArray( 16, 13, 15 ), PoolIntArray( 13, 14, 15 ), PoolIntArray( 20, 17, 19 ), PoolIntArray( 17, 18, 19 ), PoolIntArray( 24, 21, 23 ), PoolIntArray( 21, 22, 23 ), PoolIntArray( 28, 25, 27 ), PoolIntArray( 25, 26, 27 ), PoolIntArray( 32, 29, 31 ), PoolIntArray( 29, 30, 31 ), PoolIntArray( 36, 33, 35 ), PoolIntArray( 33, 34, 35 ), PoolIntArray( 39, 37, 38 ), PoolIntArray( 42, 40, 41 ), PoolIntArray( 45, 43, 44 ), PoolIntArray( 48, 46, 47 ), PoolIntArray( 52, 49, 51 ), PoolIntArray( 49, 50, 51 ), PoolIntArray( 56, 53, 55 ), PoolIntArray( 53, 54, 55 ), PoolIntArray( 62, 57, 61 ), PoolIntArray( 57, 60, 61 ), PoolIntArray( 57, 59, 60 ), PoolIntArray( 57, 58, 59 ), PoolIntArray( 66, 63, 65 ), PoolIntArray( 63, 64, 65 ), PoolIntArray( 70, 67, 69 ), PoolIntArray( 67, 68, 69 ), PoolIntArray( 74, 71, 73 ), PoolIntArray( 71, 72, 73 ), PoolIntArray( 78, 75, 77 ), PoolIntArray( 75, 76, 77 ), PoolIntArray( 82, 79, 81 ), PoolIntArray( 79, 80, 81 ), PoolIntArray( 86, 83, 85 ), PoolIntArray( 83, 84, 85 ), PoolIntArray( 90, 87, 89 ), PoolIntArray( 87, 88, 89 ), PoolIntArray( 94, 91, 93 ), PoolIntArray( 91, 92, 93 ), PoolIntArray( 99, 95, 98 ), PoolIntArray( 95, 96, 98 ), PoolIntArray( 96, 97, 98 ), PoolIntArray( 102, 100, 101 ), PoolIntArray( 105, 103, 104 ), PoolIntArray( 109, 106, 108 ), PoolIntArray( 106, 107, 108 ), PoolIntArray( 113, 110, 112 ), PoolIntArray( 110, 111, 112 ), PoolIntArray( 118, 114, 117 ), PoolIntArray( 114, 115, 117 ), PoolIntArray( 115, 116, 117 ), PoolIntArray( 122, 119, 121 ), PoolIntArray( 119, 120, 121 ), PoolIntArray( 126, 123, 125 ), PoolIntArray( 123, 124, 125 ), PoolIntArray( 129, 127, 128 ), PoolIntArray( 133, 130, 132 ), PoolIntArray( 130, 131, 132 ), PoolIntArray( 136, 134, 135 ), PoolIntArray( 139, 137, 138 ), PoolIntArray( 143, 140, 142 ), PoolIntArray( 140, 141, 142 ) ]
+sample_partition_type/sample_partition_type = 0
+cell/size = 0.3
+cell/height = 0.2
+agent/height = 2.0
+agent/radius = 0.6
+agent/max_climb = 0.9
+agent/max_slope = 45.0
+region/min_size = 8.0
+region/merge_size = 20.0
+edge/max_length = 12.0
+edge/max_error = 1.3
+polygon/verts_per_poly = 6.0
+detail/sample_distance = 6.0
+detail/sample_max_error = 1.0
+filter/low_hanging_obstacles = false
+filter/ledge_spans = false
+filter/filter_walkable_low_height_spans = false
+_sections_unfolded = [ "agent", "cell", "detail", "edge", "filter", "polygon", "region", "sample_partition_type" ]
+
+[sub_resource type="GradientTexture" id=2]
 
 flags = 4
 width = 2048
 
-[sub_resource type="SpatialMaterial" id=2]
+[sub_resource type="SpatialMaterial" id=3]
 
 render_priority = 0
 flags_transparent = false
@@ -36,7 +60,7 @@ params_use_alpha_scissor = false
 albedo_color = Color( 0.239002, 0.214615, 0.378906, 1 )
 metallic = 1.0
 metallic_specular = 1.0
-metallic_texture = SubResource( 1 )
+metallic_texture = SubResource( 2 )
 metallic_texture_channel = 0
 roughness = 0.9
 roughness_texture_channel = 0
@@ -63,20 +87,20 @@ proximity_fade_enable = false
 distance_fade_enable = false
 _sections_unfolded = [ "Albedo", "Emission", "Metallic", "Roughness" ]
 
-[sub_resource type="PlaneMesh" id=3]
+[sub_resource type="PlaneMesh" id=4]
 
-material = SubResource( 2 )
+material = SubResource( 3 )
 custom_aabb = AABB( 0, 0, 0, 0, 0, 0 )
 size = Vector2( 2, 2 )
 subdivide_width = 0
 subdivide_depth = 0
 _sections_unfolded = [ "Resource" ]
 
-[sub_resource type="BoxShape" id=11]
+[sub_resource type="BoxShape" id=5]
 
 extents = Vector3( 1, 0.0413647, 1 )
 
-[sub_resource type="CubeMesh" id=5]
+[sub_resource type="CubeMesh" id=6]
 
 custom_aabb = AABB( 0, 0, 0, 0, 0, 0 )
 size = Vector3( 2, 2, 2 )
@@ -88,10 +112,6 @@ subdivide_depth = 0
 
 extents = Vector3( 1, 1, 1 )
 
-[sub_resource type="BoxShape" id=8]
-
-extents = Vector3( 1, 1, 1 )
-
 [sub_resource type="BoxShape" id=9]
 
 extents = Vector3( 1, 1, 1 )
@@ -100,11 +120,26 @@ extents = Vector3( 1, 1, 1 )
 
 extents = Vector3( 1, 1, 1 )
 
-[node name="Spatial" type="Spatial"]
+[sub_resource type="BoxShape" id=11]
+
+extents = Vector3( 1, 1, 1 )
+
+[node name="Spatial" type="Spatial" index="0"]
 
 _sections_unfolded = [ "Transform" ]
 
-[node name="MeshInstance" type="MeshInstance" parent="." index="0"]
+[node name="Navigation" type="Navigation" parent="." index="0"]
+
+up_vector = Vector3( 0, 1, 0 )
+_sections_unfolded = [ "Pause", "Transform", "Visibility" ]
+
+[node name="NavigationMeshInstance" type="NavigationMeshInstance" parent="Navigation" index="0"]
+
+navmesh = SubResource( 1 )
+enabled = true
+_sections_unfolded = [ "Transform", "Visibility" ]
+
+[node name="MeshInstance" type="MeshInstance" parent="Navigation/NavigationMeshInstance" index="0"]
 
 transform = Transform( 5, 0, 0, 0, 1, 0, 0, 0, 100, -0.563095, -3.71384, 0.737929 )
 layers = 1
@@ -116,12 +151,12 @@ lod_min_distance = 0.0
 lod_min_hysteresis = 0.0
 lod_max_distance = 0.0
 lod_max_hysteresis = 0.0
-mesh = SubResource( 3 )
+mesh = SubResource( 4 )
 skeleton = NodePath("..")
 material/0 = null
 _sections_unfolded = [ "Transform", "material" ]
 
-[node name="StaticBody" type="StaticBody" parent="MeshInstance" index="0"]
+[node name="StaticBody" type="StaticBody" parent="Navigation/NavigationMeshInstance/MeshInstance" index="0"]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.65661e-10 )
 input_ray_pickable = true
@@ -134,14 +169,14 @@ constant_linear_velocity = Vector3( 0, 0, 0 )
 constant_angular_velocity = Vector3( 0, 0, 0 )
 _sections_unfolded = [ "Collision" ]
 
-[node name="CollisionShape" type="CollisionShape" parent="MeshInstance/StaticBody" index="0"]
+[node name="CollisionShape" type="CollisionShape" parent="Navigation/NavigationMeshInstance/MeshInstance/StaticBody" index="0"]
 
-shape = SubResource( 11 )
+shape = SubResource( 5 )
 disabled = false
 
-[node name="MeshInstance2" type="MeshInstance" parent="." index="1"]
+[node name="MeshInstance2" type="MeshInstance" parent="Navigation/NavigationMeshInstance" index="1"]
 
-transform = Transform( 2, 0, 0, 0, 1, 0, 0, 0, 0.5, 2.44603, -2.92329, -8.40956 )
+transform = Transform( 2, 0, 0, 0, 1, 0, 0, 0, 0.5, 3.00772, -2.92329, -8.40956 )
 layers = 1
 material_override = null
 cast_shadow = 1
@@ -151,12 +186,12 @@ lod_min_distance = 0.0
 lod_min_hysteresis = 0.0
 lod_max_distance = 0.0
 lod_max_hysteresis = 0.0
-mesh = SubResource( 5 )
+mesh = SubResource( 6 )
 skeleton = NodePath("..")
 material/0 = null
 _sections_unfolded = [ "Transform", "material" ]
 
-[node name="StaticBody" type="StaticBody" parent="MeshInstance2" index="0"]
+[node name="StaticBody" type="StaticBody" parent="Navigation/NavigationMeshInstance/MeshInstance2" index="0"]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.65661e-10 )
 input_ray_pickable = true
@@ -169,14 +204,14 @@ constant_linear_velocity = Vector3( 0, 0, 0 )
 constant_angular_velocity = Vector3( 0, 0, 0 )
 _sections_unfolded = [ "Collision" ]
 
-[node name="CollisionShape" type="CollisionShape" parent="MeshInstance2/StaticBody" index="0"]
+[node name="CollisionShape" type="CollisionShape" parent="Navigation/NavigationMeshInstance/MeshInstance2/StaticBody" index="0"]
 
 shape = SubResource( 7 )
 disabled = false
 
-[node name="MeshInstance3" type="MeshInstance" parent="." index="2"]
+[node name="MeshInstance6" type="MeshInstance" parent="Navigation/NavigationMeshInstance" index="2"]
 
-transform = Transform( 2, 0, 0, 0, 1, 0, 0, 0, 0.5, -3.50514, -2.92329, -8.40956 )
+transform = Transform( 2, 0, 0, 0, 1, 0, 0, 0, 0.5, -0.584906, -2.92329, -2.01998 )
 layers = 1
 material_override = null
 cast_shadow = 1
@@ -186,12 +221,12 @@ lod_min_distance = 0.0
 lod_min_hysteresis = 0.0
 lod_max_distance = 0.0
 lod_max_hysteresis = 0.0
-mesh = SubResource( 5 )
+mesh = SubResource( 6 )
 skeleton = NodePath("..")
 material/0 = null
 _sections_unfolded = [ "Transform", "material" ]
 
-[node name="StaticBody" type="StaticBody" parent="MeshInstance3" index="0"]
+[node name="StaticBody" type="StaticBody" parent="Navigation/NavigationMeshInstance/MeshInstance6" index="0"]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.65661e-10 )
 input_ray_pickable = true
@@ -204,12 +239,82 @@ constant_linear_velocity = Vector3( 0, 0, 0 )
 constant_angular_velocity = Vector3( 0, 0, 0 )
 _sections_unfolded = [ "Collision" ]
 
-[node name="CollisionShape" type="CollisionShape" parent="MeshInstance3/StaticBody" index="0"]
+[node name="CollisionShape" type="CollisionShape" parent="Navigation/NavigationMeshInstance/MeshInstance6/StaticBody" index="0"]
 
-shape = SubResource( 8 )
+shape = SubResource( 7 )
 disabled = false
 
-[node name="MeshInstance4" type="MeshInstance" parent="." index="3"]
+[node name="MeshInstance7" type="MeshInstance" parent="Navigation/NavigationMeshInstance" index="3"]
+
+transform = Transform( 2, 0, 0, 0, 1, 0, 0, 0, 0.5, -0.584906, -2.92329, -12.4355 )
+layers = 1
+material_override = null
+cast_shadow = 1
+extra_cull_margin = 0.0
+use_in_baked_light = false
+lod_min_distance = 0.0
+lod_min_hysteresis = 0.0
+lod_max_distance = 0.0
+lod_max_hysteresis = 0.0
+mesh = SubResource( 6 )
+skeleton = NodePath("..")
+material/0 = null
+_sections_unfolded = [ "Transform", "material" ]
+
+[node name="StaticBody" type="StaticBody" parent="Navigation/NavigationMeshInstance/MeshInstance7" index="0"]
+
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.65661e-10 )
+input_ray_pickable = true
+input_capture_on_drag = false
+collision_layer = 3
+collision_mask = 1
+friction = 1.0
+bounce = 0.0
+constant_linear_velocity = Vector3( 0, 0, 0 )
+constant_angular_velocity = Vector3( 0, 0, 0 )
+_sections_unfolded = [ "Collision" ]
+
+[node name="CollisionShape" type="CollisionShape" parent="Navigation/NavigationMeshInstance/MeshInstance7/StaticBody" index="0"]
+
+shape = SubResource( 7 )
+disabled = false
+
+[node name="MeshInstance3" type="MeshInstance" parent="Navigation/NavigationMeshInstance" index="4"]
+
+transform = Transform( 2, 0, 0, 0, 1, 0, 0, 0, 0.5, -3.94649, -2.92329, -8.40956 )
+layers = 1
+material_override = null
+cast_shadow = 1
+extra_cull_margin = 0.0
+use_in_baked_light = false
+lod_min_distance = 0.0
+lod_min_hysteresis = 0.0
+lod_max_distance = 0.0
+lod_max_hysteresis = 0.0
+mesh = SubResource( 6 )
+skeleton = NodePath("..")
+material/0 = null
+_sections_unfolded = [ "Transform", "material" ]
+
+[node name="StaticBody" type="StaticBody" parent="Navigation/NavigationMeshInstance/MeshInstance3" index="0"]
+
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.65661e-10 )
+input_ray_pickable = true
+input_capture_on_drag = false
+collision_layer = 3
+collision_mask = 1
+friction = 1.0
+bounce = 0.0
+constant_linear_velocity = Vector3( 0, 0, 0 )
+constant_angular_velocity = Vector3( 0, 0, 0 )
+_sections_unfolded = [ "Collision" ]
+
+[node name="CollisionShape" type="CollisionShape" parent="Navigation/NavigationMeshInstance/MeshInstance3/StaticBody" index="0"]
+
+shape = SubResource( 9 )
+disabled = false
+
+[node name="MeshInstance4" type="MeshInstance" parent="Navigation/NavigationMeshInstance" index="5"]
 
 transform = Transform( -3.25841e-06, 0, 0.5, 0, 1, 0, -20, 0, -8.14603e-08, -5.79162, -2.92329, -5.49304 )
 layers = 1
@@ -221,12 +326,12 @@ lod_min_distance = 0.0
 lod_min_hysteresis = 0.0
 lod_max_distance = 0.0
 lod_max_hysteresis = 0.0
-mesh = SubResource( 5 )
+mesh = SubResource( 6 )
 skeleton = NodePath("..")
 material/0 = null
 _sections_unfolded = [ "Transform", "material" ]
 
-[node name="StaticBody" type="StaticBody" parent="MeshInstance4" index="0"]
+[node name="StaticBody" type="StaticBody" parent="Navigation/NavigationMeshInstance/MeshInstance4" index="0"]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.65661e-10 )
 input_ray_pickable = true
@@ -239,12 +344,12 @@ constant_linear_velocity = Vector3( 0, 0, 0 )
 constant_angular_velocity = Vector3( 0, 0, 0 )
 _sections_unfolded = [ "Collision" ]
 
-[node name="CollisionShape" type="CollisionShape" parent="MeshInstance4/StaticBody" index="0"]
+[node name="CollisionShape" type="CollisionShape" parent="Navigation/NavigationMeshInstance/MeshInstance4/StaticBody" index="0"]
 
-shape = SubResource( 9 )
+shape = SubResource( 10 )
 disabled = false
 
-[node name="MeshInstance5" type="MeshInstance" parent="." index="4"]
+[node name="MeshInstance5" type="MeshInstance" parent="Navigation/NavigationMeshInstance" index="6"]
 
 transform = Transform( -3.25841e-06, 0, 0.5, 0, 1, 0, -20, 0, -8.14603e-08, 4.81916, -2.92329, -5.18392 )
 layers = 1
@@ -256,12 +361,12 @@ lod_min_distance = 0.0
 lod_min_hysteresis = 0.0
 lod_max_distance = 0.0
 lod_max_hysteresis = 0.0
-mesh = SubResource( 5 )
+mesh = SubResource( 6 )
 skeleton = NodePath("..")
 material/0 = null
 _sections_unfolded = [ "Transform", "material" ]
 
-[node name="StaticBody" type="StaticBody" parent="MeshInstance5" index="0"]
+[node name="StaticBody" type="StaticBody" parent="Navigation/NavigationMeshInstance/MeshInstance5" index="0"]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4.65661e-10 )
 input_ray_pickable = true
@@ -274,64 +379,76 @@ constant_linear_velocity = Vector3( 0, 0, 0 )
 constant_angular_velocity = Vector3( 0, 0, 0 )
 _sections_unfolded = [ "Collision" ]
 
-[node name="CollisionShape" type="CollisionShape" parent="MeshInstance5/StaticBody" index="0"]
+[node name="CollisionShape" type="CollisionShape" parent="Navigation/NavigationMeshInstance/MeshInstance5/StaticBody" index="0"]
 
-shape = SubResource( 10 )
+shape = SubResource( 11 )
 disabled = false
 
-[node name="Actor" parent="." index="5" instance=ExtResource( 1 )]
+[node name="Actor" parent="." index="1" instance=ExtResource( 1 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.81606, 3 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -3.3606, 7.35108 )
 
-[node name="Actor2" parent="." index="6" instance=ExtResource( 1 )]
+[node name="Actor2" parent="." index="2" instance=ExtResource( 1 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3, -2.81606, -15.5126 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.523407, -3.3, -18.8298 )
 
-[node name="Actor7" parent="." index="7" instance=ExtResource( 1 )]
+[node name="ActorAi" parent="Actor2" index="4" instance=ExtResource( 2 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.31298, -2.81606, -15.5126 )
+[node name="Actor7" parent="." index="3" instance=ExtResource( 1 )]
 
-[node name="Actor3" parent="." index="8" instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.31298, -2.81606, -18.8298 )
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3, -2.81606, -10.5126 )
+[node name="ActorAi" parent="Actor7" index="4" instance=ExtResource( 2 )]
 
-[node name="Actor6" parent="." index="9" instance=ExtResource( 1 )]
+[node name="Actor3" parent="." index="4" instance=ExtResource( 1 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.31298, -2.81606, -10.5126 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.986696, -2.81606, -13.4958 )
 
-[node name="Actor4" parent="." index="10" instance=ExtResource( 1 )]
+[node name="ActorAi" parent="Actor3" index="4" instance=ExtResource( 2 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.81606, -10.5126 )
+[node name="Actor6" parent="." index="5" instance=ExtResource( 1 )]
 
-[node name="Actor5" parent="." index="11" instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.31298, -2.81606, -15.2774 )
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.31298, -2.81606, -10.5126 )
+[node name="ActorAi" parent="Actor6" index="4" instance=ExtResource( 2 )]
 
-[node name="ItemAk47" parent="." index="12" instance=ExtResource( 2 )]
+[node name="Actor4" parent="." index="6" instance=ExtResource( 1 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.72225, -4.66424 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.81606, -15.2774 )
 
-[node name="ItemAk48" parent="." index="13" instance=ExtResource( 2 )]
+[node name="ActorAi" parent="Actor4" index="4" instance=ExtResource( 2 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.33411, -1.72225, -4.26262 )
+[node name="Actor5" parent="." index="7" instance=ExtResource( 1 )]
 
-[node name="ItemAk49" parent="." index="14" instance=ExtResource( 2 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.09375, -2.81606, -15.2774 )
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.12626, -1.72225, 0 )
+[node name="ActorAi" parent="Actor5" index="4" instance=ExtResource( 2 )]
 
-[node name="ItemRifleAmmo" parent="." index="15" instance=ExtResource( 3 )]
+[node name="ItemAk47" parent="." index="8" instance=ExtResource( 3 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.391457, -3.37059, -1.28727 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.72225, 0.481334 )
 
-[node name="ItemRifleAmmo2" parent="." index="16" instance=ExtResource( 3 )]
+[node name="ItemAk48" parent="." index="9" instance=ExtResource( 3 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.391457, -3.37059, 1.57764 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3.33411, -1.72225, -0.822351 )
 
-[node name="ItemRifleAmmo3" parent="." index="17" instance=ExtResource( 3 )]
+[node name="ItemAk49" parent="." index="10" instance=ExtResource( 3 )]
 
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08219, -3.37059, 0.902127 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.12626, -1.72225, 3.44027 )
 
-[node name="PlayerCamera" parent="." index="18" instance=ExtResource( 4 )]
+[node name="ItemRifleAmmo" parent="." index="11" instance=ExtResource( 4 )]
+
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.391457, -3.37059, 2.153 )
+
+[node name="ItemRifleAmmo2" parent="." index="12" instance=ExtResource( 4 )]
+
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.391457, -3.37059, 5.01791 )
+
+[node name="ItemRifleAmmo3" parent="." index="13" instance=ExtResource( 4 )]
+
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.08219, -3.37059, 4.3424 )
+
+[node name="PlayerCamera" parent="." index="14" instance=ExtResource( 5 )]
 
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13.6612, -5.96046e-08 )
 

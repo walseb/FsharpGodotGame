@@ -71,9 +71,20 @@ let rotateVector90Degrees (vector : Vector2) =
     |> (fun a ->
         Vector2((a.x * cos90Degree - a.y * sin90Degree), (a.x * sin90Degree + a.y * cos90Degree)))
 
+let sin180Degree = Mathf.Sin(Mathf.Deg2Rad(180.0f))
+let cos180Degree = Mathf.Cos(Mathf.Deg2Rad(180.0f))
+
+let rotateVector180Degrees (vector : Vector2) =
+    vector
+    |> (fun a ->
+        Vector2((a.x * cos180Degree - a.y * sin180Degree), (a.x * sin180Degree + a.y * cos180Degree)))
+
 let rotateVector (vector : Vector2, degrees : float32) =
     vector
     |> (fun a ->
         let sin = Mathf.Sin(Mathf.Deg2Rad(degrees))
         let cos = Mathf.Cos(Mathf.Deg2Rad(degrees))
         Vector2((a.x * cos - a.y * sin), (a.x * sin + a.y * cos)))
+
+let radToVector2 rad =
+    Vector2(cos(rad), sin(rad))
