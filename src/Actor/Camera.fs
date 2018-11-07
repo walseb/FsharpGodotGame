@@ -1,5 +1,6 @@
 namespace Actor.Camera
 
+open References
 open Godot
 open Chessie.ErrorHandling
 open RailwayUtils
@@ -9,26 +10,32 @@ open Input.Management
 
 open System.Collections.Generic
 
-type CameraButtons =
+type MoveDirection =
     {
         mutable MoveUpPressed : bool
         mutable MoveDownPressed : bool
         mutable MoveLeftPressed : bool
         mutable MoveRightPressed : bool
-
-        mutable RunPressed : bool
      }
+
 
 type PlayerCamera() as this =
     inherit Camera()
+
+    // * Vars
+
+    let mutable cameraButtons : MoveDirection =
+        {
+            MoveUpPressed = false
+            MoveDownPressed = false
+            MoveLeftPressed = false
+            MoveRightPressed = false
+        }
 
     let mutable commander : ActorObject Option =
         None
 
     let mutable attachedActor : ActorObject Option =
-        None
-
-    let mutable attachedActorSpatial : Spatial Option =
         None
 
     let mutable attachActorNextPhysicsUpdate =
@@ -61,19 +68,19 @@ type PlayerCamera() as this =
     let areaCollisionShape : Lazy<CollisionShape> =
         lazy (mouseSelectionArea.Force().GetChild 0 :?> CollisionShape)
 
-    let mutable cameraButtons : CameraButtons =
-        {
-            MoveUpPressed = false
-            MoveDownPressed = false
-            MoveLeftPressed = false
-            MoveRightPressed = false
-            RunPressed = false
-        }
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //                                  Functions                                //
-    ///////////////////////////////////////////////////////////////////////////////
+    // * Functions
 
+    // ** Input
+
+    let cameraSpecificInputHandled() =
+        this.GetTree().SetInputAsHandled()
+
+    let inputHandled() =
+        this.GetTree().SetInputAsHandled()
+        attachedActor.Value.InputUpdated()
+
+    // *** Movement
     let getMoveAxis() : Vector2 =
         Vector2(0.0f, 0.0f)
         |> fun axis -> if cameraButtons.MoveUpPressed then Vector2(axis.x, axis.y - 1.0f) else axis
@@ -81,41 +88,30 @@ type PlayerCamera() as this =
         |> fun axis -> if cameraButtons.MoveLeftPressed then Vector2(axis.x - 1.0f,axis.y) else axis
         |> fun axis -> if cameraButtons.MoveRightPressed then Vector2(axis.x + 1.0f, axis.y) else axis
 
-    let inputHandled() =
-        this.GetTree().SetInputAsHandled()
-        attachedActor.Value.InputUpdated()
-
     let setMovementButtons (inputEvent : InputEvent) =
         match inputEvent.IsAction PlayerInputActions.MoveUp with
             | true ->
                 cameraButtons.MoveUpPressed <- inputEvent.IsPressed()
-                inputHandled()
                 true
             | false ->
                 match inputEvent.IsAction PlayerInputActions.MoveDown with
                     | true ->
                         cameraButtons.MoveDownPressed <- inputEvent.IsPressed()
-                        inputHandled()
                         true
                     | false ->
                         match inputEvent.IsAction PlayerInputActions.MoveLeft with
                             | true ->
                                 cameraButtons.MoveLeftPressed <- inputEvent.IsPressed()
-                                inputHandled()
                                 true
                             | false ->
                                 match inputEvent.IsAction PlayerInputActions.MoveRight with
                                     | true ->
                                         cameraButtons.MoveRightPressed <- inputEvent.IsPressed()
-                                        inputHandled()
                                         true
                                     | false ->
                                         false
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //                                  Camera Actions                           //
-    ///////////////////////////////////////////////////////////////////////////////
-
+    // * Camera Actions
     let getMouse3DPosition() : Vector3 option =
         let maxRayRange = 1000.0f
 
@@ -169,12 +165,9 @@ type PlayerCamera() as this =
             | true ->
                 ()
             | false ->
-                let findCommander() =
-                    Some (this.GetTree().GetRoot().GetNode(new NodePath "Spatial").GetNode(new NodePath "Actor") :?> ActorObject)
-                let foundCommander = findCommander()
-                match foundCommander.IsSome with
+                match ReferencesStored.Player.IsSome with
                     | true ->
-                        commander <- foundCommander
+                        commander <- Some ReferencesStored.Player.Value
                     | false ->
                         GD.Print "There isn't a commander on the scene"
 
@@ -211,16 +204,6 @@ type PlayerCamera() as this =
                         commander.Value.AddActorUnderCommand selectedActors.Value.Head
 
     let attachActor (actor : ActorObject) =
-        let transferCameraButtonStateToActor (actor : ActorObject) =
-            actor.ActorButtons.MoveDirection <- getMoveAxis()
-            actor.ActorButtons.RunPressed <- cameraButtons.RunPressed
-
-        // No longer attaching actor
-        //let makeActorParent (actor : ActorObject) =
-            //(this.GetParent()).RemoveChild this
-            //actor.AddChild this
-            //this.SetOwner actor
-
         match attachedActor.IsSome with
             | true ->
                 attachedActor.Value.ResetActorButtons()
@@ -231,8 +214,6 @@ type PlayerCamera() as this =
         // Detach current actor properly before attaching a new one
        // detachActor actor
         attachedActor <- Some actor
-        attachedActorSpatial <- Some (actor :> Spatial)
-        transferCameraButtonStateToActor actor
 
     let attachActorUnderSelection() =
         let actorsInSelection = getActorsInSelection()
@@ -270,10 +251,9 @@ type PlayerCamera() as this =
                         zoomLevel <- maxZoomHeight
 
     /// Buttons
-    let setCameraSpecialButtons(inputEvent : InputEvent) =
+    let setCameraSpecificButtons(inputEvent : InputEvent) =
         match inputEvent.IsAction PlayerInputActions.ZoomIn with
             | true ->
-                inputHandled()
                 match inputEvent.IsPressed() with
                     | true ->
                         zoom -1.0f
@@ -283,7 +263,6 @@ type PlayerCamera() as this =
             | false ->
                 match inputEvent.IsAction PlayerInputActions.ZoomOut with
                     | true ->
-                        inputHandled()
                         match inputEvent.IsPressed() with
                             | true ->
                                 zoom 1.0f
@@ -298,7 +277,6 @@ type PlayerCamera() as this =
                                 attachActorNextPhysicsUpdate <- true
                             | false ->
                                 ()
-                            inputHandled()
                             true
                         | false ->
                             match inputEvent.IsAction PlayerInputActions.CameraDetach with
@@ -308,7 +286,6 @@ type PlayerCamera() as this =
                                     detachActorNextPhysicsUpdate <- true
                                 | false ->
                                     ()
-                                inputHandled()
                                 true
                             | false ->
                                 match inputEvent.IsAction PlayerInputActions.AddToUnderAttachedCommandDebug with
@@ -318,7 +295,6 @@ type PlayerCamera() as this =
                                         addActorInSelectionToUnderCommandNextPhysicsUpdate <- true
                                     | false ->
                                         ()
-                                    inputHandled()
                                     true
                                 | false ->
                                     false
@@ -327,120 +303,100 @@ type PlayerCamera() as this =
         match inputEvent.IsAction PlayerInputActions.Select1 with
             | true ->
                 actorButtons.Force().Select1Pressed <- inputEvent.IsPressed()
-                inputHandled()
                 true
             | false ->
                 match inputEvent.IsAction PlayerInputActions.Select2 with
                     | true ->
                         actorButtons.Force().Select2Pressed <- inputEvent.IsPressed()
-                        inputHandled()
                         true
                     | false ->
                         match inputEvent.IsAction PlayerInputActions.Select3 with
                             | true ->
                                 actorButtons.Force().Select3Pressed <- inputEvent.IsPressed()
-                                inputHandled()
                                 true
                             | false ->
                                 match inputEvent.IsAction PlayerInputActions.Select4 with
                                     | true ->
                                         actorButtons.Force().Select4Pressed <- inputEvent.IsPressed()
-                                        inputHandled()
                                         true
                                     | false ->
                                         match inputEvent.IsAction PlayerInputActions.Select5 with
                                             | true ->
                                                 actorButtons.Force().Select5Pressed <- inputEvent.IsPressed()
-                                                inputHandled()
                                                 true
                                             | false ->
                                                 match inputEvent.IsAction PlayerInputActions.Select6 with
                                                     | true ->
                                                         actorButtons.Force().Select6Pressed <- inputEvent.IsPressed()
-                                                        inputHandled()
                                                         true
                                                     | false ->
                                                         match inputEvent.IsAction PlayerInputActions.Select7 with
                                                             | true ->
                                                                 actorButtons.Force().Select7Pressed <- inputEvent.IsPressed()
-                                                                inputHandled()
                                                                 true
                                                             | false ->
                                                                 match inputEvent.IsAction PlayerInputActions.Select8 with
                                                                     | true ->
                                                                         actorButtons.Force().Select8Pressed <- inputEvent.IsPressed()
-                                                                        inputHandled()
                                                                         true
                                                                     | false ->
                                                                         match inputEvent.IsAction PlayerInputActions.Select9 with
                                                                             | true ->
                                                                                 actorButtons.Force().Select9Pressed <- inputEvent.IsPressed()
-                                                                                inputHandled()
                                                                                 true
                                                                             | false ->
                                                                                 match inputEvent.IsAction PlayerInputActions.Select0 with
                                                                                     | true ->
                                                                                         actorButtons.Force().Select0Pressed <- inputEvent.IsPressed()
-                                                                                        inputHandled()
                                                                                         true
                                                                                     | false ->
                                                                                         false
 
     let setActorButtons (inputEvent : InputEvent) (actorButtons : Lazy<ActorButtons>) : bool =
-        match setMovementButtons inputEvent with
+        match inputEvent.IsAction PlayerInputActions.Pickup with
+            | true ->
+                actorButtons.Force().PickupPressed <- inputEvent.IsPressed()
+                true
             | false ->
-                match inputEvent.IsAction PlayerInputActions.Pickup with
+                match inputEvent.IsAction PlayerInputActions.Reload with
                     | true ->
-                        actorButtons.Force().PickupPressed <- inputEvent.IsPressed()
-                        inputHandled()
+                        actorButtons.Force().ReloadPressed <- inputEvent.IsPressed()
                         true
                     | false ->
-                        match inputEvent.IsAction PlayerInputActions.Reload with
+                        match inputEvent.IsAction PlayerInputActions.Drop with
                             | true ->
-                                actorButtons.Force().ReloadPressed <- inputEvent.IsPressed()
-                                inputHandled()
+                                actorButtons.Force().DropPressed <- inputEvent.IsPressed()
                                 true
                             | false ->
-                                match inputEvent.IsAction PlayerInputActions.Drop with
+                                match inputEvent.IsAction PlayerInputActions.PrimaryAttack with
                                     | true ->
-                                        actorButtons.Force().DropPressed <- inputEvent.IsPressed()
-                                        inputHandled()
+                                        actorButtons.Force().PrimaryAttackPressed <- inputEvent.IsPressed()
                                         true
                                     | false ->
-                                        match inputEvent.IsAction PlayerInputActions.PrimaryAttack with
+                                        match inputEvent.IsAction PlayerInputActions.SecondaryAttack with
                                             | true ->
-                                                actorButtons.Force().PrimaryAttackPressed <- inputEvent.IsPressed()
-                                                inputHandled()
+                                                actorButtons.Force().SecondaryAttackPressed <- inputEvent.IsPressed()
                                                 true
                                             | false ->
-                                                match inputEvent.IsAction PlayerInputActions.SecondaryAttack with
+                                                match inputEvent.IsAction PlayerInputActions.Aim with
                                                     | true ->
-                                                        actorButtons.Force().SecondaryAttackPressed <- inputEvent.IsPressed()
-                                                        inputHandled()
+                                                        actorButtons.Force().AimPressed <- inputEvent.IsPressed()
                                                         true
                                                     | false ->
-                                                        match inputEvent.IsAction PlayerInputActions.Aim with
+                                                        match inputEvent.IsAction PlayerInputActions.Run with
                                                             | true ->
-                                                                actorButtons.Force().AimPressed <- inputEvent.IsPressed()
-                                                                inputHandled()
+                                                                actorButtons.Force().RunPressed <- inputEvent.IsPressed()
                                                                 true
                                                             | false ->
-                                                                match inputEvent.IsAction PlayerInputActions.Run with
-                                                                    | true ->
-                                                                        actorButtons.Force().RunPressed <- inputEvent.IsPressed()
-                                                                        inputHandled()
-                                                                        true
-                                                                    | false ->
-                                                                        setActorSelectionButtons inputEvent actorButtons
-            | true ->
-                actorButtons.Force().MoveDirection <- getMoveAxis()
-                inputHandled()
-                true
-
+                                                                false
 
     let setCameraPositionToActor() =
-        let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
-        rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis, Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
+        match attachedActor.IsSome with
+            | true ->
+                let attachedActorTransform = attachedActor.Value.GetTransform()
+                rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis, Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
+            | false ->
+                ()
 
         // Smooth camera movements: (Doesn't work?)
         // let target = (Transform (rootNode.Value.GetTransform().basis, Vector3((Mathf.Lerp(rootNode.Force().GetGlobalTransform().origin.x, attachedActorTransform.origin.x, 1.0f)), (attachedActorTransform.origin.y + zoomLevel), (Mathf.Lerp(rootNode.Force().GetGlobalTransform().origin.z, attachedActorTransform.origin.z, 1.0f)))))
@@ -478,9 +434,11 @@ type PlayerCamera() as this =
         match initObjectReferences with
             | true ->
                 initObjectReferences <- false
+                // We need to get these in beginning, since they detach from camera when player uses them
                 mouseSelectionArea.Force() |> ignore
                 areaCollisionShape.Force() |> ignore
-                attachActor commander.Value
+                attachCommander()
+                //attachActor commander.Value
                 ()
             | false ->
                 ()
@@ -534,17 +492,24 @@ type PlayerCamera() as this =
 
 
     override this._UnhandledInput (inputEvent : InputEvent) =
-        setCameraSpecialButtons inputEvent
-        |> ignore
 
-        match attachedActor with
-            | Some x ->
-                setActorButtons inputEvent (lazy attachedActor.Value.ActorButtons)
-                |> ignore
-                ()
-            | None ->
+        match attachedActor.IsSome with
+            | true ->
+                let cameraSpecificResult = setCameraSpecificButtons inputEvent
+                let actorButtonsResult = setActorButtons inputEvent (lazy attachedActor.Value.ActorButtons)
+                let actorSelectionResult = setActorSelectionButtons inputEvent (lazy attachedActor.Value.ActorButtons)
+
+                let movementResult = setMovementButtons inputEvent
+                attachedActor.Value.ActorButtons.MoveDirection <- getMoveAxis()
+
+                match movementResult || actorButtonsResult || actorSelectionResult with
+                    | true ->
+                        inputHandled()
+                    | false ->
+                        match cameraSpecificResult with
+                            | true ->
+                                cameraSpecificInputHandled()
+                            | false ->
+                                ()
+            | false ->
                 GD.Print "No actor attached???"
-                setMovementButtons inputEvent
-                |> ignore
-
-        //GD.Print ("attachedActor", attachedActor.Value)

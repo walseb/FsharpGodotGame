@@ -74,6 +74,9 @@
 
     <!-- Actor -->
     <Compile Include="src/Actor/Actor.fs" />
+
+    <Compile Include="src/References.fs" />
+
     <Compile Include="src/Actor/Camera.fs" />
     <Compile Include="src/Actor/Ai.fs" />
 

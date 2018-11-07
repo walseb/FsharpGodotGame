@@ -82,6 +82,7 @@ SecondaryAttack=[ Object(InputEventKey,"resource_local_to_scene":false,"resource
 
 3d_physics/layer_2="Terrain"
 3d_physics/layer_3="Item"
+3d_physics/layer_4="Actor"
 
 [physics]
 

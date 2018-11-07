@@ -1,5 +1,6 @@
 namespace Actor.Ai
 
+open References
 open Actor
 open Godot
 open Chessie.ErrorHandling
@@ -7,7 +8,7 @@ open RailwayUtils
 open GodotUtils
 
 type ActorAi() as this =
-    inherit Node()
+    inherit Spatial()
 
     let attachedActor : Lazy<ActorObject> =
         lazy (this.GetParent() :?> ActorObject)
@@ -41,6 +42,8 @@ type ActorAi() as this =
                 match selectedNav < navPoints.Value.Length with
                     | false ->
                         setActorMoveDirection Vector2.Zero
+                        selectedNav <- 0
+                        navPoints <- None
                     | true ->
                         let distance = thisPos.DistanceSquaredTo(navPoints.Value.[selectedNav])
                         match distance <= nextNavpointDistance with
@@ -53,6 +56,22 @@ type ActorAi() as this =
                                 let directionToClosestNav = (Vector2 ((this2DPos.x - nav2DPos.x), (this2DPos.y - nav2DPos.y)))
                                 setActorMoveDirection(rotateVector180Degrees directionToClosestNav)
 
+    member this._on_Area_body_entered(body : Object) =
+        match body :? ActorObject with
+            | true ->
+                match ReferencesStored.PlayerBoxed.IsSome with
+                    | false ->
+                        GD.Print "ERROR: Actor reference in references not found"
+
+                    | true  ->
+                        match physicallyEquals ReferencesStored.PlayerBoxed.Value body with
+                            | true ->
+                                GD.Print "I FOUND HIM!!"
+                            | false ->
+                                ()
+            | false ->
+                ()
+
     override this._Process(delta : float32) =
         match updateMovementTimer > updateMovementInterval with
             | true ->
@@ -62,5 +81,6 @@ type ActorAi() as this =
                 updateMovementTimer <- updateMovementTimer + delta
 
     override this._Ready() =
-        let thisPos = attachedActor.Force().GetGlobalTransform().origin
-        updateNavPoints thisPos Vector3.Zero
+        // let thisPos = attachedActor.Force().GetGlobalTransform().origin
+        // updateNavPoints thisPos Vector3.Zero
+        ()

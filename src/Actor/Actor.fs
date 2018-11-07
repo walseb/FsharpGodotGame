@@ -58,7 +58,7 @@ type BaseActor() =
 type ActorObject() as this =
     inherit BaseActor()
 
-// ** Vars
+    // ** Vars
     let handReachArea =
         lazy(this.GetNode(new NodePath("HandReachArea")) :?> Area)
 
@@ -131,7 +131,7 @@ type ActorObject() as this =
             | false ->
                 true
 
-// ** Take damage
+    // ** Take damage
     let die() =
         match actorStats.Health with
             | x when x >= -15.0 ->
@@ -151,7 +151,7 @@ type ActorObject() as this =
             | true ->
                 ()
 
-// ** Inventory management
+    // ** Inventory management
     /// returns true if item has changed
     let changeSelectedItem (number : int) =
         match number < inventorySize && number >= 0 && number <> selectedItem with
@@ -201,7 +201,7 @@ type ActorObject() as this =
                 | false ->
                     Some (getMagazineWithMostBullets a))
 
-// ** State actions
+    // ** State actions
 
     let move (physicsState : PhysicsDirectBodyState) (multiplier : float32) =
         physicsState.ApplyImpulse(Vector3.Zero, (vector2To3 actorButtons.MoveDirection).Normalized() * physicsMoveMultiplier * multiplier)
@@ -326,12 +326,12 @@ type ActorObject() as this =
     // Mutable state machine data
     let mutable timer = 0.0f
 
-// ** Attack state helpers
+    // ** Attack state helpers
     let mutable selectedWeaponSlotOnCombatEnter = selectedItem
     let mutable selectedWeaponOnCombatEnter : Weapon option = None
     let mutable usePrimaryAttackMode : bool = false
 
-// ** Animation helpers
+    // ** Animation helpers
 
     let setAnimation name speed =
         animatedSprite.Force().Play name
@@ -363,7 +363,7 @@ type ActorObject() as this =
                 |> (fun a -> (float32 a) / time)
                 |> setAnimation animationStateName.Value
 
-// ** Basic state conditions
+    // ** Basic state conditions
 
     let hasWeaponSelected() =
         items.[selectedItem].IsSome && items.[selectedItem].Value :? Weapon
@@ -379,7 +379,7 @@ type ActorObject() as this =
              | false ->
                  false
 
-// ** Common state keys
+    // ** Common state keys
 
 /// Returns true if different item is selected
     let selectItem () =
@@ -435,8 +435,10 @@ type ActorObject() as this =
                                                                                     | false ->
                                                                                         None
 
-// ** Actor States
-// *** Idle state
+    // ** Actor States
+// delete
+
+    // *** Idle state
 
     let startIdle() =
         setAnimation "Idle" 100.0f
@@ -468,7 +470,7 @@ type ActorObject() as this =
                                             selectItem() |> ignore
                                             None
 
-// *** Move state
+    // *** Move state
 
     let startMove() =
         setAnimation "Move" 10.0f
@@ -511,7 +513,7 @@ type ActorObject() as this =
         //rotateTowardsMoveDirection delta
         None
 
-// *** Run state
+    // *** Run state
 
     let startRun() =
         setAnimation "Run" 50.0f
@@ -553,7 +555,7 @@ type ActorObject() as this =
         //rotateTowardsMoveDirection delta
         None
 
-// *** Hold state
+    // *** Hold state
 
     let startHold() =
         setWeaponAnimation "Hold" 5.0f
@@ -598,7 +600,7 @@ type ActorObject() as this =
         rotateTowardsMousePosition delta
         None
 
-// *** Hold move state
+    // *** Hold move state
 
     let startHoldMove() =
         setWeaponAnimation "HoldMove" 5.0f
@@ -645,7 +647,7 @@ type ActorObject() as this =
         rotateTowardsMousePosition delta
         None
 
-// *** Reload state
+    // *** Reload state
 
     let reloadTime : float32 = 0.4f
 
@@ -718,8 +720,9 @@ type ActorObject() as this =
     let integrateForcesReload (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (0.5f * delta)
 
-// *** Attack state
-// **** Attack state actions
+    // *** Attack state
+
+    // **** Attack state actions
     let gunFire(rayCast : RayCast, recoilPushbackMultiplier : float32) =
         let fireBullet() =
             let rotation = this.GetGlobalTransform().basis.GetAxis(0)
@@ -783,7 +786,7 @@ type ActorObject() as this =
                 attackWithMode selectedWeaponOnCombatEnter.Value.SecondaryAttackMode.Value
 
 
-// *** Attack state body
+    // *** Attack state body
     // Handles the cooldown after attacking
     let mutable attackCooldown : float32 = 2.0f
 
@@ -816,8 +819,7 @@ type ActorObject() as this =
     let integrateForcesAttack (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (0.3f * delta)
 
-// *** Holster state
-DERS
+    // *** Holster state
 
     let holsterTime : float32 = 1.0f
 
@@ -854,7 +856,7 @@ DERS
     let integrateForcesHolster (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (0.5f * delta)
 
-// *** Unholster state
+    // *** Unholster state
 
     let unHolsterTime : float32 = 1.0f
 
@@ -895,7 +897,7 @@ DERS
     let integrateForcesUnholster (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (0.5f * delta)
 
-// ** State switchers
+    // ** State switchers
     let switchStateStateMachine (actorState : ActorState) :  ActorState option =
         timer <- 0.0f
         match actorState with
@@ -975,7 +977,6 @@ DERS
                 ()
 
 // ** Properties
-
     member this.AimTarget
         with get () = aimTarget
         and set (value) = aimTarget <- value
@@ -991,7 +992,8 @@ DERS
         with get () = commandParent
         and set (value) = commandParent <- value
 
-// ** Functions
+    // ** Functions
+
     member this.AddActorUnderCommand(actorObject : ActorObject) =
         match commandChildren.Contains actorObject with
             | true ->
@@ -1013,15 +1015,16 @@ DERS
         actorButtons.PrimaryAttackPressed <- false
         actorButtons.ReloadPressed <- false
 
-// *** Damage
+    // *** Damage
     override this.DamageMelee(damage : float) =
         takeDamage damage
-        GD.Print ("I'm hit by melee for ", damage, " damage")
+        GD.Print ("*********I'm hit by melee for ", damage, " damage************")
+
     override this.DamageProjectile(damage) =
         takeDamage damage
-        GD.Print ("I'm hit by projectile for ", damage, " damage")
+        GD.Print ("*********I'm hit by projectile for ", damage, " damage***********")
 
-// *** Update
+    // *** Update
     override this._Ready() =
         ()
 
