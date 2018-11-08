@@ -11,27 +11,28 @@ open GodotUtils
 type ActorAi() as this =
     inherit Spatial()
 
+    // ** Vars
     let attachedActor : Lazy<ActorObject> =
         lazy (this.GetParent() :?> ActorObject)
 
-    let navigation : Lazy<Navigation> =
-        lazy (this.GetParent().GetParent().GetNode(new NodePath("Navigation")) :?> Navigation)
+    let updateMoveDirectionInterval = 0.1f
+    let mutable updateMoveDirectionTimer = 0.0f
 
+    // ** Navigation
     let mutable navPoints : Vector3 [] option = None
     let mutable selectedNav = 0
     let nextNavpointDistance = 0.5f
-
-    let updateMovementInterval = 0.1f
-    let mutable updateMovementTimer = 0.0f
-
-    let mutable playerWithinViewRange = false
+    let playerDetectionMask = (lazy ((this.GetNode(NodePath "PlayerDetectionMask") :?> Area).CollisionMask))
 
     let setNavTarget targetPos =
         let thisPosition = this.GetGlobalTransform().origin
-        navPoints <- Some (navigation.Force().GetSimplePath(thisPosition, targetPos))
-        selectedNav <- 0
+        match ReferencesStored.NavigationMesh.IsSome with
+            | true ->
+                navPoints <- Some (ReferencesStored.NavigationMesh.Value.GetSimplePath(thisPosition, targetPos))
+                selectedNav <- 0
+            | false ->
+                ()
 
-    //let nav thisPosition = navigation.Force().GetClosestPointToSegment(thisPosition, Vector3(0.0f,0.0f,0.0f))
     let setActorMoveDirection newDir =
         attachedActor.Force().ActorButtons.MoveDirection <- newDir
         attachedActor.Value.InputUpdated()
@@ -64,6 +65,25 @@ type ActorAi() as this =
         // the (Body :? ActorObject) check should be slightly more performant if parameter body is terrain, etc
         body :? ActorObject && ReferencesStored.PlayerBoxed.IsSome && physicallyEquals ReferencesStored.PlayerBoxed.Value body
 
+    // ** Player detection
+    let mutable playerWithinViewRange = false
+
+    // *** Is player blocked
+    // How many seconds to wait before scanning for player
+    let scanViewForPlayerInterval = 0.5f
+    let mutable scanViewForPlayerTimer = 0.0f
+
+    let isPlayerVisible () =
+        let spaceState = this.GetWorld().GetDirectSpaceState()
+        match ReferencesStored.Player.IsSome with
+            | false ->
+                false
+            | true ->
+                // The layer 25 SHOULD be terrain AND player BUT IS ATLEAST terrain, actor, player
+                let hits = spaceState.IntersectRay(this.GetGlobalTransform().origin, ReferencesStored.Player.Value.GetGlobalTransform().origin, Array(), playerDetectionMask.Force())
+                hits.Count <> 0 && isBodyActor (hits.Item("collider") :?> Object)
+
+    // *** Is player within view range
     member this._on_DetectionArea_body_entered(body : Object) =
         match isBodyActor body with
             | true ->
@@ -78,36 +98,32 @@ type ActorAi() as this =
             | false ->
                 ()
 
+    // ** Update
     override this._PhysicsProcess(delta : float32) =
-        let spaceState = this.GetWorld().GetDirectSpaceState()
-        match playerWithinViewRange && ReferencesStored.Player.IsSome with
+        match playerWithinViewRange with
             | false ->
                 ()
             | true ->
-                let hits = spaceState.IntersectRay(this.GetGlobalTransform().origin, ReferencesStored.Player.Value.GetGlobalTransform().origin)
-
-                match hits.Count <> 0 && isBodyActor (hits.Item("collider") :?> Object) with
+                match scanViewForPlayerTimer > scanViewForPlayerInterval with
                     | true ->
-                        ()
-                    | false ->
-                        match ReferencesStored.Player.Value.IsInCombatState with
+
+                        scanViewForPlayerTimer <- 0.0f
+                        match isPlayerVisible() && ReferencesStored.Player.Value.IsInCombatState && navPoints.IsNone with
                             | true ->
-                                // Make sure they don't spam the set nav target function
-                                match navPoints.IsNone with
-                                    | true ->
-                                        setNavTarget(ReferencesStored.Player.Value.GetGlobalTransform().origin)
-                                    | false ->
-                                        ()
+                                GD.Print "FOUND!!"
+                                setNavTarget(ReferencesStored.Player.Value.GetGlobalTransform().origin)
                             | false ->
                                 ()
+                    | false ->
+                        scanViewForPlayerTimer <- scanViewForPlayerTimer + delta
 
     override this._Process(delta : float32) =
-        match updateMovementTimer > updateMovementInterval with
+        match updateMoveDirectionTimer > updateMoveDirectionInterval with
             | true ->
                 updateMovementDirection()
-                updateMovementTimer <- 0.0f
+                updateMoveDirectionTimer <- 0.0f
             | false ->
-                updateMovementTimer <- updateMovementTimer + delta
+                updateMoveDirectionTimer <- updateMoveDirectionTimer + delta
 
     override this._Ready() =
         // let thisPos = attachedActor.Force().GetGlobalTransform().origin
