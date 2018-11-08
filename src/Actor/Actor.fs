@@ -993,6 +993,13 @@ type ActorObject() as this =
         and set (value) = commandParent <- value
 
     // ** Functions
+    member this.IsInCombatState
+        with get () =
+            match state with
+                | ActorState.AttackState | ActorState.HoldMoveState | ActorState.HoldState | ActorState.HolsterState | ActorState.ReloadState | ActorState.UnholsterState ->
+                    true
+                | _ ->
+                    false
 
     member this.AddActorUnderCommand(actorObject : ActorObject) =
         match commandChildren.Contains actorObject with

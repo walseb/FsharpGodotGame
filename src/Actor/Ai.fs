@@ -1,5 +1,6 @@
 namespace Actor.Ai
 
+open System.Collections.Generic
 open References
 open Actor
 open Godot
@@ -23,7 +24,10 @@ type ActorAi() as this =
     let updateMovementInterval = 0.1f
     let mutable updateMovementTimer = 0.0f
 
-    let updateNavPoints thisPosition targetPos =
+    let mutable playerWithinViewRange = false
+
+    let setNavTarget targetPos =
+        let thisPosition = this.GetGlobalTransform().origin
         navPoints <- Some (navigation.Force().GetSimplePath(thisPosition, targetPos))
         selectedNav <- 0
 
@@ -56,21 +60,46 @@ type ActorAi() as this =
                                 let directionToClosestNav = (Vector2 ((this2DPos.x - nav2DPos.x), (this2DPos.y - nav2DPos.y)))
                                 setActorMoveDirection(rotateVector180Degrees directionToClosestNav)
 
-    member this._on_Area_body_entered(body : Object) =
-        match body :? ActorObject with
-            | true ->
-                match ReferencesStored.PlayerBoxed.IsSome with
-                    | false ->
-                        GD.Print "ERROR: Actor reference in references not found"
+    let isBodyActor (body : Object) =
+        // the (Body :? ActorObject) check should be slightly more performant if parameter body is terrain, etc
+        body :? ActorObject && ReferencesStored.PlayerBoxed.IsSome && physicallyEquals ReferencesStored.PlayerBoxed.Value body
 
-                    | true  ->
-                        match physicallyEquals ReferencesStored.PlayerBoxed.Value body with
-                            | true ->
-                                GD.Print "I FOUND HIM!!"
-                            | false ->
-                                ()
+    member this._on_DetectionArea_body_entered(body : Object) =
+        match isBodyActor body with
+            | true ->
+                playerWithinViewRange <- true
             | false ->
                 ()
+
+    member this._on_DetectionArea_body_exited(body : Object) =
+        match isBodyActor body with
+            | true ->
+                playerWithinViewRange <- false
+            | false ->
+                ()
+
+    override this._PhysicsProcess(delta : float32) =
+        let spaceState = this.GetWorld().GetDirectSpaceState()
+        match playerWithinViewRange && ReferencesStored.Player.IsSome with
+            | false ->
+                ()
+            | true ->
+                let hits = spaceState.IntersectRay(this.GetGlobalTransform().origin, ReferencesStored.Player.Value.GetGlobalTransform().origin)
+
+                match hits.Count <> 0 && isBodyActor (hits.Item("collider") :?> Object) with
+                    | true ->
+                        ()
+                    | false ->
+                        match ReferencesStored.Player.Value.IsInCombatState with
+                            | true ->
+                                // Make sure they don't spam the set nav target function
+                                match navPoints.IsNone with
+                                    | true ->
+                                        setNavTarget(ReferencesStored.Player.Value.GetGlobalTransform().origin)
+                                    | false ->
+                                        ()
+                            | false ->
+                                ()
 
     override this._Process(delta : float32) =
         match updateMovementTimer > updateMovementInterval with

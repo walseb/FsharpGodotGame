@@ -649,7 +649,7 @@ double_sided = true
 alpha_cut = 0
 frames = SubResource( 3 )
 animation = "Idle"
-_sections_unfolded = [ "Transform" ]
+_sections_unfolded = [ "Flags", "Geometry", "Transform" ]
 
 [node name="GunRayCast" type="RayCast" parent="." index="3"]
 
