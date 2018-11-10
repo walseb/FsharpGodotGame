@@ -59,7 +59,7 @@ type PlayerCamera() as this =
     let mutable zoomLevel : float32 =
         5.0f
 
-    let rootNode : Lazy<Spatial> =
+    let cameraRootNode : Lazy<Spatial> =
         lazy (this.GetParentSpatial())
 
     let mouseSelectionArea : Lazy<Area> =
@@ -154,10 +154,10 @@ type PlayerCamera() as this =
                 list
                 |> List.choose (fun a ->
                             match a :? ActorObject with
-                            | true ->
-                                Some (a :?> ActorObject)
-                            | false ->
-                                None)
+                                | true ->
+                                    Some (a :?> ActorObject)
+                                | false ->
+                                    None)
                 |> Some
 
     let makeSureCommanderIsSome() =
@@ -210,7 +210,6 @@ type PlayerCamera() as this =
             | false ->
                 ()
 
-        //makeActorParent actor
         // Detach current actor properly before attaching a new one
        // detachActor actor
         attachedActor <- Some actor
@@ -391,15 +390,11 @@ type PlayerCamera() as this =
                                                                 false
 
     let setCameraPositionToActor() =
-        match attachedActor.IsSome with
-            | true ->
-                let attachedActorTransform = attachedActor.Value.GetTransform()
-                rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis, Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
-            | false ->
-                ()
+        let attachedActorTransform = attachedActor.Value.GetTransform()
+        cameraRootNode.Force().SetTransform(Transform (cameraRootNode.Value.GetTransform().basis, Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
 
         // Smooth camera movements: (Doesn't work?)
-        // let target = (Transform (rootNode.Value.GetTransform().basis, Vector3((Mathf.Lerp(rootNode.Force().GetGlobalTransform().origin.x, attachedActorTransform.origin.x, 1.0f)), (attachedActorTransform.origin.y + zoomLevel), (Mathf.Lerp(rootNode.Force().GetGlobalTransform().origin.z, attachedActorTransform.origin.z, 1.0f)))))
+        // let target = (Transform (cameraRootNode.Value.GetTransform().basis, Vector3((Mathf.Lerp(cameraRootNode.Force().GetGlobalTransform().origin.x, attachedActorTransform.origin.x, 1.0f)), (attachedActorTransform.origin.y + zoomLevel), (Mathf.Lerp(cameraRootNode.Force().GetGlobalTransform().origin.z, attachedActorTransform.origin.z, 1.0f)))))
 
     override this._Ready() =
         makeSureCommanderIsSome()
@@ -408,26 +403,26 @@ type PlayerCamera() as this =
         ()
 
     override this._Process(delta : float32) =
-        setCameraPositionToActor()
-
+        // Null checks don't work (i have already tried tried "&& not(isNull(attachedActor.Value))"), the only solution i can think of is to change the death functions, which i will have to do later anyway, so don't fix this
         match attachedActor.IsSome with
             | true ->
+                setCameraPositionToActor()
                 let mouse3DPos = getMouse3DPosition()
                 match mouse3DPos.IsSome with
                     | true ->
-                        attachedActor.Value.AimTarget <- (Vector2(mouse3DPos.Value.x, mouse3DPos.Value.z))
+                        attachedActor.Value.ActorButtons.AimTarget <- (Vector2(mouse3DPos.Value.x, mouse3DPos.Value.z))
                     | false ->
                         ()
             | false ->
                 ()
 
-        //rootNode.Force().LookAtFromPosition(Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z), attachedActorSpatial.Value.GetTransform().origin, (Vector3(0.0f,1.0f,0.0f)))
+        //cameraRootNode.Force().LookAtFromPosition(Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z), attachedActorSpatial.Value.GetTransform().origin, (Vector3(0.0f,1.0f,0.0f)))
 
         //this.SetTransform (Transform (this.GetGlobalTransform().basis, attachedActorTransform.origin + Vector3(0.0f, zoomLevel, 0.0f)))
 
         // makeSureCommanderIsSome()
         // let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
-        //rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
+        //cameraRootNode.Force().SetTransform(Transform (cameraRootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, (attachedActorTransform.origin.y + zoomLevel), attachedActorTransform.origin.z)))
         ()
 
     override this._PhysicsProcess(delta : float32) =
@@ -484,11 +479,10 @@ type PlayerCamera() as this =
 
         makeSureCommanderIsSome()
 
-
         // let attachedActorTransform = attachedActorSpatial.Value.GetTransform()
         // let test = (Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z), attachedActorSpatial.Value.GetTransform().origin, (Vector3(0.0f,1.0f,0.0f)))
         // this.LookAtFromPosition(Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z), attachedActorSpatial.Value.GetTransform().origin, (Vector3(0.0f,1.0f,0.0f)))
-        //rootNode.Force().SetTransform(Transform (rootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z)))
+        //cameraRootNode.Force().SetTransform(Transform (cameraRootNode.Value.GetTransform().basis , Vector3(attachedActorTransform.origin.x, zoomLevel, attachedActorTransform.origin.z)))
 
 
     override this._UnhandledInput (inputEvent : InputEvent) =

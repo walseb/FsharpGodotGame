@@ -1,17 +1,17 @@
 [gd_scene load_steps=331 format=2]
 
 [ext_resource path="res://src/Actor/ActorWrap.cs" type="Script" id=1]
-[ext_resource path="res://Assets/Sprites/Actor/Idle/Idle.png" type="Texture" id=2]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move0.png" type="Texture" id=3]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move1.png" type="Texture" id=4]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move2.png" type="Texture" id=5]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move3.png" type="Texture" id=6]
-[ext_resource path="res://Assets/Sprites/Actor/Move/Move4.png" type="Texture" id=7]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run1.png" type="Texture" id=8]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run2.png" type="Texture" id=9]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run3.png" type="Texture" id=10]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run4.png" type="Texture" id=11]
-[ext_resource path="res://Assets/Sprites/Actor/Run/Run5.png" type="Texture" id=12]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run1.png" type="Texture" id=2]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run2.png" type="Texture" id=3]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run3.png" type="Texture" id=4]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run4.png" type="Texture" id=5]
+[ext_resource path="res://Assets/Sprites/Actor/Run/Run5.png" type="Texture" id=6]
+[ext_resource path="res://Assets/Sprites/Actor/Idle/Idle.png" type="Texture" id=7]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move0.png" type="Texture" id=8]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move1.png" type="Texture" id=9]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move2.png" type="Texture" id=10]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move3.png" type="Texture" id=11]
+[ext_resource path="res://Assets/Sprites/Actor/Move/Move4.png" type="Texture" id=12]
 [ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove0.png" type="Texture" id=13]
 [ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove1.png" type="Texture" id=14]
 [ext_resource path="res://Assets/Sprites/Actor/Weapons/Pistol/HoldMove/HoldMove2.png" type="Texture" id=15]
@@ -339,19 +339,19 @@ extents = Vector3( 0.493813, 0.277944, 0.251529 )
 [sub_resource type="SpriteFrames" id=3]
 
 animations = [ {
-"frames": [ ExtResource( 2 ) ],
+"frames": [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ) ],
+"loop": true,
+"name": "Run",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 7 ) ],
 "loop": true,
 "name": "Idle",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 7 ) ],
-"loop": true,
-"name": "Move",
-"speed": 5.0
-}, {
 "frames": [ ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 12 ) ],
 "loop": true,
-"name": "Run",
+"name": "Move",
 "speed": 5.0
 }, {
 "frames": [ ExtResource( 13 ), ExtResource( 14 ), ExtResource( 15 ), ExtResource( 16 ), ExtResource( 17 ), ExtResource( 18 ), ExtResource( 19 ), ExtResource( 20 ), ExtResource( 21 ) ],

@@ -27,6 +27,7 @@ type ActorStats =
 type ActorButtons =
     {
         mutable MoveDirection : Vector2
+        mutable AimTarget : Vector2
 
         mutable PickupPressed : bool
         mutable DropPressed : bool
@@ -49,12 +50,16 @@ type ActorButtons =
      }
 
 // * Actor
+
+[<AllowNullLiteral>]
 [<AbstractClass>]
 type BaseActor() =
     inherit RigidBody()
     abstract member DamageMelee : float -> unit
     abstract member DamageProjectile : float -> unit
 
+// Is nullable because if the object is destroyed in godot, it will show up as null
+[<AllowNullLiteral>]
 type ActorObject() as this =
     inherit BaseActor()
 
@@ -65,14 +70,11 @@ type ActorObject() as this =
     let gunRayCast =
         lazy(this.GetNode(new NodePath("GunRayCast")) :?> RayCast)
 
-    let mutable aimTarget : Vector2 =
-        Vector2(0.0f,0.0f)
-
     let mutable selectedItem : int = 0;
 
     let mutable inventorySize : int = 9;
 
-    let mutable items : Item option array = Array.create 9 None
+    let mutable inventory : Item option array = Array.create 9 None
 
     let animatedSprite =
         lazy(this.GetNode(new NodePath("AnimatedSprite3D")) :?> AnimatedSprite3D)
@@ -94,6 +96,7 @@ type ActorObject() as this =
     let mutable actorButtons : ActorButtons =
         {
             MoveDirection = Vector2(0.0f,0.0f)
+            AimTarget = Vector2(0.0f,0.0f)
 
             PickupPressed = false
             DropPressed = false
@@ -162,15 +165,15 @@ type ActorObject() as this =
                 true
 
     let addItemToInventory item =
-        items
+        inventory
         |> Array.findIndex (fun a -> a.IsNone)
         |> (fun a ->
-            items.[a] <- Some item)
+            inventory.[a] <- Some item)
 
     let removeItemFromInventory item =
-        findItemIndexInOptionArray(item, items)
+        findItemIndexInOptionArray(item, inventory)
         |> (fun a ->
-            items.[a] <- None)
+            inventory.[a] <- None)
 
     let getBestMagazineAmongItems (weaponType : string) =
         let getMagazineWithMostBullets (list : seq<Magazine>) =
@@ -187,7 +190,7 @@ type ActorObject() as this =
                                             1)
             |> Seq.head
 
-        items
+        inventory
         |> Array.choose (fun a ->
                         match a.IsSome && a.Value :? Magazine && ((a.Value :?> Magazine).AmmoType = weaponType) with
                             | true ->
@@ -208,18 +211,18 @@ type ActorObject() as this =
 
     let drop() =
         this.GetTree().SetInputAsHandled();
-        match items.[selectedItem].IsSome with
+        match inventory.[selectedItem].IsSome with
             | false ->
                 ()
             | true ->
                 // Make sure an item isn't added twice
-                match toggleItemAttachedNextPhysicsUpdate.Contains items.[selectedItem].Value with
+                match toggleItemAttachedNextPhysicsUpdate.Contains inventory.[selectedItem].Value with
                     | false ->
-                        toggleItemAttachedNextPhysicsUpdate.Add items.[selectedItem].Value
+                        toggleItemAttachedNextPhysicsUpdate.Add inventory.[selectedItem].Value
                         GD.Print "DROP"
                     | true ->
                         ()
-        items.[selectedItem] <- None
+        inventory.[selectedItem] <- None
 
     let pickupDelay = 1.0f
     let mutable pickupTimer = 0.0f
@@ -245,7 +248,7 @@ type ActorObject() as this =
                         false
                     | false ->
                             drop()
-                            items.[selectedItem] <- Some (a.Head)
+                            inventory.[selectedItem] <- Some (a.Head)
                             toggleItemAttachedNextPhysicsUpdate.Add a.Head
                             GD.Print "PICKUP"
                             true)
@@ -317,7 +320,7 @@ type ActorObject() as this =
         rotateTowards(delta, 15.0f, lookDir)
 
     let rotateTowardsMousePosition(delta : float32) =
-        rotateTowards(delta, 20.0f, vector2To3 aimTarget)
+        rotateTowards(delta, 20.0f, vector2To3 actorButtons.AimTarget)
         //setRotation(aimTarget)
 
     let isMoveDirectionZero () =
@@ -338,7 +341,7 @@ type ActorObject() as this =
         animatedSprite.Value.GetSpriteFrames().SetAnimationSpeed(name, speed)
 
     let getHeldWeaponAnimationName animationStateName =
-        let weaponType = ItemHelperFunctions.getWeaponType(items.[selectedWeaponSlotOnCombatEnter].Value :?> Weapon)
+        let weaponType = ItemHelperFunctions.getWeaponType(inventory.[selectedWeaponSlotOnCombatEnter].Value :?> Weapon)
         match weaponType.IsSome with
             | true ->
                 Some (weaponType.Value + animationStateName)
@@ -366,15 +369,15 @@ type ActorObject() as this =
     // ** Basic state conditions
 
     let hasWeaponSelected() =
-        items.[selectedItem].IsSome && items.[selectedItem].Value :? Weapon
+        inventory.[selectedItem].IsSome && inventory.[selectedItem].Value :? Weapon
 
     /// Returns false if combat state failed to init
     let initializeCombatState() =
-        match items.[selectedItem].IsSome && items.[selectedItem].Value :? Weapon with
+        match inventory.[selectedItem].IsSome && inventory.[selectedItem].Value :? Weapon with
             | true ->
                 GD.Print "TRUE????"
                 selectedWeaponSlotOnCombatEnter <- selectedItem
-                selectedWeaponOnCombatEnter <- Some (items.[selectedItem].Value :?> Weapon)
+                selectedWeaponOnCombatEnter <- Some (inventory.[selectedItem].Value :?> Weapon)
                 true
              | false ->
                  false
@@ -657,7 +660,7 @@ type ActorObject() as this =
 
     let reload() =
         // Print inventory
-        // items
+        // inventory
         // |> Array.map (fun a ->
                       // match a.IsSome with
                           // | true ->
@@ -665,7 +668,7 @@ type ActorObject() as this =
                           // | false ->
                                 // ())
 
-        let oldMagazine = (items.[selectedItem].Value :?> Gun).Magazine
+        let oldMagazine = (inventory.[selectedItem].Value :?> Gun).Magazine
         let newMagazine = getBestMagazineAmongItems selectedWeaponOnCombatEnter.Value.WeaponType
 
         match oldMagazine.IsSome && newMagazine.IsSome with
@@ -674,7 +677,7 @@ type ActorObject() as this =
                     | false ->
                         GD.Print "Old magazine has more ammo than any other magazine"
                     | true ->
-                        (items.[selectedItem].Value :?> Gun).Magazine <- newMagazine
+                        (inventory.[selectedItem].Value :?> Gun).Magazine <- newMagazine
 
                         // Remove old mag from inventory
                         removeItemFromInventory newMagazine.Value
@@ -686,7 +689,7 @@ type ActorObject() as this =
             | false ->
                 match newMagazine.IsSome with
                     | true ->
-                        (items.[selectedItem].Value :?> Gun).Magazine <- newMagazine
+                        (inventory.[selectedItem].Value :?> Gun).Magazine <- newMagazine
                         GD.Print "Inserted magazine into gun!"
                     | false ->
                         GD.Print "No mags to use in reload found!"
@@ -723,6 +726,14 @@ type ActorObject() as this =
     // *** Attack state
 
     // **** Attack state actions
+    let whatWouldFiringHit() =
+        gunRayCast.Force().ForceRaycastUpdate()
+        match gunRayCast.Value.IsColliding() with
+            | false ->
+                None
+            | true ->
+                Some (gunRayCast.Value.GetCollider())
+
     let gunFire(rayCast : RayCast, recoilPushbackMultiplier : float32) =
         let fireBullet() =
             let rotation = this.GetGlobalTransform().basis.GetAxis(0)
@@ -977,13 +988,17 @@ type ActorObject() as this =
                 ()
 
 // ** Properties
-    member this.AimTarget
-        with get () = aimTarget
-        and set (value) = aimTarget <- value
-
     member this.ActorButtons
         with get () = actorButtons
         and set (value) = actorButtons <- value
+
+    member this.Inventory
+        with get () = inventory
+        and set (value) = inventory <- value
+
+    member this.SelectedItem
+        with get () = selectedItem
+        and set (value) = selectedItem <- value
 
     member this.CommandChildren
         with get () = commandChildren
@@ -993,6 +1008,9 @@ type ActorObject() as this =
         and set (value) = commandParent <- value
 
     // ** Functions
+    member this.WhatWouldFiringHit =
+        whatWouldFiringHit
+
     member this.IsInCombatState
         with get () =
             match state with
@@ -1013,6 +1031,7 @@ type ActorObject() as this =
 
     member this.ResetActorButtons() =
         actorButtons.MoveDirection <- Vector2(0.0f,0.0f)
+        actorButtons.AimTarget <- Vector2(0.0f,0.0f)
         actorButtons.PickupPressed <- false
         actorButtons.DropPressed <- false
         actorButtons.RunPressed <- false

@@ -6,7 +6,7 @@
 
 extents = Vector3( 5.81028, 3.99313, 9.60292 )
 
-[node name="Ai" type="Spatial" index="0"]
+[node name="Ai" type="Spatial"]
 
 script = ExtResource( 1 )
 _sections_unfolded = [ "Pause", "Transform", "Visibility" ]
