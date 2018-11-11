@@ -1,6 +1,7 @@
 namespace Items
 
 open Godot
+open Actor.IActor
 
 type GunTrigger = FullAuto | SemiAuto | BoltAction
 type WeaponAttackModes = Bayonet | Knife | Bash | Buckshot | Slug
@@ -19,7 +20,7 @@ type Item(name) =
     inherit RigidBody()
     member this.Name : string = name
 
-// * Weapons
+// * Arms
 // ** Magazines
 [<AbstractClass>]
 type Magazine(ammoType, ammoCapacity) =
@@ -65,15 +66,42 @@ type GenericKnife() =
     inherit Knife("Generic Knife", 60.0f,18.0, 100, Some WeaponAttackModes.Knife, Some WeaponAttackModes.Bash)
 
 // *** Guns
+module gunFire =
+    let gunFire(rayCast : RayCast) =
+        rayCast.ForceRaycastUpdate()
+        match rayCast.IsColliding() with
+            | true ->
+                let body = rayCast.GetCollider()
+                match body :? IActor with
+                    | true ->
+                        (body :?> IActor).DamageProjectile 5.0
+                    | false ->
+                        ()
+            | false ->
+                ()
+
 [<AbstractClass>]
 type Gun(name, itemType, attackCooldown, gunTrigger, damage, force, primaryAttackMode, secondaryAttackMode) =
     inherit Weapon(name, itemType, attackCooldown, damage, force, primaryAttackMode, secondaryAttackMode)
     member this.GunTrigger : GunTrigger = gunTrigger
     member val Magazine : Magazine option = None with get,set
+    abstract Fire : RayCast -> unit
+    // Returns true if gun was fired
+    member this.PullTrigger (rayCast : RayCast) : bool =
+        match this.Magazine.IsSome && this.Magazine.Value.StoredAmmo > 0 with
+            | true ->
+                this.Magazine.Value.StoredAmmo <- this.Magazine.Value.StoredAmmo - 1
+                this.Fire rayCast
+                true
+            | false ->
+                GD.Print "GUN CLICKS"
+                false
 
 [<AbstractClass>]
 type Pistol(name, attackCooldown, gunTrigger, damage, force, primaryAttackMode, secondaryAttackMode) =
     inherit Gun(name, ItemTypes.Pistol, attackCooldown, gunTrigger, damage, force, primaryAttackMode, secondaryAttackMode)
+    default this.Fire rayCast =
+        gunFire.gunFire rayCast
 
 type Glock18() =
     inherit Pistol("Glock 18", 0.1f, GunTrigger.SemiAuto, 18.0, 100, Some WeaponAttackModes.Slug, Some WeaponAttackModes.Bash)
@@ -84,6 +112,8 @@ type Deagle() =
 [<AbstractClass>]
 type Rifle(name, attackCooldown, gunTrigger , damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode) =
     inherit Gun(name, ItemTypes.Rifle, attackCooldown, gunTrigger, damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode)
+    default this.Fire rayCast =
+        gunFire.gunFire rayCast
 
 type M16a1() =
     inherit Rifle("M16a1", 0.1f, GunTrigger.SemiAuto, 18.0, 100, Some WeaponAttackModes.Slug, Some WeaponAttackModes.Bash)
@@ -94,6 +124,8 @@ type Ak47() =
 [<AbstractClass>]
 type Sniper(name, attackCooldown, gunTrigger, damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode) =
     inherit Gun(name, ItemTypes.Pistol, attackCooldown, gunTrigger, damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode)
+    default this.Fire rayCast =
+        gunFire.gunFire rayCast
 
 type Kar98() =
     inherit Sniper("Kar98", 1200.0f, GunTrigger.BoltAction, 18.0, 100, Some WeaponAttackModes.Slug, Some WeaponAttackModes.Bayonet)
@@ -101,6 +133,8 @@ type Kar98() =
 [<AbstractClass>]
 type Smg(name, attackCooldown, gunTrigger, damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode) =
     inherit Gun(name, ItemTypes.Smg, attackCooldown, gunTrigger, damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode)
+    default this.Fire rayCast =
+        gunFire.gunFire rayCast
 
 type Mp5() =
     inherit Smg("Mp5", 1200.0f, GunTrigger.SemiAuto, 18.0, 100, Some WeaponAttackModes.Slug, Some WeaponAttackModes.Bayonet)
@@ -111,6 +145,8 @@ type Uzi() =
 [<AbstractClass>]
 type Lmg(name, attackCooldown, gunTrigger, damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode) =
     inherit Gun(name, ItemTypes.Lmg, attackCooldown, gunTrigger, damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode)
+    default this.Fire rayCast =
+        gunFire.gunFire rayCast
 
 type M60() =
     inherit Lmg("M60", 1200.0f, GunTrigger.SemiAuto, 18.0, 100, Some WeaponAttackModes.Slug, Some WeaponAttackModes.Bash)
@@ -121,6 +157,8 @@ type PKM() =
 [<AbstractClass>]
 type Shotgun(name, attackCooldown, gunTrigger, damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode) =
     inherit Gun(name, ItemTypes.Shotgun, attackCooldown, gunTrigger, damage, force, primaryWeaponAttackMode, secondaryWeaponAttackMode)
+    default this.Fire rayCast =
+        gunFire.gunFire rayCast
 
 type Spas12() =
     inherit Shotgun("Spas12", 1200.0f, GunTrigger.SemiAuto, 18.0, 100, Some WeaponAttackModes.Buckshot, Some WeaponAttackModes.Bash)

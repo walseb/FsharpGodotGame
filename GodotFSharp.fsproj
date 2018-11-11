@@ -69,6 +69,9 @@
     <Compile Include="src/Input/RebindMenu.fs" />
     <Compile Include="src/Scenes/MainMenu.fs" />
 
+    <!-- Base actor -->
+    <Compile Include="src/Actor/IActor.fs" />
+
     <!-- Items -->
     <Compile Include="src/Items/Items.fs" />
 

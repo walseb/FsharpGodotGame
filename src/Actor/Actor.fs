@@ -1,5 +1,6 @@
 namespace Actor
 
+open Actor.IActor
 open System.Collections.Generic
 open Godot
 open Chessie.ErrorHandling
@@ -50,18 +51,9 @@ type ActorButtons =
      }
 
 // * Actor
-
-[<AllowNullLiteral>]
-[<AbstractClass>]
-type BaseActor() =
-    inherit RigidBody()
-    abstract member DamageMelee : float -> unit
-    abstract member DamageProjectile : float -> unit
-
 // Is nullable because if the object is destroyed in godot, it will show up as null
-[<AllowNullLiteral>]
 type ActorObject() as this =
-    inherit BaseActor()
+    inherit IActor()
 
     // ** Vars
     let handReachArea =
@@ -735,45 +727,20 @@ type ActorObject() as this =
                 Some (gunRayCast.Value.GetCollider())
 
     let gunFire(rayCast : RayCast, recoilPushbackMultiplier : float32) =
-        let fireBullet() =
+        let recoilPushback() =
             let rotation = this.GetGlobalTransform().basis.GetAxis(0)
-            // SPONGE a bit expensive, but only done when shooting so ok.
-            // It's done because the vector by default is 90 degrees off
             let vector = rotateVector90Degrees (vector3To2 rotation)
             this.ApplyImpulse(Vector3.Zero, vector2To3(vector).Normalized() * recoilPushbackMultiplier)
 
-            rayCast.ForceRaycastUpdate()
-            let magazine = (selectedWeaponOnCombatEnter.Value :?> Gun).Magazine.Value
-            magazine.StoredAmmo <- magazine.StoredAmmo - 1
-            match rayCast.IsColliding() with
-                | true ->
-                    let body = rayCast.GetCollider()
-                    match body :? BaseActor with
-                        | true ->
-                            (body :?> BaseActor).DamageProjectile 5.0
-                        | false ->
-                            ()
-                | false ->
-                    ()
-
-        match selectedWeaponOnCombatEnter.Value :? Gun with
-            | false ->
-                GD.Print ("ERROR: WEAPON ", selectedWeaponOnCombatEnter.Value.Name, " IS NOT A GUN BUT IT CAN SHOOT!! FIX THIS IN FILE =ITEMS.FS!!!=")
+        match inventory.[selectedItem].IsSome && inventory.[selectedItem].Value :? Gun with
             | true ->
-                let gun = (selectedWeaponOnCombatEnter.Value :?> Gun)
-                match gun.Magazine.IsSome with
-                    | false ->
-                        GD.Print "Gun has no mag"
-                        // No magazine loaded
+                match (inventory.[selectedItem].Value :?> Gun).PullTrigger (gunRayCast.Force()) with
                     | true ->
-                        match gun.Magazine.Value.StoredAmmo > 0 with
-                            | false ->
-                                GD.Print "Gun out of ammo"
-                                // Gun has no ammo left
-                            | true ->
-                                fireBullet()
-                                ()
-                                // Shoot
+                        recoilPushback()
+                    | false ->
+                        ()
+            | false ->
+                ()
 
     let attack() =
         let attackWithMode (attackMode : WeaponAttackModes) =

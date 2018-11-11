@@ -8,68 +8,102 @@ open Chessie.ErrorHandling
 open RailwayUtils
 open GodotUtils
 
-type ActorAi() as this =
+// * Ai
+[<AbstractClass>]
+type Ai() as this =
     inherit Spatial()
 
-    // ** Vars
     let attachedActor : Lazy<ActorObject> =
         lazy (this.GetParent() :?> ActorObject)
 
+    // ** Navigation
     let updateMoveDirectionInterval = 0.1f
     let mutable updateMoveDirectionTimer = 0.0f
 
-    let mutable enemyInView : Spatial option = None
-
-    let mutable hasSeenPlayerInCombat = false
-
-    // ** Navigation
     let mutable navPoints : Vector3 [] option = None
     let mutable selectedNavPoint = 0
-    let nextNavpointDistance = 0.5f
-    let playerDetectionMask = (lazy ((this.GetNode(NodePath "PlayerDetectionMask") :?> Area).CollisionMask))
+    let nextNavpointDistance = 2.0f
 
     let getNavPath targetPos =
         let thisPosition = this.GetGlobalTransform().origin
-        (ReferencesStored.NavigationMesh.Value.GetSimplePath(thisPosition, targetPos))
-
-    let setNavPoints targetPos =
-        navPoints <- Some (getNavPath targetPos)
-        selectedNavPoint <- 0
+        ReferencesStored.NavigationMesh.Value.GetSimplePath(thisPosition, targetPos)
 
     let setActorMoveDirection newDir =
         attachedActor.Force().ActorButtons.MoveDirection <- newDir
         attachedActor.Value.InputUpdated()
 
-    let updateMovementDirection() =
-        let thisPos = attachedActor.Force().GetGlobalTransform().origin
+    member this.NextNavPoint
+        with get () =
+            match navPoints.IsSome && navPoints.Value.Length > selectedNavPoint with
+                | true ->
+                    Some navPoints.Value.[selectedNavPoint]
+                | false ->
+                    None
 
-        match navPoints.IsSome with
+    member this.AttachedActor
+        with get () = attachedActor.Force()
+
+    member this.ResetNavPath() =
+        navPoints <- None
+        setActorMoveDirection Vector2.Zero
+
+    member this.SetNavGoal targetPos =
+        navPoints <- Some (getNavPath targetPos)
+        selectedNavPoint <- 0
+
+    member this.UpdateMovementDirection delta =
+        let isTimeToUpdate() =
+            match updateMoveDirectionTimer > updateMoveDirectionInterval with
+                | true ->
+                    updateMoveDirectionTimer <- 0.0f
+                    true
+                | false ->
+                    updateMoveDirectionTimer <- updateMoveDirectionTimer + delta
+                    false
+
+        match isTimeToUpdate() with
             | false ->
                 ()
             | true ->
-                match selectedNavPoint < navPoints.Value.Length with
+                let thisPos = attachedActor.Force().GetGlobalTransform().origin
+
+                match navPoints.IsSome with
                     | false ->
-                        setActorMoveDirection Vector2.Zero
-                        selectedNavPoint <- 0
-                        navPoints <- None
+                        ()
                     | true ->
-                        let distance = thisPos.DistanceSquaredTo(navPoints.Value.[selectedNavPoint])
-                        match distance <= nextNavpointDistance with
-                            | true ->
-                                GD.Print "Next nav!!"
-                                selectedNavPoint <- selectedNavPoint + 1
+                        match selectedNavPoint < navPoints.Value.Length with
                             | false ->
-                                let this2DPos = (vector3To2 thisPos)
-                                let nav2DPos = (vector3To2 navPoints.Value.[selectedNavPoint])
-                                let directionToClosestNav = (Vector2 ((this2DPos.x - nav2DPos.x), (this2DPos.y - nav2DPos.y)))
-                                setActorMoveDirection(rotateVector180Degrees directionToClosestNav)
+                                setActorMoveDirection Vector2.Zero
+                                selectedNavPoint <- 0
+                                navPoints <- None
+                            | true ->
+                                let distance = thisPos.DistanceSquaredTo(navPoints.Value.[selectedNavPoint])
+                                match distance <= nextNavpointDistance with
+                                    | true ->
+                                        GD.Print "Next nav!!"
+                                        selectedNavPoint <- selectedNavPoint + 1
+                                    | false ->
+                                        let this2DPos = (vector3To2 thisPos)
+                                        let nav2DPos = (vector3To2 navPoints.Value.[selectedNavPoint])
+                                        let directionToClosestNav = (Vector2 ((this2DPos.x - nav2DPos.x), (this2DPos.y - nav2DPos.y)))
+                                        setActorMoveDirection(rotateVector180Degrees directionToClosestNav)
+
+// * Combat AI
+type CombatAi() as this =
+    inherit Ai()
+
+    // ** Player detection
+    let mutable enemyInView : Spatial option = None
+
+    let mutable hasSeenPlayerInCombat = false
+
+    let playerDetectionMask = (lazy ((this.GetNode(NodePath "PlayerDetectionMask") :?> Area).CollisionMask))
+
+    let mutable playerWithinViewRange = false
 
     let isBodyActor (body : Object) =
         // the (Body :? ActorObject) check should be slightly more performant if parameter body is terrain, etc
         body :? ActorObject && ReferencesStored.PlayerBoxed.IsSome && physicallyEquals ReferencesStored.PlayerBoxed.Value body
-
-    // ** Player detection
-    let mutable playerWithinViewRange = false
 
     // *** Is player blocked
     // How many seconds to wait before scanning for player
@@ -82,7 +116,6 @@ type ActorAi() as this =
             | false ->
                 false
             | true ->
-                // The layer 25 SHOULD be terrain AND player BUT IS ATLEAST terrain, actor, player
                 let hits = spaceState.IntersectRay(this.GetGlobalTransform().origin, ReferencesStored.Player.Value.GetGlobalTransform().origin, Array(), playerDetectionMask.Force())
                 hits.Count <> 0 && isBodyActor (hits.Item("collider") :?> Object)
 
@@ -90,32 +123,32 @@ type ActorAi() as this =
     let engageTarget engage =
         match engage with
             | true ->
-                let selectedItem = attachedActor.Force().Inventory.[attachedActor.Force().SelectedItem]
+                let selectedItem = this.AttachedActor.Inventory.[this.AttachedActor.SelectedItem]
 
                 match selectedItem.IsSome && selectedItem.Value :? Items.Gun with
                     | true ->
                         let magazine = (selectedItem.Value :?> Items.Gun).Magazine
                         match magazine.IsSome with
                             | true ->
-                                attachedActor.Force().ActorButtons.ReloadPressed <- magazine.Value.StoredAmmo = 0
+                                this.AttachedActor.ActorButtons.ReloadPressed <- magazine.Value.StoredAmmo = 0
                             | false ->
-                                attachedActor.Force().ActorButtons.ReloadPressed <- true
+                                this.AttachedActor.ActorButtons.ReloadPressed <- true
                     | false ->
                         ()
-                let whatWouldFiringHit = attachedActor.Force().WhatWouldFiringHit()
+                let whatWouldFiringHit = this.AttachedActor.WhatWouldFiringHit()
                 // This is probably REALLY expensive, FIXME
                 match whatWouldFiringHit.IsSome && physicallyEquals whatWouldFiringHit.Value ReferencesStored.PlayerBoxed.Value with
                     | true ->
-                        attachedActor.Force().ActorButtons.PrimaryAttackPressed <- true
+                        this.AttachedActor.ActorButtons.PrimaryAttackPressed <- true
                     | false ->
-                        attachedActor.Force().ActorButtons.PrimaryAttackPressed <- false
+                        this.AttachedActor.ActorButtons.PrimaryAttackPressed <- false
 
-                attachedActor.Force().ActorButtons.AimPressed <- true
+                this.AttachedActor.ActorButtons.AimPressed <- true
             | false ->
-                attachedActor.Force().ActorButtons.AimPressed <- false
-                attachedActor.Force().ActorButtons.PrimaryAttackPressed <- false
+                //this.AttachedActor.ActorButtons.AimPressed <- false
+                this.AttachedActor.ActorButtons.PrimaryAttackPressed <- false
 
-        attachedActor.Force().InputUpdated()
+        this.AttachedActor.InputUpdated()
 
     let enemyDirectViewGained () =
         match (hasSeenPlayerInCombat || ReferencesStored.Player.Value.IsInCombatState) with
@@ -127,8 +160,7 @@ type ActorAi() as this =
                         hasSeenPlayerInCombat <- true
                         GD.Print "FOUND!!"
                         enemyInView <- Some (ReferencesStored.Player.Value :> Spatial)
-                        navPoints <- None
-                        setActorMoveDirection Vector2.Zero
+                        this.ResetNavPath()
                     | false ->
                         GD.Print "ENGAGING"
                         engageTarget true
@@ -139,7 +171,7 @@ type ActorAi() as this =
                 engageTarget false
                 GD.Print "I LOST HIM!!"
                 // Move towards last seen position
-                setNavPoints (enemyInView.Value.GetGlobalTransform().origin)
+                this.SetNavGoal (enemyInView.Value.GetGlobalTransform().origin)
             | false ->
                 ()
         enemyInView <- None
@@ -185,9 +217,23 @@ type ActorAi() as this =
                 match enemyInView.IsSome with
                     | true ->
                         // Adjust aim
-                        attachedActor.Force().ActorButtons.AimTarget <- vector3To2(enemyInView.Value.GetGlobalTransform().origin)
+                        this.AttachedActor.ActorButtons.AimTarget <- vector3To2(enemyInView.Value.GetGlobalTransform().origin)
                     | false ->
-                        ()
+                        // Player is not visible
+                        match hasSeenPlayerInCombat with
+                            | true ->
+                                match this.AttachedActor.ActorButtons.MoveDirection.LengthSquared() < 1.0f with
+                                    | true ->
+                                        ()
+                                    | false ->
+                                        //(vector3To2 (this.GetGlobalTransform().origin) + this.AttachedActor.ActorButtons.MoveDirection)
+                                        match this.NextNavPoint.IsSome with
+                                            | true ->
+                                                this.AttachedActor.ActorButtons.AimTarget <- vector3To2 this.NextNavPoint.Value
+                                            | false ->
+                                                ()
+                            | false ->
+                                ()
 
     // ** Is player within view range
     member this._on_DetectionArea_body_entered(body : Object) =
@@ -208,23 +254,14 @@ type ActorAi() as this =
     // ** Update
     override this._PhysicsProcess(delta : float32) =
         updateWatchBehaviour delta
-        ()
 
     override this._Process(delta : float32) =
         updateAttackBehaviour delta
-
-        match updateMoveDirectionTimer > updateMoveDirectionInterval with
-            | true ->
-                updateMovementDirection()
-                updateMoveDirectionTimer <- 0.0f
-            | false ->
-                updateMoveDirectionTimer <- updateMoveDirectionTimer + delta
+        this.UpdateMovementDirection delta
 
     override this._Ready() =
         // Give actor weapons and ammo
         GD.Print ("NAME:", this.GetParent().Name)
-        attachedActor.Force().Inventory.[0] <- Some ((this.GetParent().GetNode(NodePath "ItemAk47") :?> Items.Item))
-        // attachedActor.Force().Inventory.[1] <- Some ((this.GetParent().GetNode(NodePath "ItemAk47") :?> Items.Item))
-        // attachedActor.Force().Inventory.[9] <- Some ((this.GetParent().GetNode(NodePath "ItemAk47") :?> Items.Item))
-        attachedActor.Force().Inventory.[1] <- Some ((this.GetParent().GetNode(NodePath "ItemRifleAmmo") :?> Items.Item))
+        this.AttachedActor.Inventory.[0] <- Some ((this.GetParent().GetNode(NodePath "ItemAk47") :?> Items.Item))
+        this.AttachedActor.Inventory.[1] <- Some ((this.GetParent().GetNode(NodePath "ItemRifleAmmo") :?> Items.Item))
         ()

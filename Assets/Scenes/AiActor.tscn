@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://Assets/Scenes/Actor.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Assets/Scenes/Ai.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Assets/Scenes/CombatAi.tscn" type="PackedScene" id=2]
 
 [node name="AiActor" instance=ExtResource( 1 )]
 
