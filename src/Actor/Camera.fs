@@ -382,12 +382,17 @@ type PlayerCamera() as this =
                                                         actorButtons.Force().AimPressed <- inputEvent.IsPressed()
                                                         true
                                                     | false ->
-                                                        match inputEvent.IsAction PlayerInputActions.Run with
+                                                        match inputEvent.IsAction PlayerInputActions.Bolt with
                                                             | true ->
-                                                                actorButtons.Force().RunPressed <- inputEvent.IsPressed()
+                                                                actorButtons.Force().BoltPressed <- inputEvent.IsPressed()
                                                                 true
                                                             | false ->
-                                                                false
+                                                                match inputEvent.IsAction PlayerInputActions.Run with
+                                                                    | true ->
+                                                                        actorButtons.Force().RunPressed <- inputEvent.IsPressed()
+                                                                        true
+                                                                    | false ->
+                                                                        false
 
     let setCameraPositionToActor() =
         let attachedActorTransform = attachedActor.Value.GetTransform()

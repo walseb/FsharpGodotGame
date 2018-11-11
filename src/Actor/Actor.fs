@@ -17,6 +17,7 @@ type ActorState =
     | HoldState
     | HoldMoveState
     | ReloadState
+    | BoltState
     | AttackState
 
 type ActorStats =
@@ -36,6 +37,7 @@ type ActorButtons =
         mutable PrimaryAttackPressed : bool
         mutable SecondaryAttackPressed : bool
         mutable AimPressed : bool
+        mutable BoltPressed : bool
         mutable ReloadPressed : bool
 
         mutable Select1Pressed : bool
@@ -62,7 +64,7 @@ type ActorObject() as this =
     let gunRayCast =
         lazy(this.GetNode(new NodePath("GunRayCast")) :?> RayCast)
 
-    let mutable selectedItem : int = 0;
+    let mutable selectedItem : int = 1;
 
     let mutable inventorySize : int = 9;
 
@@ -96,6 +98,7 @@ type ActorObject() as this =
             PrimaryAttackPressed = false
             SecondaryAttackPressed = false
             AimPressed = false
+            BoltPressed = false
             ReloadPressed = false
 
             Select1Pressed = false
@@ -167,7 +170,7 @@ type ActorObject() as this =
         |> (fun a ->
             inventory.[a] <- None)
 
-    let getBestMagazineAmongItems (weaponType : string) =
+    let getBestMagazineAmongItems (weaponType : WeaponType) =
         let getMagazineWithMostBullets (list : seq<Magazine>) =
             list
             |> Seq.sortWith (fun a b ->
@@ -333,7 +336,7 @@ type ActorObject() as this =
         animatedSprite.Value.GetSpriteFrames().SetAnimationSpeed(name, speed)
 
     let getHeldWeaponAnimationName animationStateName =
-        let weaponType = ItemHelperFunctions.getWeaponType(inventory.[selectedWeaponSlotOnCombatEnter].Value :?> Weapon)
+        let weaponType = ItemHelperFunctions.getWeaponTypeString((inventory.[selectedWeaponSlotOnCombatEnter].Value :?> Weapon).WeaponType)
         match weaponType.IsSome with
             | true ->
                 Some (weaponType.Value + animationStateName)
@@ -341,22 +344,31 @@ type ActorObject() as this =
                 None
 
     let setWeaponAnimation animationStateName speed =
-        let animationName = getHeldWeaponAnimationName animationStateName
-        match animationName.IsSome with
+        getHeldWeaponAnimationName animationStateName
+        |> (fun anim ->
+            match anim.IsSome with
             | false ->
-                GD.Print ("Weapon animation in ", animationStateName, " missing!!")
+                fail ("Weapon animation in ", animationStateName, " missing!!")
             | true ->
-                setAnimation animationName.Value speed
+                setAnimation anim.Value speed
+                ok ())
 
     let setWeaponAnimationTimed animationStateName time =
-        let animationStateName = getHeldWeaponAnimationName animationStateName
-        match animationStateName.IsSome with
-            | false ->
-                GD.Print ("Weapon animation in ", animationStateName, " missing!!")
-            | true ->
-                animatedSprite.Force().Frames.GetFrameCount animationStateName.Value
-                |> (fun a -> (float32 a) / time)
-                |> setAnimation animationStateName.Value
+        getHeldWeaponAnimationName animationStateName
+        |> (fun anim ->
+            match anim.IsSome with
+                | false ->
+                    fail ("Weapon animation in " + animationStateName + " missing!!")
+                | true ->
+                    ok anim)
+        |> (bind (fun anim ->
+            animatedSprite.Force().Frames.GetFrameCount anim.Value
+            |> (fun a -> (float32 a) / time)
+            |> setAnimation anim.Value
+
+            GD.Print("---------------------------------------------------------------------------------------------value!!", anim.Value)
+            |> ok))
+        |> ignore
 
     // ** Basic state conditions
 
@@ -551,7 +563,6 @@ type ActorObject() as this =
         None
 
     // *** Hold state
-
     let startHold() =
         setWeaponAnimation "Hold" 5.0f
         None
@@ -571,6 +582,12 @@ type ActorObject() as this =
                                 usePrimaryAttackMode <- true
                                 Some AttackState
                             | false ->
+                                // Check for trigger release
+                                match not(actorButtons.PrimaryAttackPressed) && inventory.[selectedItem].Value :? Gun with
+                                    | true ->
+                                        (inventory.[selectedItem].Value :?>Gun).ReleaseTrigger()
+                                    | false ->
+                                        ()
                                 match actorButtons.SecondaryAttackPressed with
                                     | true ->
                                         usePrimaryAttackMode <- false
@@ -580,16 +597,20 @@ type ActorObject() as this =
                                             | true ->
                                                 Some ReloadState
                                             | false ->
-                                                match actorButtons.PickupPressed && pickup() with
+                                                match actorButtons.BoltPressed && inventory.[selectedItem].Value :? Gun with
                                                     | true ->
-                                                        Some IdleState
+                                                        Some BoltState
                                                     | false ->
-                                                        match actorButtons.DropPressed with
+                                                        match actorButtons.PickupPressed && pickup() with
                                                             | true ->
-                                                                drop()
                                                                 Some IdleState
                                                             | false ->
-                                                                None
+                                                                match actorButtons.DropPressed with
+                                                                    | true ->
+                                                                        drop()
+                                                                        Some IdleState
+                                                                    | false ->
+                                                                        None
 
     let processHold  (delta : float32)  =
         rotateTowardsMousePosition delta
@@ -624,16 +645,20 @@ type ActorObject() as this =
                                             | true ->
                                                 Some ReloadState
                                             | false ->
-                                                match actorButtons.PickupPressed && pickup() with
+                                                match actorButtons.BoltPressed && inventory.[selectedItem].Value :? Gun with
                                                     | true ->
-                                                        Some IdleState
+                                                        Some BoltState
                                                     | false ->
-                                                        match actorButtons.DropPressed with
+                                                        match actorButtons.PickupPressed && pickup() with
                                                             | true ->
-                                                                drop()
                                                                 Some IdleState
                                                             | false ->
-                                                                None
+                                                                match actorButtons.DropPressed with
+                                                                    | true ->
+                                                                        drop()
+                                                                        Some IdleState
+                                                                    | false ->
+                                                                        None
 
     let integrateForcesHoldMove (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (1.5f * delta)
@@ -764,13 +789,13 @@ type ActorObject() as this =
                 attackWithMode selectedWeaponOnCombatEnter.Value.SecondaryAttackMode.Value
 
 
-    // *** Attack state body
+    // *** Attack state
     // Handles the cooldown after attacking
     let mutable attackCooldown : float32 = 2.0f
 
     let startAttack() =
-        setWeaponAnimationTimed "Attack" attackCooldown
         attackCooldown <- selectedWeaponOnCombatEnter.Value.AttackCooldown
+        setWeaponAnimationTimed "Attack" attackCooldown
         attack() |> ignore
         None
 
@@ -792,9 +817,54 @@ type ActorObject() as this =
                         drop()
                         Some IdleState
                     | false ->
-                        None
+                        // Check for trigger release
+                        match not(actorButtons.PrimaryAttackPressed) && inventory.[selectedItem].IsSome && inventory.[selectedItem].Value :? Gun with
+                            | true ->
+                                (inventory.[selectedItem].Value :?>Gun).ReleaseTrigger()
+                                None
+                            | false ->
+                                None
 
     let integrateForcesAttack (delta : float32) (physicsState : PhysicsDirectBodyState) =
+        move physicsState (0.3f * delta)
+
+    // ** Bolt state
+    // Handles the cooldown after attacking
+    let mutable boltCooldown : float32 = 1.0f
+
+    let startBolt() =
+        boltCooldown <- (selectedWeaponOnCombatEnter.Value :?> Gun).BoltCooldown
+        setWeaponAnimationTimed "Bolt" boltCooldown
+        None
+
+    let processBolt  (delta : float32)  =
+        timer <- timer + delta
+        match timer > boltCooldown with
+            | true ->
+                (selectedWeaponOnCombatEnter.Value :?> Gun).Bolt()
+                Some HoldState
+            | false ->
+                None
+
+    let updateKeysBolt() =
+        match actorButtons.PickupPressed && pickup() with
+            | true ->
+                Some IdleState
+            | false ->
+                match actorButtons.DropPressed with
+                    | true ->
+                        drop()
+                        Some IdleState
+                    | false ->
+                        // Check for trigger release
+                        match not(actorButtons.PrimaryAttackPressed) && inventory.[selectedItem].IsSome && inventory.[selectedItem].Value :? Gun with
+                            | true ->
+                                (inventory.[selectedItem].Value :?>Gun).ReleaseTrigger()
+                                None
+                            | false ->
+                                None
+
+    let integrateForcesBolt (delta : float32) (physicsState : PhysicsDirectBodyState) =
         move physicsState (0.3f * delta)
 
     // *** Holster state
@@ -887,6 +957,7 @@ type ActorObject() as this =
             | HoldMoveState -> startHoldMove()
             | HolsterState -> startHolster()
             | ReloadState -> startReload()
+            | BoltState -> startBolt()
             | AttackState -> startAttack()
 
     let processStateMachine (delta : float32) (actorState : ActorState) =
@@ -899,6 +970,7 @@ type ActorObject() as this =
             | HoldMoveState -> processHoldMove delta
             | HolsterState -> processHolster delta
             | ReloadState -> processReload delta
+            | BoltState -> processBolt delta
             | AttackState -> processAttack delta
 
     let physicsProcessForcesStateMachine  (delta : float32) (actorState : ActorState)  =
@@ -911,6 +983,7 @@ type ActorObject() as this =
             | HoldMoveState -> ()
             | HolsterState -> ()
             | ReloadState -> ()
+            | BoltState -> ()
             | AttackState -> ()
 
     let integrateForcesStateMachine  (delta : float32) (physicsState : PhysicsDirectBodyState) (actorState : ActorState)  =
@@ -923,6 +996,7 @@ type ActorObject() as this =
             | HoldMoveState -> integrateForcesHoldMove delta physicsState
             | HolsterState -> integrateForcesHolster delta physicsState
             | ReloadState -> integrateForcesReload delta physicsState
+            | BoltState -> integrateForcesBolt delta physicsState
             | AttackState -> integrateForcesAttack delta physicsState
 
     let updateKeysStateMachine (actorState : ActorState) =
@@ -935,6 +1009,7 @@ type ActorObject() as this =
             | HoldMoveState -> updateKeysHoldMove()
             | HolsterState -> updateKeysHolster()
             | ReloadState -> updateKeysReload()
+            | BoltState -> updateKeysBolt()
             | AttackState -> updateKeysAttack()
 
     let rec switchState (changeToState : ActorState option) =

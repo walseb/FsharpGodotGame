@@ -17,6 +17,7 @@ module PlayerInputActions =
     let PrimaryAttack = "PrimaryAttack"
     let SecondaryAttack = "SecondaryAttack"
     let Aim = "Aim"
+    let Bolt = "Bolt"
     // Camera
     let CameraAttach = "CameraAttach"
     let CameraDetach = "CameraDetach"
@@ -47,6 +48,7 @@ module PlayerInputActions =
             PrimaryAttack
             SecondaryAttack
             Aim
+            Bolt
             // Camera
             CameraDetach
             CameraAttach

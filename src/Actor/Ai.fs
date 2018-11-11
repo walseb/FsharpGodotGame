@@ -262,6 +262,6 @@ type CombatAi() as this =
     override this._Ready() =
         // Give actor weapons and ammo
         GD.Print ("NAME:", this.GetParent().Name)
-        this.AttachedActor.Inventory.[0] <- Some ((this.GetParent().GetNode(NodePath "ItemAk47") :?> Items.Item))
-        this.AttachedActor.Inventory.[1] <- Some ((this.GetParent().GetNode(NodePath "ItemRifleAmmo") :?> Items.Item))
+        this.AttachedActor.Inventory.[1] <- Some ((this.GetParent().GetNode(NodePath "ItemAk47") :?> Items.Item))
+        this.AttachedActor.Inventory.[0] <- Some ((this.GetParent().GetNode(NodePath "ItemRifleAmmo") :?> Items.Item))
         ()

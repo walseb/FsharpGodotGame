@@ -137,7 +137,7 @@ extents = Vector3( 1, 1, 1 )
 
 extents = Vector3( 1, 1, 1 )
 
-[node name="Spatial" type="Spatial" index="0"]
+[node name="Spatial" type="Spatial"]
 
 _sections_unfolded = [ "Transform" ]
 
