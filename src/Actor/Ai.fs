@@ -9,6 +9,7 @@ open RailwayUtils
 open GodotUtils
 
 // * Ai
+
 [<AbstractClass>]
 type Ai() as this =
     inherit Spatial()
@@ -17,9 +18,6 @@ type Ai() as this =
         lazy (this.GetParent() :?> ActorObject)
 
     // ** Navigation
-    let updateMoveDirectionInterval = 0.1f
-    let mutable updateMoveDirectionTimer = 0.0f
-
     let mutable navPoints : Vector3 [] option = None
     let mutable selectedNavPoint = 0
     let nextNavpointDistance = 2.0f
@@ -31,6 +29,9 @@ type Ai() as this =
     let setActorMoveDirection newDir =
         attachedActor.Force().ActorButtons.MoveDirection <- newDir
         attachedActor.Value.InputUpdated()
+
+    let updateMoveInterval = 0.1f
+    let mutable updateMoveTimer = 0.0f
 
     member this.NextNavPoint
         with get () =
@@ -51,14 +52,14 @@ type Ai() as this =
         navPoints <- Some (getNavPath targetPos)
         selectedNavPoint <- 0
 
-    member this.UpdateMovementDirection delta =
+    member this.UpdateMovement delta =
         let isTimeToUpdate() =
-            match updateMoveDirectionTimer > updateMoveDirectionInterval with
+            match updateMoveTimer > updateMoveInterval with
                 | true ->
-                    updateMoveDirectionTimer <- 0.0f
+                    updateMoveTimer <- 0.0f
                     true
                 | false ->
-                    updateMoveDirectionTimer <- updateMoveDirectionTimer + delta
+                    updateMoveTimer <- updateMoveTimer + delta
                     false
 
         match isTimeToUpdate() with
@@ -88,180 +89,329 @@ type Ai() as this =
                                         let directionToClosestNav = (Vector2 ((this2DPos.x - nav2DPos.x), (this2DPos.y - nav2DPos.y)))
                                         setActorMoveDirection(rotateVector180Degrees directionToClosestNav)
 
+type AiStates =
+    // Will act as civilian
+    | NormalState
+    | CombatState
+    | EscapeState
+
 // * Combat AI
 type CombatAi() as this =
     inherit Ai()
 
+    let mutable state = AiStates.NormalState
+
     // ** Player detection
-    let mutable enemyInView : Spatial option = None
+    let mutable lastSeenEnemyPos : Vector3 option = None
 
-    let mutable hasSeenPlayerInCombat = false
+    // Used to aim
+    let mutable enemyInDirectView : ActorObject option =
+        None
 
-    let playerDetectionMask = (lazy ((this.GetNode(NodePath "PlayerDetectionMask") :?> Area).CollisionMask))
+    // Used to decide if should aim, contains instance IDs
+    let mutable enemiesInViewRange : List<ActorObject> =
+        new List<ActorObject>()
 
-    let mutable playerWithinViewRange = false
+    // Used to not forget people pulled gun before, contains instance IDs
+    let mutable actorsSeenInCombat : List<int> =
+        new List<int>()
 
-    let isBodyActor (body : Object) =
-        // the (Body :? ActorObject) check should be slightly more performant if parameter body is terrain, etc
-        body :? ActorObject && ReferencesStored.PlayerBoxed.IsSome && physicallyEquals ReferencesStored.PlayerBoxed.Value body
+    let isEnemy (actor : ActorObject) =
+        actor.IsOnPlayerTeam
+
+    let getEnemyInView (actorID : int) =
+        enemiesInViewRange
+        |> Seq.tryPick (fun enemy ->
+            match enemy.GetInstanceId() = actorID with
+                | true ->
+                    Some enemy
+                | false ->
+                    None)
 
     // *** Is player blocked
     // How many seconds to wait before scanning for player
     let scanViewForPlayerInterval = 0.5f
     let mutable scanViewForPlayerTimer = 0.0f
 
-    let isPlayerVisible () =
-        let spaceState = this.GetWorld().GetDirectSpaceState()
-        match ReferencesStored.Player.IsSome with
+    let enemyDetectionMask = (lazy ((this.GetNode(new NodePath "PlayerDetectionMask") :?> Area).CollisionMask))
+
+    let updateVisableEnemies (delta : float32) : AiStates option =
+        let getEnemyIfVisable () : ActorObject option =
+            let hitToActor (hits : Dictionary) =
+                match hits.Count <> 0 with
+                    | false ->
+                       None
+                    | true ->
+                        let hit = (hits.Item("collider") :?> Object)
+                        let instanceID = hit.GetInstanceId()
+                        match getEnemyInView instanceID with
+                            | Some x ->
+                                Some x
+                            | None ->
+                                None
+
+            let isEnemyHostile (enemy : ActorObject option) =
+                match enemy.IsSome && (enemy.Value.IsInCombatState || actorsSeenInCombat.Contains (enemy.Value.GetInstanceId())) with
+                    | true ->
+                        enemy
+                    | false ->
+                        None
+
+            let spaceState = (lazy this.GetWorld().GetDirectSpaceState())
+
+            enemiesInViewRange
+            |> Seq.tryPick (fun enemySpatial ->
+                         enemySpatial.GetGlobalTransform().origin
+                         |> (fun currEnemyPos -> spaceState.Force().IntersectRay(this.GetGlobalTransform().origin, currEnemyPos, new Array(), enemyDetectionMask.Force()))
+                         |> hitToActor
+                         |> isEnemyHostile)
+
+        let isTimeToUpdate () =
+            match scanViewForPlayerTimer > scanViewForPlayerInterval with
+                | true ->
+                    scanViewForPlayerTimer <- 0.0f
+                    true
+                | false ->
+                    scanViewForPlayerTimer <- scanViewForPlayerTimer + delta
+                    false
+
+        let enemyDirectViewLost () =
+            let lastEnemyPos = enemyInDirectView.Value.GetGlobalTransform().origin
+            lastSeenEnemyPos <- Some lastEnemyPos
+            this.SetNavGoal lastEnemyPos
+            enemyInDirectView <- None
+
+       // Begin
+        match isTimeToUpdate() with
+            | false ->
+                None
+            | true ->
+                match enemiesInViewRange.Count = 0 with
+                    | true ->
+                        match enemyInDirectView = None with
+                            | true ->
+                                ()
+                            | false ->
+                                enemyDirectViewLost()
+                        None
+                    | false ->
+
+                        getEnemyIfVisable()
+                        |> (fun enemy ->
+                            match enemy.IsSome with
+                                | true ->
+                                    enemyInDirectView <- Some enemy.Value
+                                    actorsSeenInCombat.Add (enemy.Value.GetInstanceId())
+                                    Some AiStates.CombatState
+                                | false ->
+                                    match enemyInDirectView.IsSome with
+                                        | true ->
+                                            enemyDirectViewLost()
+                                            enemyInDirectView <- None
+                                            None
+                                        | false ->
+                                            None)
+
+// * Attack enemies
+
+    let checkIfGunIsReadyInterval = 0.5f
+    let mutable checkIfGunIsReadyTimer = 0.0f
+
+    // Sponge, if ai run out of mags, there are gonna be problems
+    let readyGun delta : bool =
+        let getSelectedGun (selectedItem : Items.Item option) =
+            match selectedItem.IsSome && selectedItem.Value :? Items.Gun with
+                | false ->
+                    fail "Actor has no gun in hand but is trying to use it"
+                | true ->
+                      ok (selectedItem.Value :?> Items.Gun)
+
+        let reloadIfNeeded (gun : Items.Gun) =
+            let magazine = gun.Magazine
+            match magazine.IsSome && magazine.Value.StoredAmmo > 0 with
+                | true ->
+                    this.AttachedActor.ActorButtons.ReloadPressed <- false
+                    ok gun
+                | false ->
+                    this.AttachedActor.ActorButtons.ReloadPressed <- true
+                    fail "Reloading!"
+
+        let boltIfNeeded (gun : Items.Gun) =
+            match gun.IsBulletInChamber with
+                | true ->
+                    this.AttachedActor.ActorButtons.BoltPressed <- false
+                    ok gun
+                | false ->
+                    this.AttachedActor.ActorButtons.BoltPressed <- true
+                    fail "Bolting gun!"
+
+        let isTimeToUpdate () =
+            match checkIfGunIsReadyTimer > checkIfGunIsReadyInterval with
+                | true ->
+                    checkIfGunIsReadyTimer <- 0.0f
+                    true
+                | false ->
+                    checkIfGunIsReadyTimer <- checkIfGunIsReadyTimer + delta
+                    false
+
+        match isTimeToUpdate() with
             | false ->
                 false
             | true ->
-                let hits = spaceState.IntersectRay(this.GetGlobalTransform().origin, ReferencesStored.Player.Value.GetGlobalTransform().origin, Array(), playerDetectionMask.Force())
-                hits.Count <> 0 && isBodyActor (hits.Item("collider") :?> Object)
-
-// * Attack player
-    let engageTarget engage =
-        match engage with
-            | true ->
-                let selectedItem = this.AttachedActor.Inventory.[this.AttachedActor.SelectedItem]
-
-                match selectedItem.IsSome && selectedItem.Value :? Items.Gun with
-                    | true ->
-                        let magazine = (selectedItem.Value :?> Items.Gun).Magazine
-                        match magazine.IsSome with
-                            | true ->
-                                this.AttachedActor.ActorButtons.ReloadPressed <- magazine.Value.StoredAmmo = 0
+                this.AttachedActor.Inventory.[this.AttachedActor.SelectedItem]
+                |> getSelectedGun
+                |> bind reloadIfNeeded
+                |> bind boltIfNeeded
+                |> isOk
+                |> tee (fun inputUpdated ->
+                        match inputUpdated with
                             | false ->
-                                this.AttachedActor.ActorButtons.ReloadPressed <- true
-                    | false ->
-                        ()
-                let whatWouldFiringHit = this.AttachedActor.WhatWouldFiringHit()
-                // This is probably REALLY expensive, FIXME
-                match whatWouldFiringHit.IsSome && physicallyEquals whatWouldFiringHit.Value ReferencesStored.PlayerBoxed.Value with
-                    | true ->
-                        this.AttachedActor.ActorButtons.PrimaryAttackPressed <- true
-                    | false ->
-                        this.AttachedActor.ActorButtons.PrimaryAttackPressed <- false
-
-                this.AttachedActor.ActorButtons.AimPressed <- true
-            | false ->
-                //this.AttachedActor.ActorButtons.AimPressed <- false
-                this.AttachedActor.ActorButtons.PrimaryAttackPressed <- false
-
-        this.AttachedActor.InputUpdated()
-
-    let enemyDirectViewGained () =
-        match (hasSeenPlayerInCombat || ReferencesStored.Player.Value.IsInCombatState) with
-            | false ->
-                ()
-            | true ->
-                match enemyInView.IsNone with
-                    | true ->
-                        hasSeenPlayerInCombat <- true
-                        GD.Print "FOUND!!"
-                        enemyInView <- Some (ReferencesStored.Player.Value :> Spatial)
-                        this.ResetNavPath()
-                    | false ->
-                        GD.Print "ENGAGING"
-                        engageTarget true
-
-    let enemyDirectViewLost () =
-        match enemyInView.IsSome with
-            | true ->
-                engageTarget false
-                GD.Print "I LOST HIM!!"
-                // Move towards last seen position
-                this.SetNavGoal (enemyInView.Value.GetGlobalTransform().origin)
-            | false ->
-                ()
-        enemyInView <- None
-
-    let updateWatchBehaviour (delta : float32) =
-        let isTimeToUpdate () =
-                match scanViewForPlayerTimer > scanViewForPlayerInterval with
-                    | true ->
-                        scanViewForPlayerTimer <- 0.0f
-                        true
-                    | false ->
-                        scanViewForPlayerTimer <- scanViewForPlayerTimer + delta
-                        false
-
-        match playerWithinViewRange && isTimeToUpdate() with
-            | false ->
-                ()
-            | true ->
-                match isPlayerVisible() with
-                    | true ->
-                        enemyDirectViewGained()
-                    | false ->
-                        enemyDirectViewLost()
-                        // Enemy is not in view
+                                ()
+                            | true ->
+                                this.AttachedActor.InputUpdated())
 
     // *** Attack logic
     let updateAttackBehaviourInterval = 0.4f
     let mutable updateAttackBehaviourTimer = 0.0f
 
     let updateAttackBehaviour (delta : float32) =
-        let isTimeToUpdate() =
-            match updateAttackBehaviourInterval > updateAttackBehaviourTimer with
+        let attemptToShoot() =
+            this.AttachedActor.WhatWouldFiringHit()
+            |> (fun potentialHit -> potentialHit.IsSome && (getEnemyInView (potentialHit.Value)).IsSome)
+            |> (fun enemyPotentialHit ->
+                this.AttachedActor.ActorButtons.PrimaryAttackPressed <- enemyPotentialHit
+                this.AttachedActor.InputUpdated())
+
+        let aimTowardsPlayer () =
+            this.AttachedActor.ActorButtons.AimTarget <- vector3To2(enemyInDirectView.Value.GetGlobalTransform().origin)
+            this.AttachedActor.InputUpdated()
+
+        let aimTowardsWalkDir () =
+            // OLD fixes bug??: match this.AttachedActor.ActorButtons.MoveDirection.LengthSquared() < 1.0f with
+            match this.NextNavPoint.IsSome with
                 | true ->
-                    updateAttackBehaviourTimer <- 0.0f
-                    true
+                    this.AttachedActor.ActorButtons.AimTarget <- vector3To2 this.NextNavPoint.Value
+                    this.AttachedActor.InputUpdated()
                 | false ->
-                    updateAttackBehaviourTimer <- updateAttackBehaviourTimer + delta
-                    false
-        match isTimeToUpdate() with
-            | false ->
-                ()
+                    ()
+
+        match enemyInDirectView.IsSome with
             | true ->
-                match enemyInView.IsSome with
-                    | true ->
-                        // Adjust aim
-                        this.AttachedActor.ActorButtons.AimTarget <- vector3To2(enemyInView.Value.GetGlobalTransform().origin)
-                    | false ->
-                        // Player is not visible
-                        match hasSeenPlayerInCombat with
-                            | true ->
-                                match this.AttachedActor.ActorButtons.MoveDirection.LengthSquared() < 1.0f with
-                                    | true ->
-                                        ()
-                                    | false ->
-                                        //(vector3To2 (this.GetGlobalTransform().origin) + this.AttachedActor.ActorButtons.MoveDirection)
-                                        match this.NextNavPoint.IsSome with
-                                            | true ->
-                                                this.AttachedActor.ActorButtons.AimTarget <- vector3To2 this.NextNavPoint.Value
-                                            | false ->
-                                                ()
-                            | false ->
-                                ()
+                //GD.Print "SHOOTING!!??!??!"
+                aimTowardsPlayer()
+                attemptToShoot()
+            | false ->
+                aimTowardsWalkDir()
+
+    // ** States
+    // *** Normal state
+    let normalStateStart() : AiStates option =
+        GD.Print "STARTING NORMAL"
+        None
+
+    let normalStateProcess delta : AiStates option =
+        this.UpdateMovement delta
+        None
+
+    let normalStatePhysicsProcess delta : AiStates option =
+        updateVisableEnemies delta
+
+    // *** Combat state
+    let combatStateStart() : AiStates option =
+        GD.Print "STARTING COMBAT"
+        this.AttachedActor.ActorButtons.AimPressed <- true
+        this.AttachedActor.InputUpdated()
+        None
+
+    let combatStateProcess delta : AiStates option =
+        match this.AttachedActor.LastShootAttemptWorked with
+            | true ->
+                this.UpdateMovement delta
+                updateAttackBehaviour delta
+            | false ->
+                this.AttachedActor.LastShootAttemptWorked <- readyGun delta
+        None
+
+    let combatStatePhysicsProcess delta : AiStates option =
+        updateVisableEnemies delta
+
+    // *** Escape state
+    let escapeStateStart() : AiStates option =
+        None
+
+    let escapeStateProcess delta : AiStates option =
+        None
+
+    let escapeStatePhysicsProcess delta : AiStates option =
+        None
+
+    // ** Update states
+    let processAiState delta : AiStates option =
+        match state with
+            | AiStates.NormalState -> normalStateProcess delta
+            | AiStates.CombatState -> combatStateProcess delta
+            | AiStates.EscapeState -> escapeStateProcess delta
+
+    let physicsProcessAiState delta : AiStates option =
+        match state with
+            | AiStates.NormalState -> normalStatePhysicsProcess delta
+            | AiStates.CombatState -> combatStatePhysicsProcess delta
+            | AiStates.EscapeState -> escapeStatePhysicsProcess delta
+
+    let changeAiState (newState : AiStates option) =
+        match newState.IsSome && newState.Value = state with
+            | true ->
+                ()
+            | false ->
+                match newState with
+                    | Some AiStates.NormalState ->
+                        normalStateStart()
+                        |> ignore
+                        state <- newState.Value
+                    | Some AiStates.CombatState ->
+                        combatStateStart()
+                        |> ignore
+                        state <- newState.Value
+                    | Some AiStates.EscapeState ->
+                        escapeStateStart()
+                        |> ignore
+                        state <- newState.Value
+                    | _ ->
+                        ()
 
     // ** Is player within view range
     member this._on_DetectionArea_body_entered(body : Object) =
-        match isBodyActor body with
-            | true ->
-                playerWithinViewRange <- true
+        match (body :? ActorObject) with
             | false ->
                 ()
+            | true ->
+                let actorObject = body :?> ActorObject
+                match isEnemy actorObject with
+                    | true ->
+                        enemiesInViewRange.Add actorObject
+                    | false ->
+                        ()
 
     member this._on_DetectionArea_body_exited(body : Object) =
-        match isBodyActor body with
-            | true ->
-                playerWithinViewRange <- false
-                enemyDirectViewLost()
-            | false ->
+        match getEnemyInView (body.GetInstanceId()) with
+            | Some x ->
+                enemiesInViewRange.Remove x
+                |> ignore
+            | None ->
                 ()
 
     // ** Update
     override this._PhysicsProcess(delta : float32) =
-        updateWatchBehaviour delta
+        physicsProcessAiState delta
+        |> changeAiState
 
     override this._Process(delta : float32) =
-        updateAttackBehaviour delta
-        this.UpdateMovementDirection delta
+        processAiState delta
+        |> changeAiState
 
     override this._Ready() =
         // Give actor weapons and ammo
         GD.Print ("NAME:", this.GetParent().Name)
-        this.AttachedActor.Inventory.[1] <- Some ((this.GetParent().GetNode(NodePath "ItemAk47") :?> Items.Item))
-        this.AttachedActor.Inventory.[0] <- Some ((this.GetParent().GetNode(NodePath "ItemRifleAmmo") :?> Items.Item))
+        this.AttachedActor.Inventory.[1] <- Some ((this.GetParent().GetNode(new NodePath "ItemAk47") :?> Items.Item))
+        this.AttachedActor.Inventory.[0] <- Some ((this.GetParent().GetNode(new NodePath "ItemRifleAmmo") :?> Items.Item))
         ()

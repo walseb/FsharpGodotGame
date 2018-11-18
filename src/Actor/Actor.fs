@@ -70,6 +70,8 @@ type ActorObject() as this =
 
     let mutable inventory : Item option array = Array.create 9 None
 
+    let mutable isOnPlayerTeam = true
+
     let animatedSprite =
         lazy(this.GetNode(new NodePath("AnimatedSprite3D")) :?> AnimatedSprite3D)
 
@@ -200,24 +202,26 @@ type ActorObject() as this =
                     Some (getMagazineWithMostBullets a))
 
     // ** State actions
-
     let move (physicsState : PhysicsDirectBodyState) (multiplier : float32) =
         physicsState.ApplyImpulse(Vector3.Zero, (vector2To3 actorButtons.MoveDirection).Normalized() * physicsMoveMultiplier * multiplier)
 
     let drop() =
         this.GetTree().SetInputAsHandled();
-        match inventory.[selectedItem].IsSome with
-            | false ->
-                ()
-            | true ->
-                // Make sure an item isn't added twice
-                match toggleItemAttachedNextPhysicsUpdate.Contains inventory.[selectedItem].Value with
-                    | false ->
-                        toggleItemAttachedNextPhysicsUpdate.Add inventory.[selectedItem].Value
-                        GD.Print "DROP"
-                    | true ->
-                        ()
-        inventory.[selectedItem] <- None
+        inventory.[selectedItem]
+        |> (fun a ->
+            match a.IsSome with
+                | false ->
+                    fail "No item selected"
+                | true ->
+                    ok a.Value)
+        |> bind (fun a ->
+            match toggleItemAttachedNextPhysicsUpdate.Contains a with
+                | false ->
+                    ok a
+                | true ->
+                    fail "Item is already in process of being dropped")
+        |> map (toggleItemAttachedNextPhysicsUpdate.Add)
+        |> fun _ -> inventory.[selectedItem] <- None
 
     let pickupDelay = 1.0f
     let mutable pickupTimer = 0.0f
@@ -286,15 +290,12 @@ type ActorObject() as this =
         let thisTransform = this.GetGlobalTransform()
 
         // Get target transform
-        let targetTransform = thisTransform.LookingAt(lookDir,Vector3.Up)
-
-        // Slerp it
-        let targetRotation = thisTransform.basis.Quat().Slerp(targetTransform.basis.Quat(), (delta * rotateSpeed))
-
-        this.SetGlobalTransform(Transform(targetRotation, thisTransform.origin))
+        thisTransform.LookingAt(lookDir,Vector3.Up)
+        |> (fun targetTransform -> thisTransform.basis.Quat().Slerp(targetTransform.basis.Quat(), (delta * rotateSpeed)))
+        |> tee (fun targetRotation -> this.SetGlobalTransform(Transform(targetRotation, thisTransform.origin)))
+        |> Basis
         // Hack to lock the y axis
-        let targetBasis = Basis(targetRotation)
-        this.SetRotation (Vector3(0.0f, targetBasis.GetEuler().y,0.0f))
+        |> (fun targetBasis -> this.SetRotation (Vector3(0.0f, targetBasis.GetEuler().y,0.0f)))
 
     // Works but not really useful
     // let setRotation (lookDir : Vector3) =
@@ -304,19 +305,12 @@ type ActorObject() as this =
         // this.SetRotation (Vector3(0.0f, targetEuler.y,0.0f))
 
     let rotateTowardsMoveDirection(delta : float32) =
-        let thisTransform = this.GetGlobalTransform()
-
-        // Get move direction based on keys
-
-        let lookDir = vector2To3(actorButtons.MoveDirection + (vector3To2 thisTransform.origin))
-
-        // Get move direction based on velocity
-        // let lookDir = Vector3(this.LinearVelocity.x + thisTransform.origin.x, 0.0f, this.LinearVelocity.z + thisTransform.origin.z)
-        rotateTowards(delta, 15.0f, lookDir)
+        this.GetGlobalTransform().origin
+        |> (fun thisPos -> vector2To3(actorButtons.MoveDirection + vector3To2 thisPos))
+        |> (fun lookDir -> rotateTowards(delta, 15.0f, lookDir))
 
     let rotateTowardsMousePosition(delta : float32) =
         rotateTowards(delta, 20.0f, vector2To3 actorButtons.AimTarget)
-        //setRotation(aimTarget)
 
     let isMoveDirectionZero () =
         actorButtons.MoveDirection.x = 0.0f && actorButtons.MoveDirection.y = 0.0f
@@ -331,27 +325,31 @@ type ActorObject() as this =
 
     // ** Animation helpers
 
-    let setAnimation name speed =
-        animatedSprite.Force().Play name
-        animatedSprite.Value.GetSpriteFrames().SetAnimationSpeed(name, speed)
+    let setAnimation (name : string) speed =
+        name
+        |> tee (fun a -> animatedSprite.Force().Play a)
+        |> (fun name -> animatedSprite.Value.GetSpriteFrames().SetAnimationSpeed(name, speed))
 
     let getHeldWeaponAnimationName animationStateName =
-        let weaponType = ItemHelperFunctions.getWeaponTypeString((inventory.[selectedWeaponSlotOnCombatEnter].Value :?> Weapon).WeaponType)
-        match weaponType.IsSome with
-            | true ->
-                Some (weaponType.Value + animationStateName)
-            | false ->
-                None
+        ItemHelperFunctions.getWeaponTypeString((inventory.[selectedWeaponSlotOnCombatEnter].Value :?> Weapon).WeaponType)
+        |> (fun weaponType ->
+            match weaponType.IsSome with
+                | true ->
+                    Some (weaponType.Value + animationStateName)
+                | false ->
+                    None)
 
     let setWeaponAnimation animationStateName speed =
         getHeldWeaponAnimationName animationStateName
         |> (fun anim ->
             match anim.IsSome with
             | false ->
-                fail ("Weapon animation in ", animationStateName, " missing!!")
+                fail ("Weapon animation in " + animationStateName + " missing!!")
             | true ->
                 setAnimation anim.Value speed
                 ok ())
+        |> logErr
+        |> ignore
 
     let setWeaponAnimationTimed animationStateName time =
         getHeldWeaponAnimationName animationStateName
@@ -365,9 +363,8 @@ type ActorObject() as this =
             animatedSprite.Force().Frames.GetFrameCount anim.Value
             |> (fun a -> (float32 a) / time)
             |> setAnimation anim.Value
-
-            GD.Print("---------------------------------------------------------------------------------------------value!!", anim.Value)
             |> ok))
+        |> logErr
         |> ignore
 
     // ** Basic state conditions
@@ -376,15 +373,14 @@ type ActorObject() as this =
         inventory.[selectedItem].IsSome && inventory.[selectedItem].Value :? Weapon
 
     /// Returns false if combat state failed to init
-    let initializeCombatState() =
+    let canEnterCombatState() =
         match inventory.[selectedItem].IsSome && inventory.[selectedItem].Value :? Weapon with
             | true ->
-                GD.Print "TRUE????"
                 selectedWeaponSlotOnCombatEnter <- selectedItem
                 selectedWeaponOnCombatEnter <- Some (inventory.[selectedItem].Value :?> Weapon)
                 true
              | false ->
-                 false
+                false
 
     // ** Common state keys
 
@@ -749,7 +745,9 @@ type ActorObject() as this =
             | false ->
                 None
             | true ->
-                Some (gunRayCast.Value.GetCollider())
+                Some (gunRayCast.Value.GetCollider().GetInstanceId())
+
+    let mutable lastShootAttemptWorked = false
 
     let gunFire(rayCast : RayCast, recoilPushbackMultiplier : float32) =
         let recoilPushback() =
@@ -762,8 +760,9 @@ type ActorObject() as this =
                 match (inventory.[selectedItem].Value :?> Gun).PullTrigger (gunRayCast.Force()) with
                     | true ->
                         recoilPushback()
+                        lastShootAttemptWorked <- true
                     | false ->
-                        ()
+                        lastShootAttemptWorked <- false
             | false ->
                 ()
 
@@ -909,7 +908,7 @@ type ActorObject() as this =
     let unHolsterTime : float32 = 1.0f
 
     let startUnholster() =
-        match initializeCombatState() with
+        match canEnterCombatState() with
             | false ->
                 Some IdleState
             | true ->
@@ -1048,6 +1047,17 @@ type ActorObject() as this =
     member this.CommandParent
         with get () = commandParent
         and set (value) = commandParent <- value
+
+    member this.State
+        with get () = state
+
+    member this.IsOnPlayerTeam
+        with get () = isOnPlayerTeam
+        and set (value) = isOnPlayerTeam <- value
+
+    member this.LastShootAttemptWorked
+        with get () = lastShootAttemptWorked
+        and set (value) = lastShootAttemptWorked <- value
 
     // ** Functions
     member this.WhatWouldFiringHit =

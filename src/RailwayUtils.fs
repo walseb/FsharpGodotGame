@@ -44,6 +44,18 @@ let tee f x =
     |> ignore
     x
 
+let isOk (twoTrackInput : Result<'a, 'b>) =
+    match twoTrackInput with
+        | Ok (a,b) -> true
+        | _ -> false
+
+let okIfTrue failMessage bool =
+    match bool with
+        | true ->
+            ok()
+        | false ->
+            fail failMessage
+
 let log twoTrackInput =
     let failure msgs =
         let message = (String.concat "" msgs)

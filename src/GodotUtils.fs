@@ -3,7 +3,6 @@ module GodotUtils
 open Godot
 open LanguagePrimitives
 
-
 type Node with
     member this.GetNode<'a when 'a :> Node> (path : string) =
         lazy((this.GetNode(new NodePath(path))) :?> 'a)
@@ -88,3 +87,6 @@ let rotateVector (vector : Vector2, degrees : float32) =
 
 let radToVector2 rad =
     Vector2(cos(rad), sin(rad))
+
+let objectsEqual IDa IDb =
+    IDa = IDb
