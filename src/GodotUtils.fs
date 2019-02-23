@@ -88,5 +88,5 @@ let rotateVector (vector : Vector2, degrees : float32) =
 let radToVector2 rad =
     Vector2(cos(rad), sin(rad))
 
-let objectsEqual IDa IDb =
-    IDa = IDb
+// let objectsEqual IDa IDb =
+    // IDa = IDb

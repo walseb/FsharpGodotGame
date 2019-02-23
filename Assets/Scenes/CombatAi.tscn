@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://src/Actor/CombatAiWrap.cs" type="Script" id=1]
 
@@ -6,7 +6,11 @@
 
 extents = Vector3( 5.81028, 3.99313, 9.60292 )
 
-[node name="Ai" type="Spatial"]
+[sub_resource type="BoxShape" id=2]
+
+extents = Vector3( 4, 1, 4 )
+
+[node name="Ai" type="Spatial" index="0"]
 
 script = ExtResource( 1 )
 _sections_unfolded = [ "Pause", "Transform", "Visibility" ]
@@ -42,7 +46,37 @@ shape = SubResource( 1 )
 disabled = false
 _sections_unfolded = [ "Pause", "Transform", "Visibility" ]
 
-[node name="PlayerDetectionMask" type="Area" parent="." index="1"]
+[node name="ItemFindArea" type="Area" parent="." index="1"]
+
+input_ray_pickable = false
+input_capture_on_drag = false
+space_override = 0
+gravity_point = false
+gravity_distance_scale = 0.0
+gravity_vec = Vector3( 0, -1, 0 )
+gravity = 9.8
+linear_damp = 0.1
+angular_damp = 1.0
+priority = 0.0
+monitoring = true
+monitorable = false
+collision_layer = 0
+collision_mask = 4
+audio_bus_override = false
+audio_bus_name = "Master"
+reverb_bus_enable = false
+reverb_bus_name = "Master"
+reverb_bus_amount = 0.0
+reverb_bus_uniformity = 0.0
+_sections_unfolded = [ "Collision", "Transform" ]
+
+[node name="DetectionCollision" type="CollisionShape" parent="ItemFindArea" index="0"]
+
+shape = SubResource( 2 )
+disabled = false
+_sections_unfolded = [ "Pause", "Transform", "Visibility" ]
+
+[node name="PlayerDetectionMask" type="Area" parent="." index="2"]
 
 input_ray_pickable = false
 input_capture_on_drag = false
@@ -69,5 +103,9 @@ _sections_unfolded = [ "Audio Bus", "Collision", "Reverb Bus", "Transform" ]
 [connection signal="body_entered" from="DetectionArea" to="." method="_on_DetectionArea_body_entered"]
 
 [connection signal="body_exited" from="DetectionArea" to="." method="_on_DetectionArea_body_exited"]
+
+[connection signal="body_entered" from="ItemFindArea" to="." method="_on_ItemFindArea_body_entered"]
+
+[connection signal="body_exited" from="ItemFindArea" to="." method="_on_ItemFindArea_body_exited"]
 
 

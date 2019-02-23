@@ -93,6 +93,7 @@ type AiStates =
     // Will act as civilian
     | NormalState
     | CombatState
+    //| FindWeaponState
     | EscapeState
 
 // * Combat AI
@@ -135,7 +136,7 @@ type CombatAi() as this =
 
     let enemyDetectionMask = (lazy ((this.GetNode(new NodePath "PlayerDetectionMask") :?> Area).CollisionMask))
 
-    let updateVisableEnemies (delta : float32) : AiStates option =
+    let isEnemyInSight (delta : float32) : AiStates option =
         let getEnemyIfVisable () : ActorObject option =
             let hitToActor (hits : Dictionary) =
                 match hits.Count <> 0 with
@@ -175,42 +176,22 @@ type CombatAi() as this =
                     scanViewForPlayerTimer <- scanViewForPlayerTimer + delta
                     false
 
-        let enemyDirectViewLost () =
-            let lastEnemyPos = enemyInDirectView.Value.GetGlobalTransform().origin
-            lastSeenEnemyPos <- Some lastEnemyPos
-            this.SetNavGoal lastEnemyPos
-            enemyInDirectView <- None
-
-       // Begin
+        // Begin
         match isTimeToUpdate() with
             | false ->
                 None
             | true ->
                 match enemiesInViewRange.Count = 0 with
                     | true ->
-                        match enemyInDirectView = None with
-                            | true ->
-                                ()
-                            | false ->
-                                enemyDirectViewLost()
                         None
                     | false ->
-
                         getEnemyIfVisable()
-                        |> (fun enemy ->
-                            match enemy.IsSome with
-                                | true ->
-                                    enemyInDirectView <- Some enemy.Value
-                                    actorsSeenInCombat.Add (enemy.Value.GetInstanceId())
-                                    Some AiStates.CombatState
-                                | false ->
-                                    match enemyInDirectView.IsSome with
-                                        | true ->
-                                            enemyDirectViewLost()
-                                            enemyInDirectView <- None
-                                            None
-                                        | false ->
-                                            None)
+
+    let enemyDirectViewLost () =
+        let lastEnemyPos = enemyInDirectView.Value.GetGlobalTransform().origin
+        lastSeenEnemyPos <- Some lastEnemyPos
+        this.SetNavGoal lastEnemyPos
+        enemyInDirectView <- None
 
 // * Attack enemies
 
@@ -304,6 +285,7 @@ type CombatAi() as this =
                 aimTowardsWalkDir()
 
     // ** States
+
     // *** Normal state
     let normalStateStart() : AiStates option =
         GD.Print "STARTING NORMAL"
@@ -314,7 +296,23 @@ type CombatAi() as this =
         None
 
     let normalStatePhysicsProcess delta : AiStates option =
-        updateVisableEnemies delta
+        // IF STATEMENT
+        isEnemyInSight delta
+        |> (fun enemy ->
+            match enemy.IsSome with
+                | true ->
+                    enemyInDirectView <- Some enemy.Value
+                    actorsSeenInCombat.Add (enemy.Value.GetInstanceId())
+                    Some AiStates.CombatState
+                | false ->
+                    match enemyInDirectView.IsSome with
+                        | true ->
+                            enemyDirectViewLost()
+                            enemyInDirectView <- None
+                            None
+                        | false ->
+                            None)
+
 
     // *** Combat state
     let combatStateStart() : AiStates option =
@@ -335,6 +333,41 @@ type CombatAi() as this =
     let combatStatePhysicsProcess delta : AiStates option =
         updateVisableEnemies delta
 
+    // *** Find weapon state
+    // let mutable stateBeforeFindingWeapon = None
+//
+    let mutable weaponsNearby : List<Items.Item> =
+        new List<Items.Item>()
+//
+    // let findNeedWeapon () =
+        // Items.GetWeapon(this.AttachedActor.Inventory)
+        // // currently selected slot on actor
+        // // like we need to maybe designate slot 1 to weapons or something, or create a auto-slot selector
+        // // maybe create function select weapon slot, which changes current selected slot on actor to one containing a weapon
+//
+    // let findWeaponStateStart() : AiStates option =
+        // stateBeforeFindingWeapon <- Some state
+        // GD.Print "FINDING WEAPON"
+        // None
+//
+    // let exitFindWeaponState (state : AiStates option) : AiStates option =
+        // this.AttachedActor.ActorButtons.PickupPressed <- false
+        // this.AttachedActor.InputUpdated()
+//
+        // match state.IsSome with
+            // | true ->
+                // state
+            // | false ->
+                // stateBeforeFindingWeapon
+//
+    // let findWeaponStateProcess delta : AiStates option =
+        // this.UpdateMovement delta
+        // updateAttackBehaviour delta
+        // None
+//
+    // let findWeaponStatePhysicsProcess delta : AiStates option =
+        // updateVisableEnemies delta
+
     // *** Escape state
     let escapeStateStart() : AiStates option =
         None
@@ -345,39 +378,42 @@ type CombatAi() as this =
     let escapeStatePhysicsProcess delta : AiStates option =
         None
 
-    // ** Update states
+    // ** Keep states updated
     let processAiState delta : AiStates option =
         match state with
             | AiStates.NormalState -> normalStateProcess delta
             | AiStates.CombatState -> combatStateProcess delta
             | AiStates.EscapeState -> escapeStateProcess delta
+            //| AiStates.FindWeaponState -> findWeaponStateProcess delta
 
     let physicsProcessAiState delta : AiStates option =
         match state with
             | AiStates.NormalState -> normalStatePhysicsProcess delta
             | AiStates.CombatState -> combatStatePhysicsProcess delta
             | AiStates.EscapeState -> escapeStatePhysicsProcess delta
+            //| AiStates.FindWeaponState -> findWeaponStatePhysicsProcess delta
 
     let changeAiState (newState : AiStates option) =
         match newState.IsSome && newState.Value = state with
             | true ->
-                ()
+                None
             | false ->
                 match newState with
                     | Some AiStates.NormalState ->
+                        state <- newState.Value
                         normalStateStart()
-                        |> ignore
-                        state <- newState.Value
                     | Some AiStates.CombatState ->
+                        state <- newState.Value
                         combatStateStart()
-                        |> ignore
-                        state <- newState.Value
                     | Some AiStates.EscapeState ->
-                        escapeStateStart()
-                        |> ignore
                         state <- newState.Value
-                    | _ ->
-                        ()
+                        escapeStateStart()
+                    // | Some AiStates.FindWeaponState ->
+                        // state <- newState.Value
+                        // findWeaponStateStart()
+                    | None ->
+                        None
+        |> ignore
 
     // ** Is player within view range
     member this._on_DetectionArea_body_entered(body : Object) =
@@ -400,6 +436,23 @@ type CombatAi() as this =
             | None ->
                 ()
 
+    // **  Log items nearby
+    member this._on_ItemFindArea_body_entered(body : Object) =
+        match (body :? Items.Item) && ((body :? Items.Weapon) || (body :? Items.Magazine)) with
+            | false ->
+                ()
+            | true ->
+                weaponsNearby.Add(body :?> Items.Item)
+
+    member this._on_ItemFindArea_body_exited(body : Object) =
+        match (body :? Items.Item) && ((body :? Items.Weapon) || (body :? Items.Magazine)) with
+            | false ->
+                ()
+            | true ->
+                weaponsNearby.Remove (body :?> Items.Item)
+                |> ignore
+                ()
+
     // ** Update
     override this._PhysicsProcess(delta : float32) =
         physicsProcessAiState delta
@@ -411,7 +464,7 @@ type CombatAi() as this =
 
     override this._Ready() =
         // Give actor weapons and ammo
-        GD.Print ("NAME:", this.GetParent().Name)
-        this.AttachedActor.Inventory.[1] <- Some ((this.GetParent().GetNode(new NodePath "ItemAk47") :?> Items.Item))
-        this.AttachedActor.Inventory.[0] <- Some ((this.GetParent().GetNode(new NodePath "ItemRifleAmmo") :?> Items.Item))
+        //GD.Print ("NAME:", this.GetParent().Name)
+        //this.AttachedActor.Inventory.[1] <- Some ((this.GetParent().GetNode(new NodePath "ItemAk47") :?> Items.Item))
+        //this.AttachedActor.Inventory.[0] <- Some ((this.GetParent().GetNode(new NodePath "ItemRifleAmmo") :?> Items.Item))
         ()

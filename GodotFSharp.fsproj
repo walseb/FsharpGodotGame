@@ -74,6 +74,7 @@
 
     <!-- Items -->
     <Compile Include="src/Items/Items.fs" />
+    <Compile Include="src/Items/Helper.fs" />
 
     <!-- Actor -->
     <Compile Include="src/Actor/Actor.fs" />

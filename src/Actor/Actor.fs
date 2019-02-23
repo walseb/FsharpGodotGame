@@ -619,6 +619,7 @@ type ActorObject() as this =
         None
 
     let updateKeysHoldMove() =
+        selectItem() |> ignore
         match isMoveDirectionZero() with
             | true ->
                 Some HoldState
