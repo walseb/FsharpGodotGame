@@ -185,7 +185,7 @@ type CombatAi() as this =
                     | true ->
                         None
                     | false ->
-                        getEnemyIfVisable()
+                        Some getEnemyIfVisable()
 
     let enemyDirectViewLost () =
         let lastEnemyPos = enemyInDirectView.Value.GetGlobalTransform().origin
