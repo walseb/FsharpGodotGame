@@ -1,6 +1,7 @@
 /*
 /*/
 
+!LICENSE
 !GodotFSharp.fsproj
 !default_env.tres
 !.gitignore
